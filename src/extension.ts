@@ -35,7 +35,7 @@ function format(file: Uri, config: WorkspaceConfiguration) {
 }
 
 function getWorkspaceConfig() {
-  return workspace.getConfiguration('laravel-pint')
+  return workspace.getConfiguration('laravel-pint');
 }
 
 export function activate(context: ExtensionContext) {
@@ -55,11 +55,11 @@ export function activate(context: ExtensionContext) {
   }));
 
   context.subscriptions.push(workspace.onDidChangeConfiguration(() => {
-    config = getWorkspaceConfig()
-  }))
+    config = getWorkspaceConfig();
+  }));
 
   context.subscriptions.push(workspace.onWillSaveTextDocument((e) => {
-    const saveEnabled = config.get<boolean>('formatOnSave')
+    const saveEnabled = config.get<boolean>('formatOnSave');
     
     if (!saveEnabled || e.document.languageId !== 'php') {
       return;
