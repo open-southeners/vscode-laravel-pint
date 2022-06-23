@@ -8,4 +8,6 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [0.1.0] - 2022-06-23
 
+### Added
+
 - Initial release
