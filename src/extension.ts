@@ -21,6 +21,7 @@ function getActiveDocumentPath() {
 function format(file: Uri, config: WorkspaceConfiguration) {
   const workspaceRootPath = workspace.workspaceFolders?.[0].uri.fsPath;
   let executableFullPath = config.get<string>('executablePath');
+  let preset = config.get<string>('preset');
 
   if (executableFullPath && !path.isAbsolute(executableFullPath) && workspaceRootPath) {
     executableFullPath = path.posix.resolve(workspaceRootPath, executableFullPath);
@@ -32,7 +33,7 @@ function format(file: Uri, config: WorkspaceConfiguration) {
 
   outputChannel?.appendLine(`Formatting file "${workspace.asRelativePath(file.path)}"`);
   
-  const exec = spawn(executableFullPath, [workspace.asRelativePath(file.path), '--preset', 'laravel'], {
+  const exec = spawn(executableFullPath, [workspace.asRelativePath(file.path), '--preset', preset], {
     cwd: workspaceRootPath
   });
 }

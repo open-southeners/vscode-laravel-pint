@@ -52,7 +52,12 @@
           "type": "string",
           "default": "vendor/bin/pint",
           "description": "Path for the pint executable, e.g.: vendor/bin/pint or full path if installed globally with composer"
-        }
+        },
+		"laravel-pint.preset": {
+			"type": "string",
+			"default": "laravel",
+			"description": "The code style preset to use when formatting. Default: laravel"
+		}
       }
     }
 	},
