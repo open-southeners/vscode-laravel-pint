@@ -6,12 +6,17 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.2.1] - 2022-06-23
+
+### Changed
+
+- Added an hi-res version of the icon (#3, thanks @caneco)
+
 ## [0.2.0] - 2022-06-23
 
 ### Added
 
 - `preset`, `config` and `formatOnSave` settings ([check this for more info about presets configuration](https://github.com/laravel/pint/tree/main/resources/presets)
-- Added an hi-res version of the icon
 
 ### Fixed
 
