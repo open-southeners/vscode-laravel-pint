@@ -1,0 +1,80 @@
+{
+	"name": "laravel-pint",
+	"displayName": "Laravel Pint",
+	"version": "0.1.0",
+	"description": "Integrates Laravel Pint into your VSCode projects for automatic code formatting",
+	"publisher": "open-southeners",
+	"icon": "images/laravel-pint-logo-icon.png",
+	"categories": [
+		"Other"
+	],
+	"keywords": [
+		"php",
+		"code formatting",
+		"code styling",
+		"utilities",
+		"laravel",
+		"laravel pint"
+	],
+	"bugs": {
+		"url": "https://github.com/open-southeners/vscode-laravel-pint/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/open-southeners/vscode-laravel-pint.git"
+	},
+	"main": "./out/extension.js",
+	"scripts": {
+		"bundle": "yarn run vscode:prepublish && vsce package",
+		"compile": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
+		"deploy": "vsce publish --yarn",
+		"esbuild": "yarn run compile -- --sourcemap",
+		"lint": "eslint src --ext ts",
+		"lint:fix": "yarn run lint --fix",
+		"transpile": "tsc -p ./",
+		"pretest": "yarn run transpile && yarn run lint",
+		"test": "node ./out/test/runTest.js",
+		"vscode:prepublish": "yarn run compile -- --minify",
+		"watch": "yarn run compile -- --sourcemap --watch"
+	},
+	"contributes": {
+		"commands": [
+			{
+				"command": "laravel-pint.format",
+				"title": "Format document using Laravel Pint"
+			}
+		],
+    "configuration": {
+      "title": "Laravel Pint",
+      "type": "object",
+      "properties": {
+        "laravel-pint.executablePath": {
+          "type": "string",
+          "default": "vendor/bin/pint",
+          "description": "Path for the pint executable, e.g.: vendor/bin/pint or full path if installed globally with composer"
+        }
+      }
+    }
+	},
+	"activationEvents": [
+		"onLanguage:php"
+	],
+	"devDependencies": {
+		"@types/glob": "^7.2.0",
+		"@types/mocha": "^9.1.0",
+		"@types/node": "14.x",
+		"@types/vscode": "^1.68.0",
+		"@typescript-eslint/eslint-plugin": "^5.12.1",
+		"@typescript-eslint/parser": "^5.12.1",
+		"@vscode/test-electron": "^2.1.2",
+		"esbuild": "^0.14.47",
+		"eslint": "^8.9.0",
+		"glob": "^7.2.0",
+		"mocha": "^9.2.1",
+		"typescript": "^4.5.5",
+		"vsce": "^2.9.2"
+	},
+	"engines": {
+		"vscode": "^1.68.0"
+	}
+}

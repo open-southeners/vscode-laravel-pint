@@ -1,0 +1,8 @@
+vendor
+node_modules
+out
+coverage
+*.vsix
+.DS_Store
+.nyc_output
+.vscode-test

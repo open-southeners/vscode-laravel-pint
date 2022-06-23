@@ -1,0 +1,3 @@
+*.lock -diff
+*.min.js -diff
+*.min.css -diff
