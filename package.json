@@ -52,6 +52,21 @@
           "type": "string",
           "default": "vendor/bin/pint",
           "description": "Path for the pint executable, e.g.: vendor/bin/pint or full path if installed globally with composer"
+        },
+        "laravel-pint.configPath": {
+          "type": "string",
+          "description": "Path pointing to the config JSON file used for Laravel Pint (this replaces anything configured here)"
+        },
+        "laravel-pint.preset": {
+          "type": "string",
+          "enum": ["psr12", "laravel", "symfony"],
+          "default": "psr12",
+          "description": "Preset passed to the Laravel pint executable"
+        },
+        "laravel-pint.formatOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Trigger a format when the document is being saved"
         }
       }
     }

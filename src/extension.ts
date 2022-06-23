@@ -1,45 +1,46 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import { spawn } from 'child_process';
 import { existsSync } from 'fs';
 import path = require('path');
 import { commands, ExtensionContext, OutputChannel, Uri, window, workspace, WorkspaceConfiguration } from 'vscode';
+import { asAbsolutePathFromWorkspaceFolder, buildExecutableArgsFromConfig, canExecuteFile, getActiveDocumentPath, getWorkspaceRootPath } from './util';
 
-let saveWhenFormatted = false;
 let outputChannel: OutputChannel | null;
 
-function getActiveDocumentPath() {
-  const activeDocumentUri = window.activeTextEditor?.document.uri;
-
-  if (!activeDocumentUri) {
-    return undefined;
-  }
-
-  return activeDocumentUri;
-}
-
 function format(file: Uri, config: WorkspaceConfiguration) {
-  const workspaceRootPath = workspace.workspaceFolders?.[0].uri.fsPath;
   let executableFullPath = config.get<string>('executablePath');
 
-  if (executableFullPath && !path.isAbsolute(executableFullPath) && workspaceRootPath) {
-    executableFullPath = path.posix.resolve(workspaceRootPath, executableFullPath);
-  }
-  
-  if (!executableFullPath || !existsSync(executableFullPath)) {
-    return window.showErrorMessage('Executable not found for Laravel Pint.');
+  if (executableFullPath && !path.isAbsolute(executableFullPath)) {
+    executableFullPath = asAbsolutePathFromWorkspaceFolder(executableFullPath);
   }
 
-  outputChannel?.appendLine(`Formatting file "${workspace.asRelativePath(file.path)}"`);
+  if (!executableFullPath || !existsSync(executableFullPath)) {
+    outputChannel?.appendLine(`Executable not found, tried with "${executableFullPath}"...`);
+    return;
+  }
   
-  const exec = spawn(executableFullPath, [workspace.asRelativePath(file.path), '--preset', 'laravel'], {
-    cwd: workspaceRootPath
+  if (!canExecuteFile(executableFullPath)) {
+    return window.showErrorMessage('Executable not readable or lacks permissions for Laravel Pint.');
+  }
+
+  const execArgsArr = [
+    workspace.asRelativePath(file.path),
+    ...buildExecutableArgsFromConfig(config)
+  ];
+  
+  outputChannel?.appendLine(`Formatting file "${workspace.asRelativePath(file.path)}" using command "${executableFullPath} ${execArgsArr.join(' ')}"`);
+
+  const exec = spawn(executableFullPath, execArgsArr, {
+    cwd: getWorkspaceRootPath()
   });
 }
 
+function getWorkspaceConfig() {
+  return workspace.getConfiguration('laravel-pint')
+}
+
 export function activate(context: ExtensionContext) {
-  outputChannel = window.createOutputChannel("Laravel Pint");
-  const config = workspace.getConfiguration('laravel-pint');
+  outputChannel = window.createOutputChannel('Laravel Pint');
+  let config = getWorkspaceConfig();
 
   context.subscriptions.push(commands.registerCommand('laravel-pint.format', () => {
     if (window.activeTextEditor?.document.languageId !== 'php') {
@@ -53,16 +54,20 @@ export function activate(context: ExtensionContext) {
     }
   }));
 
+  context.subscriptions.push(workspace.onDidChangeConfiguration(() => {
+    config = getWorkspaceConfig()
+  }))
+
   context.subscriptions.push(workspace.onWillSaveTextDocument((e) => {
-    if (e.document.languageId !== 'php' || saveWhenFormatted === true) {
+    const saveEnabled = config.get<boolean>('formatOnSave')
+    
+    if (!saveEnabled || e.document.languageId !== 'php') {
       return;
     }
     
     const activeEditorFile = getActiveDocumentPath();
 
     if (activeEditorFile) {
-      outputChannel?.appendLine(JSON.stringify(activeEditorFile));
-
       format(activeEditorFile, config);
     }
   }));
