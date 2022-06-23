@@ -1,7 +1,7 @@
 {
 	"name": "laravel-pint",
 	"displayName": "Laravel Pint",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "Integrates Laravel Pint into your VSCode projects for automatic code formatting",
 	"publisher": "open-southeners",
 	"icon": "images/laravel-pint-logo-icon.png",
