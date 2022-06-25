@@ -59,8 +59,8 @@
         },
         "laravel-pint.preset": {
           "type": "string",
-          "enum": ["psr12", "laravel", "symfony"],
-          "default": "psr12",
+          "enum": ["laravel", "psr12", "symfony"],
+          "default": "laravel",
           "description": "Preset passed to the Laravel pint executable"
         },
         "laravel-pint.formatOnSave": {
