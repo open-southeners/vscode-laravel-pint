@@ -16,7 +16,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Added
 
-- `preset`, `config` and `formatOnSave` settings ([check this for more info about presets configuration](https://github.com/laravel/pint/tree/main/resources/presets)
+- `preset`, `config` and `formatOnSave` settings ([check this for more info about presets configuration](https://github.com/laravel/pint/tree/main/resources/presets))
 
 ### Fixed
 
