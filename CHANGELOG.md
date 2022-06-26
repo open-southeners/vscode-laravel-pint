@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.3.0] - 2022-06-26
+
+### Changed
+
+- Extension's default preset to be `laravel` as of v0.2.0 release of Laravel Pint (before was `psr-12`) (#8, thanks @zepfietje)
+
 ## [0.2.1] - 2022-06-23
 
 ### Changed
