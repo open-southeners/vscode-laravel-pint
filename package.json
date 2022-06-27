@@ -51,17 +51,17 @@
         "laravel-pint.executablePath": {
           "type": "string",
           "default": "vendor/bin/pint",
-          "description": "Path for the pint executable, e.g.: vendor/bin/pint or full path if installed globally with composer"
+          "description": "Path to the executable binary, e.g.: vendor/bin/pint or full path if installed globally with composer"
         },
         "laravel-pint.configPath": {
           "type": "string",
-          "description": "Path pointing to the config JSON file used for Laravel Pint (this replaces anything configured here)"
+          "description": "Path pointing to the config JSON file used for Laravel Pint. Leave empty for auto-recognize of `${workspaceFolder}/pint.json`."
         },
         "laravel-pint.preset": {
           "type": "string",
-          "enum": ["laravel", "psr12", "symfony"],
-          "default": "laravel",
-          "description": "Preset passed to the Laravel pint executable"
+          "enum": ["auto", "laravel", "psr12", "symfony"],
+          "default": "auto",
+          "description": "Preset passed to the executable. Leave auto for use the default preset of Laravel Pint."
         },
         "laravel-pint.formatOnSave": {
           "type": "boolean",

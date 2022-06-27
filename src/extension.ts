@@ -27,6 +27,7 @@ function format(file: Uri, config: WorkspaceConfiguration) {
     ...buildExecutableArgsFromConfig(config)
   ];
   
+  // Use this for debugging purposes...
   outputChannel?.appendLine(`Formatting file "${workspace.asRelativePath(file.path)}" using command "${executableFullPath} ${execArgsArr.join(' ')}"`);
 
   const exec = spawn(executableFullPath, execArgsArr, {
