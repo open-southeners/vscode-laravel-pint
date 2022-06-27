@@ -6,6 +6,16 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.4.0] - 2022-06-27
+
+### Added
+
+- Option `auto` for preset to leave it empty on the executable arguments.
+
+### Changed
+
+- `configPath` default behaviour (out of the box) to auto align and improve user experience and extension maintenance alignment with the official Laravel Pint.
+
 ## [0.3.0] - 2022-06-26
 
 ### Changed
