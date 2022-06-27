@@ -23,14 +23,14 @@ function commandWithLaravelSail(args: Array<string>, sailPath?: string) {
 }
 
 export async function buildCommandFromConfig(filePath: string, config: WorkspaceConfiguration) {
-  const usingLaravelSail = config.get<boolean>('usingLaravelSail');
+  const runInLaravelSail = config.get<boolean>('runInLaravelSail');
   const commandArgs = [
     filePath,
     ...await buildLaravelPintExecArgs(config)
   ];
   let sailExecutablePath = config.get<string>('sailExecutablePath') || path.posix.join(...DEFAULT_LARAVEL_SAIL_EXEC_PATH);
 
-  if (usingLaravelSail) {
+  if (runInLaravelSail) {
     return commandWithLaravelSail(commandArgs, sailExecutablePath);
   }
 
