@@ -41,7 +41,8 @@
 		"commands": [
 			{
 				"command": "laravel-pint.format",
-				"title": "Format document using Laravel Pint"
+				"title": "Format document using Laravel Pint",
+        "enablement": "editorLangId == php || resourceExtname == .php"
 			}
 		],
     "configuration": {
@@ -50,12 +51,11 @@
       "properties": {
         "laravel-pint.executablePath": {
           "type": "string",
-          "default": "vendor/bin/pint",
-          "description": "Path to the executable binary, e.g.: vendor/bin/pint or full path if installed globally with composer"
+          "description": "Path to the executable binary. Default: 'vendor/bin/pint'."
         },
         "laravel-pint.configPath": {
           "type": "string",
-          "description": "Path pointing to the config JSON file used for Laravel Pint. Leave empty for auto-recognize of `${workspaceFolder}/pint.json`."
+          "description": "Path pointing to the config JSON file used for Laravel Pint. Default: '${workspaceFolder}/pint.json'."
         },
         "laravel-pint.preset": {
           "type": "string",
@@ -66,13 +66,23 @@
         "laravel-pint.formatOnSave": {
           "type": "boolean",
           "default": true,
-          "description": "Trigger a format when the document is being saved"
+          "description": "Trigger a format when the document is being saved."
+        },
+        "laravel-pint.runInLaravelSail": {
+          "type": "boolean",
+          "default": false,
+          "description": "Run formatting through Docker using Laravel Sail you may want to enable this (will run in the PHP container). Enabling this will ignore'executablePath' setting."
+        },
+        "laravel-pint.sailExecutablePath": {
+          "type": "string",
+          "description": "Path to Laravel Sail executable. Default (if 'usingLaravelSail' is enabled): 'vendor/bin/sail'."
         }
       }
     }
 	},
 	"activationEvents": [
-		"onLanguage:php"
+		"onLanguage:php",
+    "onFileSystem:pint.json"
 	],
 	"devDependencies": {
 		"@types/glob": "^7.2.0",

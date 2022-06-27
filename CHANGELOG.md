@@ -6,6 +6,17 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.5.0] - 2022-06-27
+
+### Added
+
+- Laravel Sail compatibility, adding options `runInLaravelSail` (default: false) and `sailExecutablePath` (default: `vendor/bin/sail`).
+
+### Fixed
+
+- Make default settings all compatible with Windows paths.
+- Format command visible even when extension has not been activated.
+
 ## [0.4.0] - 2022-06-27
 
 ### Added

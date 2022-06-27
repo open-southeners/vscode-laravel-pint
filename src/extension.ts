@@ -1,36 +1,22 @@
 import { spawn } from 'child_process';
-import { existsSync } from 'fs';
-import path = require('path');
 import { commands, ExtensionContext, OutputChannel, Uri, window, workspace, WorkspaceConfiguration } from 'vscode';
-import { asAbsolutePathFromWorkspaceFolder, buildExecutableArgsFromConfig, canExecuteFile, getActiveDocumentPath, getWorkspaceRootPath } from './util';
+import { buildCommandFromConfig, getActiveDocumentPath, getWorkspaceRootPath } from './util';
 
 let outputChannel: OutputChannel | null;
 
-function format(file: Uri, config: WorkspaceConfiguration) {
-  let executableFullPath = config.get<string>('executablePath');
+async function format(file: Uri, config: WorkspaceConfiguration) {
+  const filePath = workspace.asRelativePath(file.path);
+  let command: string | undefined;
+  const commandParts = await buildCommandFromConfig(filePath, config);
 
-  if (executableFullPath && !path.isAbsolute(executableFullPath)) {
-    executableFullPath = asAbsolutePathFromWorkspaceFolder(executableFullPath);
-  }
-
-  if (!executableFullPath || !existsSync(executableFullPath)) {
-    outputChannel?.appendLine(`Executable not found, tried with "${executableFullPath}"...`);
+  if (commandParts === false || !(command = commandParts.shift())) {
     return;
   }
   
-  if (!canExecuteFile(executableFullPath)) {
-    return window.showErrorMessage('Executable not readable or lacks permissions for Laravel Pint.');
-  }
-
-  const execArgsArr = [
-    workspace.asRelativePath(file.path),
-    ...buildExecutableArgsFromConfig(config)
-  ];
-  
   // Use this for debugging purposes...
-  outputChannel?.appendLine(`Formatting file "${workspace.asRelativePath(file.path)}" using command "${executableFullPath} ${execArgsArr.join(' ')}"`);
+  outputChannel?.appendLine(`Formatting file "${filePath}" using command "${command} ${commandParts.join(' ')}"`);
 
-  const exec = spawn(executableFullPath, execArgsArr, {
+  const exec = spawn(command, commandParts, {
     cwd: getWorkspaceRootPath()
   });
 }
