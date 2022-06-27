@@ -36,8 +36,6 @@ export function asAbsolutePathFromWorkspaceFolder(value: string) {
 export function buildExecutableArgsFromConfig(config: WorkspaceConfiguration): Array<string> {
   const executableArgs: Record<string, string> = {};
   const configPath = config.get<string>('configPath');
-  
-  console.log(asAbsolutePathFromWorkspaceFolder(CONFIG_FILE_NAME))
 
   if (!configPath && existsSync(asAbsolutePathFromWorkspaceFolder(CONFIG_FILE_NAME))) {
     executableArgs['--config'] = workspace.asRelativePath(CONFIG_FILE_NAME);

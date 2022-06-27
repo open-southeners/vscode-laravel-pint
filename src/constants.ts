@@ -1,1 +1,1 @@
-export const CONFIG_FILE_NAME = 'pint.json'
+export const CONFIG_FILE_NAME = 'pint.json';
