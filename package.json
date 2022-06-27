@@ -71,11 +71,11 @@
         "laravel-pint.runInLaravelSail": {
           "type": "boolean",
           "default": false,
-          "description": "Run formatting through Docker using Laravel Sail you may want to enable this (will run in the PHP container). Enabling this will ignore'executablePath' setting."
+          "description": "Run formatting through Docker using Laravel Sail you may want to enable this (will run in the PHP container). Enabling this will ignore 'executablePath' setting."
         },
         "laravel-pint.sailExecutablePath": {
           "type": "string",
-          "description": "Path to Laravel Sail executable. Default (if 'usingLaravelSail' is enabled): 'vendor/bin/sail'."
+          "description": "Path to Laravel Sail executable. Default (if 'runInLaravelSail' is enabled): 'vendor/bin/sail'."
         }
       }
     }
