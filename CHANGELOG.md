@@ -6,6 +6,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.6.0] - 2022-06-28
+
 ### Added
 
 - `pint.json` JSON schema validator for validation and autocompletion.
