@@ -8,9 +8,19 @@ Integrates Laravel Pint into your VSCode projects for automatic code formatting.
 
 ## Getting started
 
-Just install and enable the extension, remember to configure the option `laravel-pint.executablePath` setting it as an absolute (if you installed it as a composer global dependency) or relative path (to your workspace). **For your convenience, this option defaults to your local workspace path (`vendor/bin/pint`)**.
+Just install and enable this extension, then run this in a terminal or console window at your project's path:
 
-Then save any file and it will auto-format it for you, or press `Ctrl+Shift+P` on Windows (`Cmd+Shift+P` on Mac OS) and type _"Format document using Laravel Pint"_ this will format the current active file.
+```sh
+composer require laravel/pint --dev
+```
+
+Then save any file and it will auto-format it for you, or press `Ctrl + Shift + P` on Windows/Linux (`Cmd + Shift + P` on Mac OS) and type _"Format document using Laravel Pint"_ this will format the current opened file.
+
+## Features
+
+- `pint.json` autocompletion and validation
+- Run Laravel Pint locally or in Docker (using [Laravel Sail](https://laravel.com/docs/9.x/sail)) when saving a PHP document
+- Provides a format document command to format opened PHP files
 
 ## License
 
