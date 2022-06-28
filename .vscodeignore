@@ -8,4 +8,6 @@ vsc-extension-quickstart.md
 **/.eslintrc.json
 **/*.map
 **/*.ts
+pint-schema.json
+scripts/**
 playground/**

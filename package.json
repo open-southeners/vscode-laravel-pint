@@ -42,47 +42,58 @@
 			{
 				"command": "laravel-pint.format",
 				"title": "Format document using Laravel Pint",
-        "enablement": "editorLangId == php || resourceExtname == .php"
+				"enablement": "editorLangId == php || resourceExtname == .php"
 			}
 		],
-    "configuration": {
-      "title": "Laravel Pint",
-      "type": "object",
-      "properties": {
-        "laravel-pint.executablePath": {
-          "type": "string",
-          "description": "Path to the executable binary. Default: 'vendor/bin/pint'."
-        },
-        "laravel-pint.configPath": {
-          "type": "string",
-          "description": "Path pointing to the config JSON file used for Laravel Pint. Default: '${workspaceFolder}/pint.json'."
-        },
-        "laravel-pint.preset": {
-          "type": "string",
-          "enum": ["auto", "laravel", "psr12", "symfony"],
-          "default": "auto",
-          "description": "Preset passed to the executable. Leave auto for use the default preset of Laravel Pint."
-        },
-        "laravel-pint.formatOnSave": {
-          "type": "boolean",
-          "default": true,
-          "description": "Trigger a format when the document is being saved."
-        },
-        "laravel-pint.runInLaravelSail": {
-          "type": "boolean",
-          "default": false,
-          "description": "Run formatting through Docker using Laravel Sail you may want to enable this (will run in the PHP container). Enabling this will ignore 'executablePath' setting."
-        },
-        "laravel-pint.sailExecutablePath": {
-          "type": "string",
-          "description": "Path to Laravel Sail executable. Default (if 'runInLaravelSail' is enabled): 'vendor/bin/sail'."
-        }
-      }
-    }
+		"configuration": {
+			"title": "Laravel Pint",
+			"type": "object",
+			"properties": {
+				"laravel-pint.executablePath": {
+					"type": "string",
+					"description": "Path to the executable binary. Default: 'vendor/bin/pint'."
+				},
+				"laravel-pint.configPath": {
+					"type": "string",
+					"description": "Path pointing to the config JSON file used for Laravel Pint. Default: '${workspaceFolder}/pint.json'."
+				},
+				"laravel-pint.preset": {
+					"type": "string",
+					"enum": [
+						"auto",
+						"laravel",
+						"psr12",
+						"symfony"
+					],
+					"default": "auto",
+					"description": "Preset passed to the executable. Leave auto for use the default preset of Laravel Pint."
+				},
+				"laravel-pint.formatOnSave": {
+					"type": "boolean",
+					"default": true,
+					"description": "Trigger a format when the document is being saved."
+				},
+				"laravel-pint.runInLaravelSail": {
+					"type": "boolean",
+					"default": false,
+					"description": "Run formatting through Docker using Laravel Sail you may want to enable this (will run in the PHP container). Enabling this will ignore 'executablePath' setting."
+				},
+				"laravel-pint.sailExecutablePath": {
+					"type": "string",
+					"description": "Path to Laravel Sail executable. Default (if 'runInLaravelSail' is enabled): 'vendor/bin/sail'."
+				}
+			}
+		},
+		"jsonValidation": [
+			{
+				"fileMatch": "pint.json",
+				"url": "https://raw.githubusercontent.com/open-southeners/vscode-laravel-pint/master/pint-schema.json"
+			}
+		]
 	},
 	"activationEvents": [
 		"onLanguage:php",
-    "onFileSystem:pint.json"
+		"onFileSystem:pint.json"
 	],
 	"devDependencies": {
 		"@types/glob": "^7.2.0",
@@ -101,5 +112,11 @@
 	},
 	"engines": {
 		"vscode": "^1.68.0"
+	},
+	"__metadata": {
+		"id": "6828d529-8cfe-4935-9607-fc07294f1cc0",
+		"publisherDisplayName": "Open Southeners",
+		"publisherId": "158876d3-17b8-41c8-9af0-204a740fc57d",
+		"isPreReleaseVersion": false
 	}
 }
