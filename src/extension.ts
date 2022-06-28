@@ -1,6 +1,7 @@
 import { spawn } from 'child_process';
 import { commands, ExtensionContext, OutputChannel, Uri, window, workspace, WorkspaceConfiguration } from 'vscode';
 import { buildCommandFromConfig, getActiveDocumentPath, getWorkspaceRootPath } from './util';
+const pkg = require('../package.json');
 
 let outputChannel: OutputChannel | null;
 
@@ -10,6 +11,8 @@ async function format(file: Uri, config: WorkspaceConfiguration) {
   const commandParts = await buildCommandFromConfig(filePath, config);
 
   if (commandParts === false || !(command = commandParts.shift())) {
+    outputChannel?.appendLine(`Something went wrong! Executable does not exists or lacks permissions. Please check before create an issue on ${pkg.bugs.url}`);
+
     return;
   }
   

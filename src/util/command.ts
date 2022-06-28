@@ -1,3 +1,4 @@
+import { existsSync } from "fs";
 import path = require("path");
 import { window, workspace, WorkspaceConfiguration } from "vscode";
 import { CONFIG_FILE_NAME, DEFAULT_EXEC_PATH, DEFAULT_LARAVEL_SAIL_EXEC_PATH } from "../constants";
@@ -14,7 +15,7 @@ function commandWithLaravelSail(args: Array<string>, sailPath?: string) {
   sailFullPath = asAbsolutePathFromWorkspaceFolder(sailFullPath);
 
   if (!canExecuteFile(sailFullPath)) {
-    window.showErrorMessage('Executable not readable or lacks permissions for Laravel Sail.');
+    existsSync(sailFullPath) && window.showErrorMessage('Executable not readable or lacks permissions for Laravel Sail.');
 
     return false;
   }
@@ -45,7 +46,7 @@ export async function buildCommandFromConfig(filePath: string, config: Workspace
   }
   
   if (!canExecuteFile(executableFullPath)) {
-    window.showErrorMessage('Executable not readable or lacks permissions for Laravel Pint.');
+    existsSync(executableFullPath) && window.showErrorMessage('Executable not readable or lacks permissions for Laravel Pint.');
 
     return false;
   }
