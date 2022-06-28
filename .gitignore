@@ -7,3 +7,5 @@ coverage
 .nyc_output
 .vscode-test
 playground/.vscode
+scripts/**
+!scripts/generate-rules-schema.mjs
