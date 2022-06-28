@@ -7,20 +7,35 @@
       "type": "string",
       "description": "Preset that applies a group of rules to the formatting.",
       "oneOf": [
-        {"enum": ["laravel", "symfony", "psr-12"]}
+        {
+          "enum": [
+            "laravel",
+            "symfony",
+            "psr-12"
+          ]
+        }
       ]
     },
     "exclude": {
       "type": "array",
-      "description": "List of folders to exclude."
+      "description": "List of folders to exclude.",
+      "items": {
+        "type": "string"
+      }
     },
     "notName": {
       "type": "array",
-      "description": "List of file name patterns to exclude."
+      "description": "List of file name patterns to exclude.",
+      "items": {
+        "type": "string"
+      }
     },
     "notPath": {
+      "type": "array",
       "description": "List of exact file paths to exclude.",
-      "type": "string"
+      "items": {
+        "type": "string"
+      }
     },
     "rules": {
       "type": "object",
