@@ -1132,7 +1132,7 @@
           "description": "Replace `strpos()` calls with `str_starts_with()` or `str_contains()` if possible."
         },
         "modernize_types_casting": {
-          "description": "Replaces `intval`, `floatval`, `doubleval`, `strval` and `booleanval` function calls with according type casting operator."
+          "description": "Replaces `intval`, `floatval`, `doubleval`, `strval` and `boolval` function calls with according type casting operator."
         },
         "multiline_comment_opening_closing": {
           "description": "DocBlocks must start with two asterisks, multiline comments must start with a single asterisk, after the opening slash. Both must end with a single asterisk before the closing slash."
@@ -1299,8 +1299,8 @@
         "no_php4_constructor": {
           "description": "Convert PHP4-style constructors to `__construct`."
         },
-        "no_short_boolean_cast": {
-          "description": "Short cast `boolean` using double exclamation mark should not be used."
+        "no_short_bool_cast": {
+          "description": "Short cast `bool` using double exclamation mark should not be used."
         },
         "no_singleline_whitespace_before_semicolons": {
           "description": "Single-line whitespace before closing semicolon are prohibited."
@@ -1423,8 +1423,8 @@
           "description": "Operators - when multiline - must always be at the beginning or at the end of the line.",
           "type": "object",
           "properties": {
-            "only_booleaneans": {
-              "description": "whether to limit operators to only booleanean ones",
+            "only_booleans": {
+              "description": "whether to limit operators to only boolean ones",
               "default": false,
               "type": "boolean"
             },
@@ -1814,7 +1814,7 @@
           "description": "The type of `@return` annotations of methods returning a reference to itself must the configured one."
         },
         "phpdoc_scalar": {
-          "description": "Scalar types should always be written in the same form. `int` not `integer`, `boolean` not `booleanean`, `float` not `real` or `double`."
+          "description": "Scalar types should always be written in the same form. `int` not `integer`, `bool` not `boolean`, `float` not `real` or `double`."
         },
         "phpdoc_separation": {
           "description": "Annotations in PHPDoc should be grouped together so that annotations of the same type immediately follow each other, and annotations of a different type are separated by a single blank line."
@@ -1923,13 +1923,13 @@
           "description": "Cast shall be used, not `settype`."
         },
         "short_scalar_cast": {
-          "description": "Cast `(booleanean)` and `(integer)` should be written as `(boolean)` and `(int)`, `(double)` and `(real)` as `(float)`, `(binary)` as `(string)`."
+          "description": "Cast `(boolean)` and `(integer)` should be written as `(bool)` and `(int)`, `(double)` and `(real)` as `(float)`, `(binary)` as `(string)`."
         },
         "simple_to_complex_string_variable": {
           "description": "Converts explicit variables in double-quoted strings and heredoc syntax from simple to complex format (`${` to `{$`)."
         },
         "simplified_if_return": {
-          "description": "Simplify `if` control structures that return the booleanean result of their condition."
+          "description": "Simplify `if` control structures that return the boolean result of their condition."
         },
         "simplified_null_return": {
           "description": "A return statement wishing to return `void` should not return `null`."
