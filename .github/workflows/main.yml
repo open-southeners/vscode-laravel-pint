@@ -33,10 +33,10 @@ jobs:
         if: success() && startsWith(github.ref, 'refs/tags/releases/') && matrix.os == 'ubuntu-latest'
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
-      # - uses: codecov/codecov-action@v2
-      #   if: success() && matrix.os == 'ubuntu-latest'
-      #   with:
-      #     token: ${{ secrets.CODECOV_TOKEN }}
-      #     files: ./coverage/clover.xml
-      #     fail_ci_if_error: true
-      #     verbose: true
+      - uses: codecov/codecov-action@v2
+        if: success() && matrix.os == 'ubuntu-latest'
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/clover.xml
+          fail_ci_if_error: true
+          verbose: true
