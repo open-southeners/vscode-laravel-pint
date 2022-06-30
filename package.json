@@ -1,7 +1,7 @@
 {
 	"name": "laravel-pint",
 	"displayName": "Laravel Pint",
-	"version": "0.6.1",
+	"version": "0.7.0",
 	"description": "Integrates Laravel Pint into your VSCode projects for automatic code formatting",
 	"publisher": "open-southeners",
 	"icon": "images/laravel-pint-logo-icon.png",
@@ -38,11 +38,27 @@
 		"watch": "yarn run compile -- --sourcemap --watch"
 	},
 	"contributes": {
+    "taskDefinitions": [
+      {
+				"type": "pint",
+				"properties": {
+					"path": {
+						"type": "string",
+						"description": "Path of file(s) to be formatted with pint."
+					}
+				}
+			}
+    ],
 		"commands": [
 			{
 				"command": "laravel-pint.format",
 				"title": "Format document using Laravel Pint",
 				"enablement": "editorLangId == php || resourceExtname == .php"
+			},
+			{
+				"command": "laravel-pint.formatProject",
+				"title": "Format workspace files using Laravel Pint",
+				"enablement": "editorLangId == php || resourceExtname == .php || resourceFilename == pint.json"
 			}
 		],
 		"configuration": {

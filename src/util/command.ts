@@ -1,7 +1,8 @@
 import { existsSync } from "fs";
 import path = require("path");
-import { window, workspace, WorkspaceConfiguration } from "vscode";
+import { window, workspace } from "vscode";
 import { CONFIG_FILE_NAME, DEFAULT_EXEC_PATH, DEFAULT_LARAVEL_SAIL_EXEC_PATH } from "../constants";
+import { getWorkspaceConfig } from "./misc";
 import { PresetOptions } from "../types";
 import { asAbsolutePathFromWorkspaceFolder, canExecuteFile, pathExistsInWorkspaceFs } from "./filesystem";
 
@@ -23,19 +24,23 @@ function commandWithLaravelSail(args: Array<string>, sailPath?: string) {
   return [sailPath as string, 'bin', 'pint', ...args];
 }
 
-export async function buildCommandFromConfig(filePath: string, config: WorkspaceConfiguration) {
-  const runInLaravelSail = config.get<boolean>('runInLaravelSail');
-  const commandArgs = [
-    filePath,
-    ...await buildLaravelPintExecArgs(config)
-  ];
-  let sailExecutablePath = config.get<string>('sailExecutablePath') || path.posix.join(...DEFAULT_LARAVEL_SAIL_EXEC_PATH);
+export async function buildCommandFromConfig(filePath?: undefined): Promise<Array<string>>
+export async function buildCommandFromConfig(filePath?: string): Promise<false | Array<string>>
+export async function buildCommandFromConfig(filePath?: string) {
+  const runInLaravelSail = getWorkspaceConfig<boolean>('runInLaravelSail');
+  let commandArgs = await buildLaravelPintExecArgs();
+
+  if (filePath) {
+    commandArgs.push(filePath);
+  }
+
+  let sailExecutablePath = getWorkspaceConfig<string>('sailExecutablePath', path.posix.join(...DEFAULT_LARAVEL_SAIL_EXEC_PATH));
 
   if (runInLaravelSail) {
     return commandWithLaravelSail(commandArgs, sailExecutablePath);
   }
 
-  let executableFullPath = config.get<string>('executablePath') || path.posix.join(...DEFAULT_EXEC_PATH);
+  let executableFullPath = getWorkspaceConfig<string>('executablePath', path.posix.join(...DEFAULT_EXEC_PATH));
 
   if (!pathExistsInWorkspaceFs(executableFullPath)) {
     return false;
@@ -57,9 +62,9 @@ export async function buildCommandFromConfig(filePath: string, config: Workspace
   ];
 }
 
-export async function buildLaravelPintExecArgs(config: WorkspaceConfiguration): Promise<Array<string>> {
+export async function buildLaravelPintExecArgs(): Promise<Array<string>> {
   const executableArgs: Record<string, string> = {};
-  const configPath = config.get<string>('configPath');
+  const configPath = getWorkspaceConfig<string>('configPath');
 
   if (!configPath && await pathExistsInWorkspaceFs(asAbsolutePathFromWorkspaceFolder(CONFIG_FILE_NAME))) {
     executableArgs['--config'] = workspace.asRelativePath(CONFIG_FILE_NAME);
@@ -67,7 +72,7 @@ export async function buildLaravelPintExecArgs(config: WorkspaceConfiguration): 
     executableArgs['--config'] = workspace.asRelativePath(configPath);
   }
 
-  const preset = config.get<PresetOptions>('preset'); 
+  const preset = getWorkspaceConfig<PresetOptions>('preset'); 
 
   if (preset && preset !== 'auto') {
     executableArgs['--preset'] = preset;

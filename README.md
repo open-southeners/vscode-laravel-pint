@@ -22,6 +22,8 @@ composer require laravel/pint --dev
 - `pint.json` autocompletion and validation
 - Run Laravel Pint locally or in Docker (using [Laravel Sail](https://laravel.com/docs/9.x/sail)) when saving a PHP document
 - Provides a format document command to format opened PHP files
+- Provides a format workspace files command to format all workspace folder PHP files
+- Format with Laravel Pint task
 
 ## License
 
