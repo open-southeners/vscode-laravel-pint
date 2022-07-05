@@ -42,8 +42,6 @@ export async function pathExistsInWorkspaceFs(maybeUri: string | Uri) {
   try {
     await workspace.fs.stat(pathToUri(maybeUri));
 
-    FilePermission;
-
     return true;
   } catch (e) {
     return false;

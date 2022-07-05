@@ -42,7 +42,7 @@ export async function buildCommandFromConfig(filePath?: string) {
 
   let executableFullPath = getWorkspaceConfig<string>('executablePath', path.posix.join(...DEFAULT_EXEC_PATH));
 
-  if (!pathExistsInWorkspaceFs(executableFullPath)) {
+  if (!await pathExistsInWorkspaceFs(executableFullPath)) {
     return false;
   }
   
