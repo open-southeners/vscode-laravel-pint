@@ -12,7 +12,7 @@
           "enum": [
             "laravel",
             "symfony",
-            "psr-12"
+            "psr12"
           ]
         }
       ]
