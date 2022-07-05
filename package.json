@@ -103,7 +103,7 @@
 		"jsonValidation": [
 			{
 				"fileMatch": "pint.json",
-				"url": "https://raw.githubusercontent.com/open-southeners/vscode-laravel-pint/main/pint-schema.json"
+				"url": "./pint-schema.json"
 			}
 		]
 	},
