@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.7.1] - 2022-07-05
+
+### Fixed
+
+- Fix psr12 preset on `pint.json` autocompletion (thanks @yaegassy)
+
 ## [0.7.0] - 2022-06-30
 
 ### Added
