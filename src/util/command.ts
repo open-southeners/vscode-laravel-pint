@@ -24,8 +24,8 @@ function commandWithLaravelSail(args: Array<string>, sailPath?: string) {
   return [sailPath as string, 'bin', 'pint', ...args];
 }
 
-export async function buildCommandFromConfig(filePath?: undefined): Promise<Array<string>>
-export async function buildCommandFromConfig(filePath?: string): Promise<false | Array<string>>
+export async function buildCommandFromConfig(filePath?: undefined): Promise<Array<string>>;
+export async function buildCommandFromConfig(filePath?: string): Promise<false | Array<string>>;
 export async function buildCommandFromConfig(filePath?: string) {
   const runInLaravelSail = getWorkspaceConfig<boolean>('runInLaravelSail');
   let commandArgs = await buildLaravelPintExecArgs();

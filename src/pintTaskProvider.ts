@@ -9,6 +9,7 @@ interface PintTaskDefinition extends TaskDefinition {
 }
 
 export class PintTaskProvider implements TaskProvider {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   static PintType = 'pint';
 
   provideTasks(): ProviderResult<Task[]> {
@@ -29,7 +30,7 @@ export class PintTaskProvider implements TaskProvider {
       task.execution = new ShellExecution(command, commandArgs);
 
       return resolve(task);
-    })
+    });
   }
 }
 

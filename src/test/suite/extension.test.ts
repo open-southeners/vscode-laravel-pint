@@ -22,7 +22,7 @@ suite('Extension Test Suite', () => {
     if (fs.existsSync(workspaceConfigFile)) {
       fs.rmSync(workspaceConfigFile);
     }
-  })
+  });
 
 	test('Default config settings', () => {
     const config = vscode.workspace.getConfiguration('laravel-pint');
@@ -43,7 +43,7 @@ suite('Extension Test Suite', () => {
 
     const cmd = await buildCommandFromConfig('index.php', config);
 
-    console.log(cmd)
+    console.log(cmd);
 
     assert.ok(cmd);
     assert.ok(cmd.filter(value => ['vendor/bin/pint', 'index.php', '--config', 'mypintconfig.json'].includes(value)).length > 1);

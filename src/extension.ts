@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import { commands, ExtensionContext, Task, tasks, TaskScope, Uri, window, workspace } from 'vscode';
+import { commands, ExtensionContext, tasks, Uri, window, workspace } from 'vscode';
 import { getFormatTasks, PintTaskProvider } from './pintTaskProvider';
 import { buildCommandFromConfig, getActiveDocumentPath, getOutputChannel, getWorkspaceConfig, getWorkspaceRootPath } from './util';
 const pkg = require('../package.json');
