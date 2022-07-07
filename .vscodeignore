@@ -11,3 +11,4 @@ vsc-extension-quickstart.md
 pint-schema.json
 scripts/**
 playground/**
+**/*.gif
