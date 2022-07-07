@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.7.2] - 2022-07-07
+
+### Fixed
+
+- Minor changes to code style and internal fixes
+
 ## [0.7.1] - 2022-07-05
 
 ### Fixed
