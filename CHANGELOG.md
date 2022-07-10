@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.7.3] - 2022-07-10
+
+### Fixed
+
+- Regression introduced in a3b67a5ef1cb4126d5605f062861c62deda3fbf5 (#15)
+
 ## [0.7.2] - 2022-07-07
 
 ### Fixed
