@@ -96,6 +96,9 @@
         "blank_line_before_statement": {
           "description": "An empty line feed must precede any configured statement."
         },
+        "blank_line_between_import_groups": {
+          "description": "Putting blank lines between `use` statement groups."
+        },
         "braces": {
           "description": "The body of each structure MUST be enclosed by braces. Braces should be properly placed. Body of braces should be properly indented.",
           "type": "object",
@@ -215,8 +218,87 @@
         "constant_case": {
           "description": "The PHP constants `true`, `false`, and `null` MUST be written using the correct casing."
         },
+        "control_structure_braces": {
+          "description": "The body of each control structure MUST be enclosed within braces."
+        },
         "control_structure_continuation_position": {
           "description": "Control structure continuation keyword must be on the configured line."
+        },
+        "curly_braces_position": {
+          "description": "Curly braces must be placed as configured.",
+          "type": "object",
+          "properties": {
+            "allow_single_line_anonymous_functions": {
+              "description": "allow anonymous functions to have opening and closing braces on the same line.",
+              "default": true,
+              "type": "boolean"
+            },
+            "allow_single_line_empty_anonymous_classes": {
+              "description": "allow anonymous classes to have opening and closing braces on the same line.",
+              "default": true,
+              "type": "boolean"
+            },
+            "anonymous_classes_opening_brace": {
+              "description": "the position of the opening brace of anonymous classes body.",
+              "default": "same_line",
+              "oneOf": [
+                {
+                  "enum": [
+                    "next_line_unless_newline_at_signature_end",
+                    "same_line"
+                  ]
+                }
+              ]
+            },
+            "anonymous_functions_opening_brace": {
+              "description": "the position of the opening brace of anonymous functions body.",
+              "default": "same_line",
+              "oneOf": [
+                {
+                  "enum": [
+                    "next_line_unless_newline_at_signature_end",
+                    "same_line"
+                  ]
+                }
+              ]
+            },
+            "classes_opening_brace": {
+              "description": "the position of the opening brace of classes body.",
+              "default": "next_line_unless_newline_at_signature_end",
+              "oneOf": [
+                {
+                  "enum": [
+                    "next_line_unless_newline_at_signature_end",
+                    "same_line"
+                  ]
+                }
+              ]
+            },
+            "control_structures_opening_brace": {
+              "description": "the position of the opening brace of control structures body.",
+              "default": "same_line",
+              "oneOf": [
+                {
+                  "enum": [
+                    "next_line_unless_newline_at_signature_end",
+                    "same_line"
+                  ]
+                }
+              ]
+            },
+            "functions_opening_brace": {
+              "description": "the position of the opening brace of functions body.",
+              "default": "next_line_unless_newline_at_signature_end",
+              "oneOf": [
+                {
+                  "enum": [
+                    "next_line_unless_newline_at_signature_end",
+                    "same_line"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "date_time_create_from_format_call": {
           "description": "The first argument of `DateTime::createFromFormat` method must start with `!`."
@@ -1386,6 +1468,9 @@
         "no_useless_else": {
           "description": "There should not be useless `else` cases."
         },
+        "no_useless_nullsafe_operator": {
+          "description": "There should not be useless `null-safe-operators` `?->` used."
+        },
         "no_useless_return": {
           "description": "There should not be an empty `return` statement at the end of a function."
         },
@@ -1976,6 +2061,9 @@
         "standardize_not_equals": {
           "description": "Replace all `<>` with `!=`."
         },
+        "statement_indentation": {
+          "description": "Each statement must be indented."
+        },
         "static_lambda": {
           "description": "Lambdas not (indirect) referencing `$this` must be declared `static`."
         },
@@ -2010,7 +2098,7 @@
           "description": "Use `null` coalescing operator `??` where possible. Requires PHP >= 7.0."
         },
         "trailing_comma_in_multiline": {
-          "description": "Multi-line arrays, arguments list and parameters list must have a trailing comma.",
+          "description": "Multi-line arrays, arguments list, parameters list and `match` expressions must have a trailing comma.",
           "type": "object",
           "properties": {
             "after_heredoc": {
@@ -2019,7 +2107,7 @@
               "type": "boolean"
             },
             "elements": {
-              "description": "Where to fix multiline trailing comma (PHP >= 7.3 required for `arguments`, PHP >= 8.0 for `parameters`).",
+              "description": "Where to fix multiline trailing comma (PHP >= 8.0 for `parameters` and `match`).",
               "default": [
                 "arrays"
               ],
@@ -2030,7 +2118,8 @@
                     [
                       "arrays",
                       "arguments",
-                      "parameters"
+                      "parameters",
+                      "match"
                     ]
                   ]
                 }
