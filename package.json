@@ -38,8 +38,8 @@
 		"watch": "yarn run compile -- --sourcemap --watch"
 	},
 	"contributes": {
-    "taskDefinitions": [
-      {
+		"taskDefinitions": [
+			{
 				"type": "pint",
 				"properties": {
 					"path": {
@@ -48,7 +48,7 @@
 					}
 				}
 			}
-    ],
+		],
 		"commands": [
 			{
 				"command": "laravel-pint.format",
@@ -135,5 +135,6 @@
 		"publisherDisplayName": "Open Southeners",
 		"publisherId": "158876d3-17b8-41c8-9af0-204a740fc57d",
 		"isPreReleaseVersion": false
-	}
+	},
+	"packageManager": "yarn@3.2.2"
 }
