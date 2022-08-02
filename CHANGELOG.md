@@ -6,6 +6,30 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.0.0-beta.1] - 2022-08-03
+
+### Fixed
+
+- Support to run Laravel Pint or Laravel Sails with PHP on Windows [#18]
+
+### Added
+
+- Support for multi-workspace environment
+- Spanish translation for extension settings
+- Extension category to _Formatters_ (now it works like a proper VS Code formatter) [#17]
+- More debugging messages (can be enabled by the setting option `laravel-pint.enableDebugLogs`)
+- Status bar that shows extension debug output on click (still work in progress...)
+- Security support for untrusted workspaces (limited functionality to just global)
+- Add fallback to global Laravel Pint command whenever local binary isn't found in any workspace (supporting both Windows & Linux/Mac OS), configurable by the setting `laravel-pint.fallbackToGlobalBin` [#20]
+
+### Changed
+
+- Major codebase refactor
+
+### Removed
+
+- VS Code task provider for workspace formatting (in favour of the same format project command **which now works with multiple workspaces**)
+
 ## [0.7.3] - 2022-07-10
 
 ### Fixed
