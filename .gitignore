@@ -9,3 +9,10 @@ coverage
 playground/.vscode
 scripts/**
 !scripts/generate-rules-schema.mjs
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
