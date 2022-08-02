@@ -1,3 +1,4 @@
+.github/**
 .vscode/**
 .vscode-test/**
 src/**
@@ -12,3 +13,5 @@ pint-schema.json
 scripts/**
 playground/**
 **/*.gif
+node_modules/**
+.yarn/**
