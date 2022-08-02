@@ -9,6 +9,8 @@
 		"Other"
 	],
 	"keywords": [
+		"multi-root ready",
+		"formatter",
 		"php",
 		"code formatting",
 		"code styling",
@@ -28,27 +30,16 @@
 		"bundle": "yarn run vscode:prepublish && vsce package",
 		"compile": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
 		"deploy": "vsce publish --yarn",
-		"esbuild": "yarn run compile -- --sourcemap",
+		"esbuild": "yarn run compile --sourcemap",
 		"lint": "eslint src --ext ts",
 		"lint:fix": "yarn run lint --fix",
 		"transpile": "tsc -p ./",
 		"pretest": "yarn run transpile && yarn run lint",
 		"test": "node ./out/test/runTest.js",
-		"vscode:prepublish": "yarn run compile -- --minify",
-		"watch": "yarn run compile -- --sourcemap --watch"
+		"vscode:prepublish": "yarn run compile --minify",
+		"watch": "yarn run compile --sourcemap --watch"
 	},
 	"contributes": {
-		"taskDefinitions": [
-			{
-				"type": "pint",
-				"properties": {
-					"path": {
-						"type": "string",
-						"description": "Path of file(s) to be formatted with pint."
-					}
-				}
-			}
-		],
 		"commands": [
 			{
 				"command": "laravel-pint.format",
@@ -57,21 +48,29 @@
 			},
 			{
 				"command": "laravel-pint.formatProject",
-				"title": "Format workspace files using Laravel Pint",
-				"enablement": "editorLangId == php || resourceExtname == .php || resourceFilename == pint.json"
+				"title": "Format workspace files using Laravel Pint"
 			}
 		],
 		"configuration": {
 			"title": "Laravel Pint",
 			"type": "object",
 			"properties": {
+				"laravel-pint.fallbackToGlobalBin": {
+					"type": "boolean",
+					"default": true,
+					"markdownDescription": "%ext.config.fallbackToGlobalBin%",
+					"scope": "resource"
+				},
 				"laravel-pint.executablePath": {
+					"isExecutable": true,
 					"type": "string",
-					"description": "Path to the executable binary. Default: 'vendor/bin/pint'."
+					"markdownDescription": "%ext.config.executablePath%",
+					"scope": "resource"
 				},
 				"laravel-pint.configPath": {
 					"type": "string",
-					"description": "Path pointing to the config JSON file used for Laravel Pint. Default: '${workspaceFolder}/pint.json'."
+					"markdownDescription": "%ext.config.configPath%",
+					"scope": "resource"
 				},
 				"laravel-pint.preset": {
 					"type": "string",
@@ -82,21 +81,32 @@
 						"symfony"
 					],
 					"default": "auto",
-					"description": "Preset passed to the executable. Leave auto for use the default preset of Laravel Pint."
+					"markdownDescription": "%ext.config.preset%",
+					"scope": "resource"
 				},
-				"laravel-pint.formatOnSave": {
+				"laravel-pint.enable": {
 					"type": "boolean",
 					"default": true,
-					"description": "Trigger a format when the document is being saved."
+					"markdownDescription": "%ext.config.enable%",
+					"scope": "resource"
+				},
+				"laravel-pint.enableDebugLogs": {
+					"type": "boolean",
+					"default": false,
+					"markdownDescription": "%ext.config.enableDebugLogs%",
+					"scope": "resource"
 				},
 				"laravel-pint.runInLaravelSail": {
 					"type": "boolean",
 					"default": false,
-					"description": "Run formatting through Docker using Laravel Sail you may want to enable this (will run in the PHP container). Enabling this will ignore 'executablePath' setting."
+					"markdownDescription": "%ext.config.runInLaravelSail%",
+					"scope": "resource"
 				},
 				"laravel-pint.sailExecutablePath": {
+					"isExecutable": true,
 					"type": "string",
-					"description": "Path to Laravel Sail executable. Default (if 'runInLaravelSail' is enabled): 'vendor/bin/sail'."
+					"markdownDescription": "%ext.config.sailExecutablePath%",
+					"scope": "resource"
 				}
 			}
 		},
@@ -109,9 +119,13 @@
 	},
 	"activationEvents": [
 		"onLanguage:php",
-		"onFileSystem:pint.json"
+		"onFileSystem:pint.json",
+		"workspaceContains:**/.pint.json",
+		"workspaceContains:**/vendor/bin/pint"
 	],
 	"devDependencies": {
+		"@types/command-exists": "^1.2.0",
+		"@types/fs-extra": "^9.0.13",
 		"@types/glob": "^7.2.0",
 		"@types/mocha": "^9.1.0",
 		"@types/node": "14.x",
@@ -119,9 +133,10 @@
 		"@typescript-eslint/eslint-plugin": "^5.12.1",
 		"@typescript-eslint/parser": "^5.12.1",
 		"@vscode/test-electron": "^2.1.2",
+		"command-exists": "^1.2.9",
 		"esbuild": "^0.14.47",
 		"eslint": "^8.9.0",
-		"glob": "^7.2.0",
+		"fs-extra": "^10.1.0",
 		"mocha": "^9.2.1",
 		"node-fetch": "^3.2.6",
 		"typescript": "^4.5.5",

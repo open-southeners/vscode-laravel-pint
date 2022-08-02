@@ -1,0 +1,10 @@
+{
+  "ext.config.enable": "Activar/desactivar [Laravel Pint](https://laravel.com/docs/9.x/pint) como formateador.",
+  "ext.config.enableDebugLogs": "Activar debug logs para encontrar fallos.",
+  "ext.config.preset": "Preset enviado al ejecutable. Auto usa el por defecto en Laravel Pint. [Read more](https://laravel.com/docs/9.x/pint#presets).",
+  "ext.config.configPath": "**Ruta relativa al workspace** que apunta hacia el archivo de configuración JSON usado por Laravel Pint. Por defecto: `pint.json`.",
+  "ext.config.executablePath": "**Ruta relativa al workspace** que apunta hacia el ejecutable usado como formateador. Por defecto: `vendor/bin/pint`.",
+  "ext.config.fallbackToGlobalBin": "Activar ejecutable global de Laravel Pint instalado usando `composer global` en caso de que no se encuentre ninguno en el projecto. Por defecto: `true`.",
+  "ext.config.runInLaravelSail": "Ejecutar formateo desde Docker usando [Laravel Sail](https://laravel.com/docs/master/sail). Esto ignorará el ajuste `#laravel-pint.executablePath#`.",
+  "ext.config.sailExecutablePath": "**Ruta relativa al workspace** hacia el ejecutable de Laravel Sail, únicamente usando si está activo `#laravel-pint.runInLaravelSail#`. Por defecto: `vendor/bin/sail`."
+}

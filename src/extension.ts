@@ -1,66 +1,52 @@
-import { spawn } from 'child_process';
-import { commands, ExtensionContext, tasks, Uri, window, workspace } from 'vscode';
-import { getFormatTasks, PintTaskProvider } from './pintTaskProvider';
-import { buildCommandFromConfig, getActiveDocumentPath, getOutputChannel, getWorkspaceConfig, getWorkspaceRootPath } from './util';
-const pkg = require('../package.json');
+import { commands, ExtensionContext, window } from 'vscode';
+import { formatCommand } from './commands';
+import { LoggingService } from './LoggingService';
+import { ModuleResolver } from './ModuleResolver';
+import PintEditService from './PintEditService';
+import { StatusBar } from './StatusBar';
+import { getWorkspaceConfig } from './util';
 
-async function format(file: Uri) {
-  const filePath = workspace.asRelativePath(file.path);
-  let command: string | undefined;
-  const commandParts = await buildCommandFromConfig(filePath);
+// the application insights key (also known as instrumentation key)
+const extensionName = process.env.EXTENSION_NAME || "dev.laravel-pint";
+const extensionVersion = process.env.EXTENSION_VERSION || "0.0.0";
 
-  if (commandParts === false || !(command = commandParts.shift())) {
-    getOutputChannel().appendLine(`Something went wrong! Executable does not exists or lacks permissions. Please check before create an issue on ${pkg.bugs.url}`);
+export async function activate(context: ExtensionContext) {
+  const loggingService = new LoggingService();
 
-    return;
+  if (getWorkspaceConfig('enableDebugLogs', true)) {
+    loggingService.setOutputLevel("DEBUG");
   }
-  
-  getOutputChannel().appendLine(
-    (filePath ? `Formatting file "${filePath}"` : 'Formatting workspace folder') + ` using command "${command} ${commandParts.join(' ')}"`
+
+  loggingService.logInfo(`Extension Name: ${extensionName}.`);
+  loggingService.logInfo(`Extension Version: ${extensionVersion}.`);
+
+  const moduleResolver = new ModuleResolver(loggingService);
+  const statusBar = new StatusBar();
+
+  const editService = new PintEditService(
+    moduleResolver,
+    loggingService,
+    statusBar
   );
 
-  // TODO: Output stdout, etc...?
-  const exec = spawn(command, commandParts, {
-    cwd: getWorkspaceRootPath()
-  });
+  // Extension commands
+  const openOutputCommand = commands.registerCommand(
+    "laravel-pint.openOutput",
+    () => {
+      loggingService.show();
+    }
+  );
+
+  const formatFileCommand = commands.registerCommand('laravel-pint.format', () => formatCommand(editService));
+  const formatProjectCommand = commands.registerCommand('laravel-pint.formatProject', editService.formatWorkspaces);
+
+  context.subscriptions.push(
+    editService,
+    openOutputCommand,
+    formatFileCommand,
+    formatProjectCommand,
+    ...editService.registerDisposables()
+  );
 }
 
-export function activate(context: ExtensionContext) {
-  context.subscriptions.push(commands.registerCommand('laravel-pint.format', () => {
-    if (window.activeTextEditor?.document.languageId !== 'php') {
-      return;
-    }
-
-    const activeEditorFile = getActiveDocumentPath();
-
-    if (activeEditorFile) {
-      format(activeEditorFile);
-    }
-  }));
-
-  context.subscriptions.push(commands.registerCommand('laravel-pint.formatProject', async () => {
-    const extensionTasks = await getFormatTasks();
-    
-    tasks.executeTask(extensionTasks[0]);
-  }));
-
-  context.subscriptions.push(tasks.registerTaskProvider(PintTaskProvider.PintType, new PintTaskProvider));
-
-  context.subscriptions.push(workspace.onWillSaveTextDocument((e) => {
-    const saveEnabled = getWorkspaceConfig<boolean>('formatOnSave');
-    
-    if (!saveEnabled || e.document.languageId !== 'php') {
-      return;
-    }
-    
-    const activeEditorFile = getActiveDocumentPath();
-
-    if (activeEditorFile) {
-      format(activeEditorFile);
-    }
-  }));
-}
-
-export function deactivate() {
-  getOutputChannel(true);
-}
+export function deactivate() {}

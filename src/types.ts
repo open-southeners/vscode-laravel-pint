@@ -1,1 +1,0 @@
-export type PresetOptions = 'auto' | 'laravel' | 'psr12' | 'symfony';

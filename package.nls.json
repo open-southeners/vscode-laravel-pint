@@ -1,0 +1,10 @@
+{
+  "ext.config.enable": "Enable/disable [Laravel Pint](https://laravel.com/docs/9.x/pint) formatter. Remember enable for auto-formatting `#editor.formatOnSave#`",
+  "ext.config.enableDebugLogs": "Enable debug logs for troubleshooting.",
+  "ext.config.preset": "Preset passed to the executable. Auto will use the default preset of Laravel Pint. [Read more](https://laravel.com/docs/9.x/pint#presets).",
+  "ext.config.configPath": "**Workspace-relative path** pointing to the config JSON file used for Laravel Pint. Default: `pint.json`.",
+  "ext.config.executablePath": "**Workspace-relative path** to the executable binary. Default: `vendor/bin/pint`.",
+  "ext.config.fallbackToGlobalBin": "Enable fallback to global composer Pint binary in case local wasn't found. Default: `true`.",
+  "ext.config.runInLaravelSail": "Run formatting through Docker using [Laravel Sail](https://laravel.com/docs/master/sail). This will ignore `#laravel-pint.executablePath#`.",
+  "ext.config.sailExecutablePath": "Path to Laravel Sail executable, only used if is enabled `#laravel-pint.runInLaravelSail#`. Default: `vendor/bin/sail`."
+}
