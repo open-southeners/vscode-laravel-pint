@@ -1,10 +1,10 @@
 import { Disposable, TextEditor, Uri, workspace, languages, RelativePattern, TextDocument, TextEdit, WorkspaceFolder, window } from "vscode";
 import { LoggingService } from "./LoggingService";
-import { SOMETHING_WENT_WRONG_FINDING_EXECUTABLE, SOMETHING_WENT_WRONG_FORMATTING } from "./message";
+import { RESTART_TO_ENABLE, SOMETHING_WENT_WRONG_FINDING_EXECUTABLE, SOMETHING_WENT_WRONG_FORMATTING } from "./message";
 import { ModuleResolver } from "./ModuleResolver";
 import { PintEditProvider } from "./PintEditProvider";
 import { FormatterStatus, StatusBar } from "./StatusBar";
-import { getWorkspaceConfig } from "./util";
+import { getWorkspaceConfig, onConfigChange } from "./util";
 const pkg = require('../package.json');
 
 export default class PintEditService implements Disposable {
@@ -18,14 +18,16 @@ export default class PintEditService implements Disposable {
     private statusBar: StatusBar
   ) { }
 
-  public registerDisposables(): Disposable[] { 
+  public registerDisposables(): Disposable[] {
+    const configurationWatcher = onConfigChange(this.loggingService);
+
     const textEditorChange = window.onDidChangeActiveTextEditor(
       this.handleActiveTextEditorChanged
     );
 
     this.handleActiveTextEditorChanged(window.activeTextEditor);
 
-    return [textEditorChange];
+    return [configurationWatcher, textEditorChange];
   }
   
   public dispose = () => {

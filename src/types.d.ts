@@ -12,7 +12,5 @@ export interface ExtensionConfig {
 }
 
 export interface ExtensionFormattingOptions {
-  rangeStart?: number;
-  rangeEnd?: number;
   force: boolean;
 }

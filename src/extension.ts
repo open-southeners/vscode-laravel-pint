@@ -1,10 +1,11 @@
-import { commands, ExtensionContext, window } from 'vscode';
+import { commands, ExtensionContext, MessageItem, window, workspace } from 'vscode';
 import { formatCommand } from './commands';
 import { LoggingService } from './LoggingService';
+import { RESTART_TO_ENABLE } from './message';
 import { ModuleResolver } from './ModuleResolver';
 import PintEditService from './PintEditService';
 import { StatusBar } from './StatusBar';
-import { getWorkspaceConfig } from './util';
+import { getWorkspaceConfig, onConfigChange } from './util';
 
 // the application insights key (also known as instrumentation key)
 const extensionName = process.env.EXTENSION_NAME || "dev.laravel-pint";
@@ -13,12 +14,18 @@ const extensionVersion = process.env.EXTENSION_VERSION || "0.0.0";
 export async function activate(context: ExtensionContext) {
   const loggingService = new LoggingService();
 
-  if (getWorkspaceConfig('enableDebugLogs', true)) {
+  loggingService.logInfo(`Extension Name: ${extensionName}.`);
+  loggingService.logInfo(`Extension Version: ${extensionVersion}.`);
+
+  if (getWorkspaceConfig('enableDebugLogs')) {
     loggingService.setOutputLevel("DEBUG");
   }
 
-  loggingService.logInfo(`Extension Name: ${extensionName}.`);
-  loggingService.logInfo(`Extension Version: ${extensionVersion}.`);
+  if (!getWorkspaceConfig('enable')) {
+    context.subscriptions.push(onConfigChange(loggingService));
+
+    return;
+  }
 
   const moduleResolver = new ModuleResolver(loggingService);
   const statusBar = new StatusBar();

@@ -1,19 +1,17 @@
 import { accessSync, constants } from "fs";
 import path = require("path");
-import { RelativePattern, workspace, WorkspaceFolder } from "vscode";
+import { commands, MessageItem, RelativePattern, window, workspace, WorkspaceFolder } from "vscode";
+import { LoggingService } from "./LoggingService";
+import { RESTART_TO_ENABLE } from "./message";
 import { ExtensionConfig } from "./types";
-import { StringKeyOf } from "type-fest"
 
 type GetFieldType<Obj, Path> = Path extends `${infer Left}.${string}`
   ? Left extends keyof Obj
-    ? Obj[Left]
-    : undefined
+  ? Obj[Left]
+  : undefined
   : Path extends keyof Obj
-    ? Obj[Path]
-    : undefined
-
-const t:  = "";
-
+  ? Obj[Path]
+  : undefined;
 
 export function getWorkspaceConfig<T = ExtensionConfig, K extends string = Extract<keyof T, string>, R = GetFieldType<T, K>>(key: keyof ExtensionConfig): T | undefined;
 export function getWorkspaceConfig<T = ExtensionConfig, K extends string = Extract<keyof T, string>, R = GetFieldType<T, K>>(key: keyof ExtensionConfig, defaultValue: R): R;
@@ -55,4 +53,21 @@ export async function resolvePathFromWorkspaces(pattern: string, relativeTo: Wor
   );
 
   return matchedPaths.map(foundUri => foundUri.fsPath);
+}
+
+export function onConfigChange(loggingService: LoggingService) {
+  return workspace.onDidChangeConfiguration(async (event) => {
+    if (event.affectsConfiguration("laravel-pint.enable")) {
+      loggingService.logWarning(RESTART_TO_ENABLE);
+  
+      const reload: MessageItem = { title: "Reload project" };
+      const cancel: MessageItem = { title: "Cancel", isCloseAffordance: true };
+  
+      const prompt = await window.showInformationMessage(RESTART_TO_ENABLE, reload, cancel);
+  
+      if (prompt === reload) {
+        commands.executeCommand('workbench.action.reloadWindow');
+      }
+    }
+  })
 }

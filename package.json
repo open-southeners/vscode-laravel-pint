@@ -6,7 +6,7 @@
 	"publisher": "open-southeners",
 	"icon": "images/laravel-pint-logo-icon.png",
 	"categories": [
-		"Other"
+		"Formatters"
 	],
 	"keywords": [
 		"multi-root ready",
@@ -24,6 +24,16 @@
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/open-southeners/vscode-laravel-pint.git"
+	},
+	"capabilities": {
+		"virtualWorkspaces": {
+			"supported": "limited",
+			"description": "Laravel Pint does not fully support some filesystem environments, except containers or WSL (Windows)"
+		},
+		"untrustedWorkspaces": {
+			"supported": "limited",
+			"description": "Laravel Pint will not run any code hosted on untrusted workspaces, although it can still fallback to global/user-defined binaries"
+		}
 	},
 	"main": "./out/extension.js",
 	"scripts": {
@@ -86,7 +96,7 @@
 				},
 				"laravel-pint.enable": {
 					"type": "boolean",
-					"default": true,
+					"default": false,
 					"markdownDescription": "%ext.config.enable%",
 					"scope": "resource"
 				},
@@ -118,10 +128,7 @@
 		]
 	},
 	"activationEvents": [
-		"onLanguage:php",
-		"onFileSystem:pint.json",
-		"workspaceContains:**/.pint.json",
-		"workspaceContains:**/vendor/bin/pint"
+		"onStartupFinished"
 	],
 	"devDependencies": {
 		"@types/command-exists": "^1.2.0",

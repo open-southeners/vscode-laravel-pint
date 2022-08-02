@@ -1,5 +1,6 @@
 import { StatusBarAlignment, StatusBarItem, ThemeColor, window } from "vscode";
 
+/* eslint-disable @typescript-eslint/naming-convention */
 export enum FormatterStatus {
   Ready = "check-all",
   Success = "check",
