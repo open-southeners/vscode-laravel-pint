@@ -6,7 +6,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
-## [1.0.0-beta.1] - 2022-08-03
+## [1.0.0] - 2022-08-03
 
 ### Fixed
 
