@@ -2,12 +2,18 @@ import { StatusBarAlignment, StatusBarItem, ThemeColor, window } from "vscode";
 
 /* eslint-disable @typescript-eslint/naming-convention */
 export enum FormatterStatus {
-  Ready = "check-all",
+  Ready = "plug",
   Success = "check",
   Ignore = "x",
   Warn = "warning",
   Error = "alert",
   Disabled = "circle-slash",
+}
+
+// TODO: Not there yet...
+interface StatusBarResultMeta {
+  fixes: number
+  fixTypes: Array<string>
 }
 
 export class StatusBar {
@@ -26,19 +32,48 @@ export class StatusBar {
     this.update(FormatterStatus.Ready);
     this.statusBarItem.show();
   }
-
-  public update(result: FormatterStatus): void {
+  
+  public update(result: FormatterStatus, meta?: StatusBarResultMeta): void {
     this.statusBarItem.text = `$(${result.toString()}) Laravel Pint`;
+    
+    if (result === FormatterStatus.Disabled) {
+      this.statusBarItem.backgroundColor = new ThemeColor(
+        "disabledForeground"
+      );
 
-    // Waiting for VS Code 1.53: https://github.com/microsoft/vscode/pull/116181
+      this.statusBarItem.tooltip = "Laravel Pint is disabled on this file";
+    }
+    
     if (result === FormatterStatus.Error) {
       this.statusBarItem.backgroundColor = new ThemeColor(
         "statusBarItem.errorBackground"
       );
-    } else {
+        
+      this.statusBarItem.tooltip = "Laravel Pint exited with an error (click here for more info)";
+    }
+    
+    if (result === FormatterStatus.Warn) {
       this.statusBarItem.backgroundColor = new ThemeColor(
-        "statusBarItem.fourgroundBackground"
+        "statusBarItem.warningBackground"
       );
+        
+      this.statusBarItem.tooltip = "Laravel Pint exited with an error (click here for more info)";
+    }
+      
+    if (result === FormatterStatus.Ready) {
+      this.statusBarItem.backgroundColor = new ThemeColor(
+        "statusBarItem.background"
+      );
+      
+      this.statusBarItem.tooltip = "Laravel Pint is ready to run on this file";
+    }
+
+    if (result === FormatterStatus.Success) {
+      this.statusBarItem.backgroundColor = new ThemeColor(
+        "statusBarItem.activeBackground"
+      );
+
+      this.statusBarItem.tooltip = "Laravel Pint ran successfully fixing this file";
     }
     
     this.statusBarItem.show();
