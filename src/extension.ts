@@ -1,4 +1,4 @@
-import { commands, ExtensionContext } from 'vscode';
+import { commands, ExtensionContext, workspace } from 'vscode';
 import { formatCommand } from './commands';
 import { LoggingService } from './LoggingService';
 import { ModuleResolver } from './ModuleResolver';
@@ -12,6 +12,13 @@ export async function activate(context: ExtensionContext) {
 
   loggingService.logInfo(`Extension Name: ${pkg.publisher}.${pkg.name}.`);
   loggingService.logInfo(`Extension Version: ${pkg.version}.`);
+
+  if (!context.workspaceState.get<boolean>('laravel-pint.extensionFirstInstall')) {
+    workspace.getConfiguration('laravel-pint', { languageId: "php" }).update('enable', true);
+    workspace.getConfiguration('editor', { languageId: "php" }).update('formatOnSave', true);
+    
+    context.workspaceState.update('laravel-pint.extensionFirstInstall', true);
+  }
 
   if (getWorkspaceConfig('enableDebugLogs')) {
     loggingService.setOutputLevel("DEBUG");

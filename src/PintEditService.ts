@@ -188,12 +188,12 @@ export default class PintEditService implements Disposable {
       return false;
     }
     
+    // TODO: Output stdout, etc...?
+    command.run(workspaceFolder?.uri.fsPath);
+    
     this.loggingService.logDebug(
       `Formatting using command "${command.toString()} ${file.fsPath}"`
     );
-
-    // TODO: Output stdout, etc...?
-    command.run(workspaceFolder?.uri.fsPath);
 
     this.statusBar.update(FormatterStatus.Success);
 

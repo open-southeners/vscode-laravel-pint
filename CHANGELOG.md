@@ -6,6 +6,18 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.0.1] - 2022-08-03
+
+### Fixed
+
+- Hide status bar with others document languages
+- Show disabled status bar with active files that are excluded by Laravel Pint
+- Fix command execution on Windows wasn't made properly
+
+### Added
+
+- Some output messages
+
 ## [1.0.0] - 2022-08-03
 
 ### Fixed
