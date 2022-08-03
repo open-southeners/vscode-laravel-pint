@@ -16,6 +16,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Added
 
+- First extension enable pre-setting workspace language-scoped (PHP) config: `editor.formatOnSave` and `laravel-pint.enable`
 - Some output messages
 
 ## [1.0.0] - 2022-08-03
