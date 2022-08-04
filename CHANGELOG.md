@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.0.2] - 2022-08-04
+
+### Fixed
+
+- Order of command arguments on PHP when running in Windows (thanks @serdartaylan) [#18]
+
 ## [1.0.1] - 2022-08-03
 
 ### Fixed
