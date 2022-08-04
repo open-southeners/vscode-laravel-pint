@@ -1,162 +1,163 @@
 {
-	"name": "laravel-pint",
-	"displayName": "Laravel Pint",
-	"version": "1.0.2",
-	"description": "Integrates Laravel Pint into your VSCode projects for automatic code formatting",
-	"publisher": "open-southeners",
-	"icon": "images/laravel-pint-logo-icon.png",
-	"categories": [
-		"Formatters"
-	],
-	"keywords": [
-		"multi-root ready",
-		"formatter",
-		"php",
-		"code formatting",
-		"code styling",
-		"utilities",
-		"laravel",
-		"laravel pint"
-	],
-	"bugs": {
-		"url": "https://github.com/open-southeners/vscode-laravel-pint/issues"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/open-southeners/vscode-laravel-pint.git"
-	},
-	"capabilities": {
-		"virtualWorkspaces": {
-			"supported": "limited",
-			"description": "Laravel Pint does not fully support some filesystem environments, except containers or WSL (Windows)"
-		},
-		"untrustedWorkspaces": {
-			"supported": "limited",
-			"description": "Laravel Pint will not run any code hosted on untrusted workspaces, although it can still fallback to global/user-defined binaries"
-		}
-	},
-	"main": "./out/extension.js",
-	"scripts": {
-		"bundle": "yarn run vscode:prepublish && vsce package",
-		"compile": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
-		"deploy": "vsce publish --yarn",
-		"esbuild": "yarn run compile --sourcemap",
-		"lint": "eslint src --ext ts",
-		"lint:fix": "yarn run lint --fix",
-		"transpile": "tsc -p ./",
-		"pretest": "yarn run transpile && yarn run lint",
-		"test": "node ./out/test/runTest.js",
-		"vscode:prepublish": "yarn run compile --minify",
-		"watch": "yarn run compile --sourcemap --watch"
-	},
-	"contributes": {
-		"commands": [
-			{
-				"command": "laravel-pint.format",
-				"title": "Format document using Laravel Pint",
-				"enablement": "editorLangId == php || resourceExtname == .php"
-			},
-			{
-				"command": "laravel-pint.formatProject",
-				"title": "Format workspace files using Laravel Pint"
-			}
-		],
-		"configuration": {
-			"title": "Laravel Pint",
-			"type": "object",
-			"properties": {
-				"laravel-pint.fallbackToGlobalBin": {
-					"type": "boolean",
-					"default": true,
-					"markdownDescription": "%ext.config.fallbackToGlobalBin%",
-					"scope": "resource"
-				},
-				"laravel-pint.executablePath": {
-					"isExecutable": true,
-					"type": "string",
-					"markdownDescription": "%ext.config.executablePath%",
-					"scope": "resource"
-				},
-				"laravel-pint.configPath": {
-					"type": "string",
-					"markdownDescription": "%ext.config.configPath%",
-					"scope": "resource"
-				},
-				"laravel-pint.preset": {
-					"type": "string",
-					"enum": [
-						"auto",
-						"laravel",
-						"psr12",
-						"symfony"
-					],
-					"default": "auto",
-					"markdownDescription": "%ext.config.preset%",
-					"scope": "resource"
-				},
-				"laravel-pint.enable": {
-					"type": "boolean",
-					"default": false,
-					"markdownDescription": "%ext.config.enable%",
-					"scope": "resource"
-				},
-				"laravel-pint.enableDebugLogs": {
-					"type": "boolean",
-					"default": false,
-					"markdownDescription": "%ext.config.enableDebugLogs%",
-					"scope": "resource"
-				},
-				"laravel-pint.runInLaravelSail": {
-					"type": "boolean",
-					"default": false,
-					"markdownDescription": "%ext.config.runInLaravelSail%",
-					"scope": "resource"
-				},
-				"laravel-pint.sailExecutablePath": {
-					"isExecutable": true,
-					"type": "string",
-					"markdownDescription": "%ext.config.sailExecutablePath%",
-					"scope": "resource"
-				}
-			}
-		},
-		"jsonValidation": [
-			{
-				"fileMatch": "pint.json",
-				"url": "https://raw.githubusercontent.com/open-southeners/vscode-laravel-pint/main/pint-schema.json"
-			}
-		]
-	},
-	"activationEvents": [
-		"onStartupFinished"
-	],
-	"devDependencies": {
-		"@types/command-exists": "^1.2.0",
-		"@types/fs-extra": "^9.0.13",
-		"@types/glob": "^7.2.0",
-		"@types/mocha": "^9.1.0",
-		"@types/node": "14.x",
-		"@types/vscode": "^1.68.0",
-		"@typescript-eslint/eslint-plugin": "^5.12.1",
-		"@typescript-eslint/parser": "^5.12.1",
-		"@vscode/test-electron": "^2.1.2",
-		"command-exists": "^1.2.9",
-		"esbuild": "^0.14.47",
-		"eslint": "^8.9.0",
-		"fs-extra": "^10.1.0",
-		"mocha": "^9.2.1",
-		"node-fetch": "^3.2.6",
-		"typescript": "^4.5.5",
-		"vsce": "^2.10.0"
-	},
-	"engines": {
-		"vscode": "^1.68.0"
-	},
-	"__metadata": {
-		"id": "6828d529-8cfe-4935-9607-fc07294f1cc0",
-		"publisherDisplayName": "Open Southeners",
-		"publisherId": "158876d3-17b8-41c8-9af0-204a740fc57d",
-		"isPreReleaseVersion": false
-	},
-	"packageManager": "yarn@3.2.2"
+  "name": "laravel-pint",
+  "displayName": "Laravel Pint",
+  "version": "1.0.2",
+  "description": "Integrates Laravel Pint into your VSCode projects for automatic code formatting",
+  "publisher": "open-southeners",
+  "icon": "images/laravel-pint-logo-icon.png",
+  "categories": [
+    "Formatters"
+  ],
+  "keywords": [
+    "multi-root ready",
+    "formatter",
+    "php",
+    "code formatting",
+    "code styling",
+    "utilities",
+    "laravel",
+    "laravel pint"
+  ],
+  "qna": "https://github.com/open-southeners/vscode-laravel-pint/discussions",
+  "bugs": {
+    "url": "https://github.com/open-southeners/vscode-laravel-pint/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/open-southeners/vscode-laravel-pint.git"
+  },
+  "capabilities": {
+    "virtualWorkspaces": {
+      "supported": "limited",
+      "description": "Laravel Pint does not fully support some filesystem environments, except containers or WSL (Windows)"
+    },
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "Laravel Pint will not run any code hosted on untrusted workspaces, although it can still fallback to global/user-defined binaries"
+    }
+  },
+  "main": "./out/extension.js",
+  "scripts": {
+    "bundle": "yarn run vscode:prepublish && vsce package",
+    "compile": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
+    "deploy": "vsce publish --yarn",
+    "esbuild": "yarn run compile --sourcemap",
+    "lint": "eslint src --ext ts",
+    "lint:fix": "yarn run lint --fix",
+    "transpile": "tsc -p ./",
+    "pretest": "yarn run transpile && yarn run lint",
+    "test": "node ./out/test/runTest.js",
+    "vscode:prepublish": "yarn run compile --minify",
+    "watch": "yarn run compile --sourcemap --watch"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "laravel-pint.format",
+        "title": "Format document using Laravel Pint",
+        "enablement": "editorLangId == php || resourceExtname == .php"
+      },
+      {
+        "command": "laravel-pint.formatProject",
+        "title": "Format workspace files using Laravel Pint"
+      }
+    ],
+    "configuration": {
+      "title": "Laravel Pint",
+      "type": "object",
+      "properties": {
+        "laravel-pint.fallbackToGlobalBin": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "%ext.config.fallbackToGlobalBin%",
+          "scope": "resource"
+        },
+        "laravel-pint.executablePath": {
+          "isExecutable": true,
+          "type": "string",
+          "markdownDescription": "%ext.config.executablePath%",
+          "scope": "resource"
+        },
+        "laravel-pint.configPath": {
+          "type": "string",
+          "markdownDescription": "%ext.config.configPath%",
+          "scope": "resource"
+        },
+        "laravel-pint.preset": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "laravel",
+            "psr12",
+            "symfony"
+          ],
+          "default": "auto",
+          "markdownDescription": "%ext.config.preset%",
+          "scope": "resource"
+        },
+        "laravel-pint.enable": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "%ext.config.enable%",
+          "scope": "resource"
+        },
+        "laravel-pint.enableDebugLogs": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "%ext.config.enableDebugLogs%",
+          "scope": "resource"
+        },
+        "laravel-pint.runInLaravelSail": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "%ext.config.runInLaravelSail%",
+          "scope": "resource"
+        },
+        "laravel-pint.sailExecutablePath": {
+          "isExecutable": true,
+          "type": "string",
+          "markdownDescription": "%ext.config.sailExecutablePath%",
+          "scope": "resource"
+        }
+      }
+    },
+    "jsonValidation": [
+      {
+        "fileMatch": "pint.json",
+        "url": "https://raw.githubusercontent.com/open-southeners/vscode-laravel-pint/main/pint-schema.json"
+      }
+    ]
+  },
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "devDependencies": {
+    "@types/command-exists": "^1.2.0",
+    "@types/fs-extra": "^9.0.13",
+    "@types/glob": "^7.2.0",
+    "@types/mocha": "^9.1.0",
+    "@types/node": "14.x",
+    "@types/vscode": "^1.68.0",
+    "@typescript-eslint/eslint-plugin": "^5.12.1",
+    "@typescript-eslint/parser": "^5.12.1",
+    "@vscode/test-electron": "^2.1.2",
+    "command-exists": "^1.2.9",
+    "esbuild": "^0.14.47",
+    "eslint": "^8.9.0",
+    "fs-extra": "^10.1.0",
+    "mocha": "^9.2.1",
+    "node-fetch": "^3.2.6",
+    "typescript": "^4.5.5",
+    "vsce": "^2.10.0"
+  },
+  "engines": {
+    "vscode": "^1.68.0"
+  },
+  "__metadata": {
+    "id": "6828d529-8cfe-4935-9607-fc07294f1cc0",
+    "publisherDisplayName": "Open Southeners",
+    "publisherId": "158876d3-17b8-41c8-9af0-204a740fc57d",
+    "isPreReleaseVersion": false
+  },
+  "packageManager": "yarn@3.2.2"
 }
