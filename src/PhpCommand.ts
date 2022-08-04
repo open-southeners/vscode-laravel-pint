@@ -6,7 +6,7 @@ export default class PhpCommand {
 
   run(cwd?: string) {
     if (platform() === "win32") {
-      this.args.push(this.cmd);
+      this.args = [this.cmd].concat(this.args);
 
       // TODO: Fail when no PHP command, check with command-exists package
       this.cmd = 'php';
