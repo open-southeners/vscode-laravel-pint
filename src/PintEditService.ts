@@ -1,7 +1,7 @@
 import { readFile } from "fs-extra";
 import { Disposable, TextEditor, Uri, workspace, languages, RelativePattern, TextDocument, TextEdit, WorkspaceFolder, window, FileSystemWatcher } from "vscode";
 import { LoggingService } from "./LoggingService";
-import { SOMETHING_WENT_WRONG_FINDING_EXECUTABLE } from "./message";
+import { ENABLING_PINT_FOR_WORKSPACE, SOMETHING_WENT_WRONG_FINDING_EXECUTABLE, UPDATING_EXTENSION_EXCLUDE_PATTERNS } from "./message";
 import { ModuleResolver } from "./ModuleResolver";
 import { PintEditProvider } from "./PintEditProvider";
 import { FormatterStatus, StatusBar } from "./StatusBar";
@@ -53,7 +53,7 @@ export default class PintEditService implements Disposable {
 
     return [configurationWatcher, textEditorChange];
   }
-  
+
   public dispose = () => {
     this.formatterHandler?.dispose();
     this.rangeFormatterHandler?.dispose();
@@ -65,7 +65,7 @@ export default class PintEditService implements Disposable {
 
   private async registerDocumentFormatEditorProviders(workspaceFolder: WorkspaceFolder) {
     this.dispose();
-    
+
     const editProvider = new PintEditProvider(this.provideEdits);
 
     this.formatterHandler = languages.registerDocumentFormattingEditProvider(
@@ -75,7 +75,7 @@ export default class PintEditService implements Disposable {
 
     const pintConfigWorkspaceRelativePattern = new RelativePattern(workspaceFolder, 'pint.json');
     this.pintConfigWatcher = workspace.createFileSystemWatcher(pintConfigWorkspaceRelativePattern);
-    
+
     // We need to watch & run this function after watcher added
     let pintConfigChanged;
 
@@ -85,9 +85,9 @@ export default class PintEditService implements Disposable {
       if ('exclude' in pintJson && typeof pintJson.exclude === "object") {
         this.excludedPaths = this.excludedPaths.concat(pintJson.exclude);
 
-        this.loggingService.logDebug('Pint JSON config file got updated with new excludes, updating the extension ones...', this.excludedPaths);
+        this.loggingService.logDebug(UPDATING_EXTENSION_EXCLUDE_PATTERNS, this.excludedPaths);
       }
-    })
+    });
 
     const workspacePintConfigFilesFound = await workspace.findFiles(pintConfigWorkspaceRelativePattern);
 
@@ -129,16 +129,14 @@ export default class PintEditService implements Disposable {
 
     if (!isRegistered) {
       await this.registerDocumentFormatEditorProviders(workspaceFolder);
-      
+
       this.registeredWorkspaces.add(workspaceFolder.uri.fsPath);
 
-      this.loggingService.logDebug(
-        `Enabling Laravel Pint for workspace ${workspaceFolder.uri.fsPath}`
-      );
+      this.loggingService.logDebug(ENABLING_PINT_FOR_WORKSPACE, { workspace: workspaceFolder.uri.fsPath });
     }
 
     const matchedDocumentLanguage = languages.match({ language: "php" }, document);
-    const documentExcluded = this.isDocumentExcluded(document)
+    const documentExcluded = this.isDocumentExcluded(document);
 
     if (matchedDocumentLanguage > 0 && !documentExcluded) {
       this.statusBar.update(FormatterStatus.Ready);
@@ -150,7 +148,7 @@ export default class PintEditService implements Disposable {
   private isDocumentExcluded(documentOrUri: TextDocument | Uri) {
     const documentPath = 'uri' in documentOrUri ? documentOrUri.uri.fsPath : documentOrUri.fsPath;
 
-    return this.excludedPaths.filter(excludedPath => 
+    return this.excludedPaths.filter(excludedPath =>
       documentPath.endsWith(excludedPath) || documentPath.split('/').slice(0, -1).join('/').includes(excludedPath)
     ).length > 0;
   }
@@ -187,10 +185,10 @@ export default class PintEditService implements Disposable {
 
       return false;
     }
-    
+
     // TODO: Output stdout, etc...?
     command.run(workspaceFolder?.uri.fsPath);
-    
+
     this.loggingService.logDebug(
       `Formatting using command "${command.toString()} ${file.fsPath}"`
     );
@@ -202,7 +200,7 @@ export default class PintEditService implements Disposable {
 
   private provideEdits = async (document: TextDocument): Promise<TextEdit[]> => {
     const startTime = new Date().getTime();
-    
+
     const result = await this.formatFile(document.uri);
 
     if (!result) {
@@ -212,7 +210,7 @@ export default class PintEditService implements Disposable {
     const duration = new Date().getTime() - startTime;
 
     this.loggingService.logInfo(`Formatting completed in ${duration}ms.`);
-    
+
     return [];
   };
 }

@@ -3,19 +3,19 @@ import path = require("path");
 import { workspace, WorkspaceFolder } from "vscode";
 import { CONFIG_FILE_NAME, DEFAULT_EXEC_PATH, DEFAULT_LARAVEL_SAIL_EXEC_PATH } from "./constants";
 import { LoggingService } from "./LoggingService";
-import { PINT_CANNOT_BE_EXECUTED, SAIL_CANNOT_BE_EXECUTED, UNTRUSTED_WORKSPACE_ERROR, UNTRUSTED_WORKSPACE_USING_GLOBAL_PINT } from "./message";
+import { CONFIG_PATHS_FOUND_FOR_WORKSPACE, NO_CONFIG_FOUND_FOR_WORKSPACE, PINT_CANNOT_BE_EXECUTED, SAIL_CANNOT_BE_EXECUTED, UNTRUSTED_WORKSPACE_ERROR, UNTRUSTED_WORKSPACE_USING_GLOBAL_PINT } from "./message";
 import PhpCommand from "./PhpCommand";
 import { canExecuteFile, getWorkspaceConfig, resolvePathFromWorkspaces } from "./util";
 
 export class ModuleResolver {
-  constructor(private loggingService: LoggingService) {}
+  constructor(private loggingService: LoggingService) { }
 
   public async getGlobalPintCommand(): Promise<PhpCommand> {
     const globalPintPath = await commandExists('pint');
 
     return new PhpCommand(globalPintPath, []);
   }
-  
+
   public async getPintCommand(workspaceFolder: WorkspaceFolder): Promise<PhpCommand | undefined> {
     if (!workspace.isTrusted) {
       this.loggingService.logDebug(UNTRUSTED_WORKSPACE_USING_GLOBAL_PINT);
@@ -89,11 +89,15 @@ export class ModuleResolver {
 
     const matchedPaths = await resolvePathFromWorkspaces(configPath, workspaceFolder);
 
-    if (matchedPaths.length > 0) {
-      executableArgs['--config'] = workspace.asRelativePath(CONFIG_FILE_NAME);
+    if (matchedPaths.length !== 0) {
+      this.loggingService.logDebug(CONFIG_PATHS_FOUND_FOR_WORKSPACE, { workspace: workspaceFolder.uri.fsPath, found: matchedPaths });
+
+      executableArgs['--config'] = workspace.asRelativePath(matchedPaths[0]);
+    } else {
+      this.loggingService.logDebug(NO_CONFIG_FOUND_FOR_WORKSPACE, workspaceFolder.uri.fsPath);
     }
 
-    const preset = getWorkspaceConfig('preset', 'auto'); 
+    const preset = getWorkspaceConfig('preset', 'auto');
 
     if (preset && preset !== 'auto') {
       executableArgs['--preset'] = preset;

@@ -69,5 +69,5 @@ export function onConfigChange(loggingService: LoggingService) {
         commands.executeCommand('workbench.action.reloadWindow');
       }
     }
-  })
+  });
 }
