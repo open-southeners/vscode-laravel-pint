@@ -10,18 +10,18 @@ import { canExecuteFile, getWorkspaceConfig, resolvePathFromWorkspaces } from ".
 export class ModuleResolver {
   constructor(private loggingService: LoggingService) { }
 
-  public async getGlobalPintCommand(): Promise<PhpCommand> {
+  public async getGlobalPintCommand(input: string): Promise<PhpCommand> {
     const globalPintPath = await commandExists('pint');
 
-    return new PhpCommand(globalPintPath, []);
+    return new PhpCommand(globalPintPath, [input]);
   }
 
-  public async getPintCommand(workspaceFolder: WorkspaceFolder): Promise<PhpCommand | undefined> {
+  public async getPintCommand(workspaceFolder: WorkspaceFolder, input?: string): Promise<PhpCommand | undefined> {
     if (!workspace.isTrusted) {
       this.loggingService.logDebug(UNTRUSTED_WORKSPACE_USING_GLOBAL_PINT);
 
       // This doesn't respect fallbackToGlobal config
-      return this.getGlobalPintCommand();
+      return this.getGlobalPintCommand(input || workspaceFolder.uri.fsPath);
     }
 
     const executableArr = await resolvePathFromWorkspaces(
@@ -42,7 +42,7 @@ export class ModuleResolver {
     const fallbackToGlobal = getWorkspaceConfig('fallbackToGlobalBin') && commandExists.sync('pint');
 
     if (!isExecutable && fallbackToGlobal) {
-      return this.getGlobalPintCommand();
+      return this.getGlobalPintCommand(input || workspaceFolder.uri.fsPath);
     }
 
     if (!isExecutable && !fallbackToGlobal) {
@@ -51,10 +51,10 @@ export class ModuleResolver {
       return;
     }
 
-    return new PhpCommand(executable, await this.getPintConfigAsArgs(workspaceFolder));
+    return new PhpCommand(executable, await this.getPintConfigAsArgs(workspaceFolder, input));
   }
 
-  public async getPintCommandWithinSail(workspaceFolder: WorkspaceFolder): Promise<PhpCommand | undefined> {
+  public async getPintCommandWithinSail(workspaceFolder: WorkspaceFolder, input?: string): Promise<PhpCommand | undefined> {
     if (!workspace.isTrusted) {
       this.loggingService.logDebug(UNTRUSTED_WORKSPACE_ERROR);
 
@@ -80,10 +80,10 @@ export class ModuleResolver {
       return;
     }
 
-    return new PhpCommand(executable, ['bin', 'pint', ...await this.getPintConfigAsArgs(workspaceFolder)]);
+    return new PhpCommand(executable, ['bin', 'pint', ...await this.getPintConfigAsArgs(workspaceFolder, input)]);
   }
 
-  private async getPintConfigAsArgs(workspaceFolder: WorkspaceFolder) {
+  private async getPintConfigAsArgs(workspaceFolder: WorkspaceFolder, input?: string) {
     const executableArgs: Record<string, string> = {};
     const configPath = getWorkspaceConfig('configPath', CONFIG_FILE_NAME);
 
@@ -103,6 +103,10 @@ export class ModuleResolver {
       executableArgs['--preset'] = preset;
     }
 
-    return Object.entries(executableArgs).filter(arg => !!arg[1]).flat();
+    const executableArgsAsArray = Object.entries(executableArgs).filter(arg => !!arg[1]).flat();
+
+    executableArgsAsArray.push(input || workspaceFolder.uri.fsPath);
+
+    return executableArgsAsArray;
   }
 }

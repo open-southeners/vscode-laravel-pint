@@ -1,4 +1,5 @@
 import { readFile } from "fs-extra";
+import path = require("node:path");
 import { Disposable, TextEditor, Uri, workspace, languages, RelativePattern, TextDocument, TextEdit, WorkspaceFolder, window, FileSystemWatcher } from "vscode";
 import { LoggingService } from "./LoggingService";
 import { ENABLING_PINT_FOR_WORKSPACE, FORMAT_WORKSPACE_NON_ACTIVE_DOCUMENT, RUNNING_PINT_ON_PATH, SOMETHING_WENT_WRONG_FINDING_EXECUTABLE, UPDATING_EXTENSION_EXCLUDE_PATTERNS } from "./message";
@@ -112,6 +113,14 @@ export default class PintEditService implements Disposable {
       return;
     }
 
+    const isRegistered = this.registeredWorkspaces.has(
+      workspaceFolder.uri.fsPath
+    );
+
+    if (isRegistered) {
+      return;
+    }
+
     const pintCommand = getWorkspaceConfig('runInLaravelSail', false)
       ? await this.moduleResolver.getPintCommandWithinSail(workspaceFolder)
       : await this.moduleResolver.getPintCommand(workspaceFolder);
@@ -122,10 +131,6 @@ export default class PintEditService implements Disposable {
       this.statusBar.update(FormatterStatus.Error);
       return;
     }
-
-    const isRegistered = this.registeredWorkspaces.has(
-      workspaceFolder.uri.fsPath
-    );
 
     if (!isRegistered) {
       await this.registerDocumentFormatEditorProviders(workspaceFolder);
@@ -183,8 +188,8 @@ export default class PintEditService implements Disposable {
     const workspaceFolder = workspace.getWorkspaceFolder(file);
 
     let command = workspaceFolder
-      ? await this.moduleResolver.getPintCommand(workspaceFolder)
-      : await this.moduleResolver.getGlobalPintCommand();
+      ? await this.moduleResolver.getPintCommand(workspaceFolder, file.fsPath)
+      : await this.moduleResolver.getGlobalPintCommand(file.fsPath);
 
     if (!command) {
       this.statusBar.update(FormatterStatus.Error);
@@ -194,9 +199,9 @@ export default class PintEditService implements Disposable {
       return false;
     }
 
-    command.run(file.fsPath);
+    command.run();
 
-    this.loggingService.logDebug(RUNNING_PINT_ON_PATH, { command: command.toString(), file: file.fsPath });
+    this.loggingService.logDebug(RUNNING_PINT_ON_PATH, { command: command.toString() });
 
     this.statusBar.update(FormatterStatus.Success);
 
