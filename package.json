@@ -59,7 +59,7 @@
       },
       {
         "command": "laravel-pint.formatProject",
-        "title": "Format workspace files using Laravel Pint"
+        "title": "Format active workspace files using Laravel Pint"
       }
     ],
     "configuration": {

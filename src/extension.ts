@@ -5,18 +5,17 @@ import { ModuleResolver } from './ModuleResolver';
 import PintEditService from './PintEditService';
 import { StatusBar } from './StatusBar';
 import { getWorkspaceConfig, onConfigChange } from './util';
-const pkg = require('../package.json');
 
 export async function activate(context: ExtensionContext) {
   const loggingService = new LoggingService();
 
-  loggingService.logInfo(`Extension Name: ${pkg.publisher}.${pkg.name}.`);
-  loggingService.logInfo(`Extension Version: ${pkg.version}.`);
+  loggingService.logInfo(`Extension Name: ${context.extension.packageJSON.publisher}.${context.extension.packageJSON.name}.`);
+  loggingService.logInfo(`Extension Version: ${context.extension.packageJSON.version}.`);
 
   if (!context.workspaceState.get<boolean>('laravel-pint.extensionFirstInstall')) {
     workspace.getConfiguration('laravel-pint', { languageId: "php" }).update('enable', true);
     workspace.getConfiguration('editor', { languageId: "php" }).update('formatOnSave', true);
-    
+
     context.workspaceState.update('laravel-pint.extensionFirstInstall', true);
   }
 
@@ -59,4 +58,4 @@ export async function activate(context: ExtensionContext) {
   );
 }
 
-export function deactivate() {}
+export function deactivate() { }

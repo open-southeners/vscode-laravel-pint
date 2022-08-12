@@ -1,7 +1,7 @@
 import { readFile } from "fs-extra";
 import { Disposable, TextEditor, Uri, workspace, languages, RelativePattern, TextDocument, TextEdit, WorkspaceFolder, window, FileSystemWatcher } from "vscode";
 import { LoggingService } from "./LoggingService";
-import { ENABLING_PINT_FOR_WORKSPACE, SOMETHING_WENT_WRONG_FINDING_EXECUTABLE, UPDATING_EXTENSION_EXCLUDE_PATTERNS } from "./message";
+import { ENABLING_PINT_FOR_WORKSPACE, FORMAT_WORKSPACE_NON_ACTIVE_DOCUMENT, RUNNING_PINT_ON_PATH, SOMETHING_WENT_WRONG_FINDING_EXECUTABLE, UPDATING_EXTENSION_EXCLUDE_PATTERNS } from "./message";
 import { ModuleResolver } from "./ModuleResolver";
 import { PintEditProvider } from "./PintEditProvider";
 import { FormatterStatus, StatusBar } from "./StatusBar";
@@ -153,16 +153,24 @@ export default class PintEditService implements Disposable {
     ).length > 0;
   }
 
-  public async formatWorkspaces() {
-    const promiseArr: Array<Promise<boolean>> = [];
+  public async formatWorkspace() {
+    const activeDocument = window.activeTextEditor?.document;
 
-    workspace.workspaceFolders?.forEach(workspaceFolder => {
-      promiseArr.push(this.formatFile(workspaceFolder.uri));
-    });
+    if (!activeDocument) {
+      this.loggingService.logError(FORMAT_WORKSPACE_NON_ACTIVE_DOCUMENT);
 
-    Promise.all(promiseArr)
-      .catch(() => this.statusBar.update(FormatterStatus.Ready))
-      .finally(() => this.statusBar.update(FormatterStatus.Ready));
+      return;
+    }
+
+    const workspaceFolder = workspace.getWorkspaceFolder(activeDocument.uri);
+
+    if (!workspaceFolder) {
+      this.loggingService.logError(FORMAT_WORKSPACE_NON_ACTIVE_DOCUMENT);
+
+      return;
+    }
+
+    await this.formatFile(workspaceFolder.uri);
   }
 
   public async formatFile(file: Uri) {
@@ -186,12 +194,9 @@ export default class PintEditService implements Disposable {
       return false;
     }
 
-    // TODO: Output stdout, etc...?
-    command.run(workspaceFolder?.uri.fsPath);
+    command.run(file.fsPath);
 
-    this.loggingService.logDebug(
-      `Formatting using command "${command.toString()} ${file.fsPath}"`
-    );
+    this.loggingService.logDebug(RUNNING_PINT_ON_PATH, { command: command.toString(), file: file.fsPath });
 
     this.statusBar.update(FormatterStatus.Success);
 
