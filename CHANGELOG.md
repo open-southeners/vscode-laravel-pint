@@ -6,6 +6,22 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.1.0] - 2022-08-12
+
+### Added
+
+- More logging debug information (only enabled by setting the option `laravel-pint.enableDebugLogs`)
+
+### Changed
+
+- Format workspace was formatting all workspaces, now it formats only current active document's workspace (otherwise it complains about it on the Output logs tab of VS Code)
+
+### Fixed
+
+- Custom config file path resolution [#22]
+- File formatting triggers under the whole workspace [#21]
+- Minor bug with extension version debug info getting logged
+
 ## [1.0.2] - 2022-08-04
 
 ### Fixed
