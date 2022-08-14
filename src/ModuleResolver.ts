@@ -92,7 +92,7 @@ export class ModuleResolver {
     if (matchedPaths.length !== 0) {
       this.loggingService.logDebug(CONFIG_PATHS_FOUND_FOR_WORKSPACE, { workspace: workspaceFolder.uri.fsPath, found: matchedPaths });
 
-      executableArgs['--config'] = workspace.asRelativePath(matchedPaths[0]);
+      executableArgs['--config'] = matchedPaths[0];
     } else {
       this.loggingService.logDebug(NO_CONFIG_FOUND_FOR_WORKSPACE, workspaceFolder.uri.fsPath);
     }
