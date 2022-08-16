@@ -1,6 +1,7 @@
 import { readFile } from "fs-extra";
 import path = require("node:path");
 import { Disposable, TextEditor, Uri, workspace, languages, RelativePattern, TextDocument, TextEdit, WorkspaceFolder, window, FileSystemWatcher } from "vscode";
+import { CONFIG_FILE_NAME } from "./constants";
 import { LoggingService } from "./LoggingService";
 import { ENABLING_PINT_FOR_WORKSPACE, FORMAT_WORKSPACE_NON_ACTIVE_DOCUMENT, RUNNING_PINT_ON_PATH, SOMETHING_WENT_WRONG_FINDING_EXECUTABLE, UPDATING_EXTENSION_EXCLUDE_PATTERNS } from "./message";
 import { ModuleResolver } from "./ModuleResolver";
@@ -74,7 +75,7 @@ export default class PintEditService implements Disposable {
       editProvider
     );
 
-    const pintConfigWorkspaceRelativePattern = new RelativePattern(workspaceFolder, 'pint.json');
+    const pintConfigWorkspaceRelativePattern = new RelativePattern(workspaceFolder, getWorkspaceConfig('configPath', CONFIG_FILE_NAME));
     this.pintConfigWatcher = workspace.createFileSystemWatcher(pintConfigWorkspaceRelativePattern);
 
     // We need to watch & run this function after watcher added
