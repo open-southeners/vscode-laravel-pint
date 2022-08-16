@@ -6,6 +6,17 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.1.1] - 2022-08-16
+
+### Fixed
+
+- Custom config file path resolution (now yes, thanks to @adrum for the PR) [#23]
+- Workspace files format command
+
+### Changed
+
+- `laravel-pint.configPath` now is also being used by the extension's exclude paths
+
 ## [1.1.0] - 2022-08-12
 
 ### Added
