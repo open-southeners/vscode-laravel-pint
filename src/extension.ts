@@ -47,7 +47,7 @@ export async function activate(context: ExtensionContext) {
   );
 
   const formatFileCommand = commands.registerCommand('laravel-pint.format', () => formatCommand(editService));
-  const formatProjectCommand = commands.registerCommand('laravel-pint.formatProject', editService.formatWorkspaces);
+  const formatProjectCommand = commands.registerCommand('laravel-pint.formatProject', () => editService.formatWorkspace());
 
   context.subscriptions.push(
     editService,
