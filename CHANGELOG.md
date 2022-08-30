@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.1.2] - 2022-08-30
+
+### Changed
+
+- Use global context for extension initial installation auto-config [#24]
+
 ## [1.1.1] - 2022-08-16
 
 ### Fixed
