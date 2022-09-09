@@ -1375,6 +1375,9 @@
         "no_multiline_whitespace_around_double_arrow": {
           "description": "Operator `=>` should not be surrounded by multi-line whitespaces."
         },
+        "no_multiple_statements_per_line": {
+          "description": "There must not be more than one statement per line."
+        },
         "no_null_property_initialization": {
           "description": "Properties MUST not be explicitly initialized with `null` except when they have a type declaration (PHP 7.4)."
         },
@@ -1425,6 +1428,9 @@
         },
         "no_trailing_comma_in_list_call": {
           "description": "Remove trailing commas in list function calls."
+        },
+        "no_trailing_comma_in_singleline": {
+          "description": "If a list of values separated by a comma is contained on a single line, then the last item MUST NOT have a trailing comma."
         },
         "no_trailing_comma_in_singleline_array": {
           "description": "PHP single-line arrays should not have trailing comma."
@@ -1890,7 +1896,7 @@
           "description": "Classy that does not inherit must not have `@inheritdoc` tags."
         },
         "phpdoc_order": {
-          "description": "Annotations in PHPDoc should be ordered so that `@param` annotations come first, then `@throws` annotations, then `@return` annotations."
+          "description": "Annotations in PHPDoc should be ordered in defined sequence."
         },
         "phpdoc_order_by_value": {
           "description": "Order phpdoc tags by value."
@@ -1902,7 +1908,7 @@
           "description": "Scalar types should always be written in the same form. `int` not `integer`, `bool` not `boolean`, `float` not `real` or `double`."
         },
         "phpdoc_separation": {
-          "description": "Annotations in PHPDoc should be grouped together so that annotations of the same type immediately follow each other, and annotations of a different type are separated by a single blank line."
+          "description": "Annotations in PHPDoc should be grouped together so that annotations of the same type immediately follow each other. Annotations of a different type are separated by a single blank line."
         },
         "phpdoc_single_line_var_spacing": {
           "description": "Single line `@var` PHPDoc should have proper spacing."
@@ -1993,7 +1999,7 @@
           "description": "Local, dynamic and directly referenced variables should not be assigned and directly returned by a function or method."
         },
         "return_type_declaration": {
-          "description": "There should be one or no space before colon, and one space after it in return type declarations, according to configuration."
+          "description": "Adjust spacing around colon in return type declarations and backed enum types."
         },
         "self_accessor": {
           "description": "Inside class or interface element `self` should be preferred to the class name itself."
@@ -2131,11 +2137,11 @@
           "description": "Arrays should be formatted like function/method arguments, without leading or trailing single line space."
         },
         "types_spaces": {
-          "description": "A single space or none should be around union type operator.",
+          "description": "A single space or none should be around union type and intersection type operators.",
           "type": "object",
           "properties": {
             "space": {
-              "description": "spacing to apply around union type operator.",
+              "description": "spacing to apply around union type and intersection type operators.",
               "default": "none",
               "oneOf": [
                 {
