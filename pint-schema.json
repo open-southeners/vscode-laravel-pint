@@ -38,6 +38,10 @@
         "type": "string"
       }
     },
+    "cache-folder": {
+      "type": "string",
+      "description": "Cache file path for customise it. Defaults to tmp folder that your operating system uses."
+    },
     "rules": {
       "type": "object",
       "description": "Customise rules used for the formatting, this replaces the ones of the preset",
