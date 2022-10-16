@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.1.3] - 2022-10-16
+
+### Added
+
+- Extension published to Open VSX for VSCodium users: https://open-vsx.org/extension/open-southeners/laravel-pint
+
 ## [1.1.2] - 2022-08-30
 
 ### Changed
