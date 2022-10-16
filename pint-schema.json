@@ -1475,6 +1475,9 @@
         "no_unused_imports": {
           "description": "Unused `use` statements must be removed."
         },
+        "no_useless_concat_operator": {
+          "description": "There should not be useless concat operations."
+        },
         "no_useless_else": {
           "description": "There should not be useless `else` cases."
         },
