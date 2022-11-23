@@ -25,7 +25,7 @@ export function getWorkspaceConfig<T = ExtensionConfig, K extends string = Extra
   };
 
   if (!configByKey.hasBeenSet || configByKey.defaultValue === configByKey.value) {
-    return defaultValue;
+    return defaultValue || configByKey.defaultValue;
   }
 
   return configByKey.value;
