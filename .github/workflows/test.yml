@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Setup Node.js
-      - uses: actions/setup-node@v3
+        uses: actions/setup-node@v3
         with:
           node-version: 14
           cache: yarn
@@ -35,7 +35,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --immutable
 
       - run: xvfb-run -a yarn test
         if: runner.os == 'Linux'
