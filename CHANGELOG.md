@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.1.4] - 2022-11-24
+
+### Fixed
+
+- Issue resolving fallback to global Pint binary [#28] (thanks @jasonvarga)
+
 ## [1.1.3] - 2022-10-16
 
 ### Added
