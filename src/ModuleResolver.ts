@@ -29,15 +29,9 @@ export class ModuleResolver {
       workspaceFolder
     );
 
-    if (executableArr.length === 0) {
-      this.loggingService.logError(PINT_CANNOT_BE_EXECUTED);
-
-      return;
-    }
-
     const executable = executableArr[0];
 
-    const isExecutable = canExecuteFile(executable);
+    const isExecutable = executable && canExecuteFile(executable);
 
     const fallbackToGlobal = getWorkspaceConfig('fallbackToGlobalBin') && commandExists.sync('pint');
 
