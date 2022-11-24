@@ -972,6 +972,18 @@
           "description": "Spaces should be properly placed in a function declaration.",
           "type": "object",
           "properties": {
+            "closure_fn_spacing": {
+              "description": "Spacing to use before open parenthesis for short arrow functions.",
+              "default": "one",
+              "oneOf": [
+                {
+                  "enum": [
+                    "none",
+                    "one"
+                  ]
+                }
+              ]
+            },
             "closure_function_spacing": {
               "description": "Spacing to use before open parenthesis for closures.",
               "default": "one",
@@ -998,7 +1010,20 @@
           "description": "Ensure single space between function's argument and its typehint."
         },
         "general_phpdoc_annotation_remove": {
-          "description": "Configured annotations should be omitted from PHPDoc."
+          "description": "Configured annotations should be omitted from PHPDoc.",
+          "type": "object",
+          "properties": {
+            "annotations": {
+              "description": "List of annotations to remove, e.g. `[\"author\"]`.",
+              "default": [],
+              "type": "array"
+            },
+            "case_sensitive": {
+              "description": "Should annotations be case sensitive.",
+              "default": true,
+              "type": "boolean"
+            }
+          }
         },
         "general_phpdoc_tag_rename": {
           "description": "Renames PHPDoc tags.",
@@ -1568,45 +1593,45 @@
                 {
                   "enum": [
                     [
-                      "use_trait",
-                      "public",
-                      "protected",
-                      "private",
                       "case",
                       "constant",
-                      "constant_public",
-                      "constant_protected",
                       "constant_private",
-                      "property",
-                      "property_static",
-                      "property_public",
-                      "property_protected",
-                      "property_private",
-                      "property_public_readonly",
-                      "property_protected_readonly",
-                      "property_private_readonly",
-                      "property_public_static",
-                      "property_protected_static",
-                      "property_private_static",
-                      "method",
-                      "method_abstract",
-                      "method_static",
-                      "method_public",
-                      "method_protected",
-                      "method_private",
-                      "method_public_abstract",
-                      "method_protected_abstract",
-                      "method_private_abstract",
-                      "method_public_abstract_static",
-                      "method_protected_abstract_static",
-                      "method_private_abstract_static",
-                      "method_public_static",
-                      "method_protected_static",
-                      "method_private_static",
+                      "constant_protected",
+                      "constant_public",
                       "construct",
                       "destruct",
                       "magic",
-                      "phpunit"
+                      "method",
+                      "method_abstract",
+                      "method_private",
+                      "method_private_abstract",
+                      "method_private_abstract_static",
+                      "method_private_static",
+                      "method_protected",
+                      "method_protected_abstract",
+                      "method_protected_abstract_static",
+                      "method_protected_static",
+                      "method_public",
+                      "method_public_abstract",
+                      "method_public_abstract_static",
+                      "method_public_static",
+                      "method_static",
+                      "phpunit",
+                      "private",
+                      "property",
+                      "property_private",
+                      "property_private_readonly",
+                      "property_private_static",
+                      "property_protected",
+                      "property_protected_readonly",
+                      "property_protected_static",
+                      "property_public",
+                      "property_public_readonly",
+                      "property_public_static",
+                      "property_static",
+                      "protected",
+                      "public",
+                      "use_trait"
                     ]
                   ]
                 }
@@ -1817,6 +1842,7 @@
                 {
                   "enum": [
                     [
+                      "method",
                       "param",
                       "property",
                       "property-read",
@@ -1824,8 +1850,7 @@
                       "return",
                       "throws",
                       "type",
-                      "var",
-                      "method"
+                      "var"
                     ]
                   ]
                 }
@@ -2129,10 +2154,10 @@
                 {
                   "enum": [
                     [
-                      "arrays",
                       "arguments",
-                      "parameters",
-                      "match"
+                      "arrays",
+                      "match",
+                      "parameters"
                     ]
                   ]
                 }
