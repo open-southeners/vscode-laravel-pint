@@ -1,0 +1,59 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
+          cache: yarn
+
+      - name: Get Yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
+
+      - uses: actions/cache@v3
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Package extension to VSIX
+        run: yarn run vsce package --no-yarn --pre-release
+
+      - name: Get latest release info
+        id: get-release-info
+        uses: release-flow/keep-a-changelog-action/get-release-info@v1
+        with:
+          release-version: latest
+
+      - name: Publish to Github releases
+        uses: softprops/action-gh-release@v1
+        with:
+          body: ${{ steps.get-release-info.outputs.release-notes }}
+          prerelease: true
+          files: *.vsix
+
+      - name: Publish extension to Visual Studio Marketplace
+        run: yarn run vsce publish --no-yarn
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+      - name: Publish extension to Open VSX
+        run: yarn run ovsx publish *.vsix
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
