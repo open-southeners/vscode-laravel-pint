@@ -46,7 +46,7 @@ jobs:
         with:
           body: ${{ steps.get-release-info.outputs.release-notes }}
           prerelease: true
-          files: *.vsix
+          files: '*.vsix'
 
       - name: Publish extension to Visual Studio Marketplace
         run: yarn run vsce publish --no-yarn
