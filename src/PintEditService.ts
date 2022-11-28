@@ -190,7 +190,7 @@ export default class PintEditService implements Disposable {
 
     let command = workspaceFolder
       ? await this.moduleResolver.getPintCommand(workspaceFolder, file.fsPath)
-      : await this.moduleResolver.getGlobalPintCommand(file.fsPath);
+      : await this.moduleResolver.getGlobalPintCommand([file.fsPath]);
 
     if (!command) {
       this.statusBar.update(FormatterStatus.Error);
