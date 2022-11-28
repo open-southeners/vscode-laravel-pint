@@ -10,10 +10,10 @@ import { canExecuteFile, getWorkspaceConfig, resolvePathFromWorkspaces } from ".
 export class ModuleResolver {
   constructor(private loggingService: LoggingService) { }
 
-  public async getGlobalPintCommand(input: string): Promise<PhpCommand> {
+  public async getGlobalPintCommand(args: Array<string>): Promise<PhpCommand> {
     const globalPintPath = await commandExists('pint');
 
-    return new PhpCommand(globalPintPath, [input]);
+    return new PhpCommand(globalPintPath, args);
   }
 
   public async getPintCommand(workspaceFolder: WorkspaceFolder, input?: string): Promise<PhpCommand | undefined> {
@@ -21,7 +21,7 @@ export class ModuleResolver {
       this.loggingService.logDebug(UNTRUSTED_WORKSPACE_USING_GLOBAL_PINT);
 
       // This doesn't respect fallbackToGlobal config
-      return this.getGlobalPintCommand(input || workspaceFolder.uri.fsPath);
+      return this.getGlobalPintCommand(await this.getPintConfigAsArgs(workspaceFolder, input));
     }
 
     const executableArr = await resolvePathFromWorkspaces(
@@ -36,7 +36,7 @@ export class ModuleResolver {
     const fallbackToGlobal = getWorkspaceConfig('fallbackToGlobalBin') && commandExists.sync('pint');
 
     if (!isExecutable && fallbackToGlobal) {
-      return this.getGlobalPintCommand(input || workspaceFolder.uri.fsPath);
+      return this.getGlobalPintCommand(await this.getPintConfigAsArgs(workspaceFolder, input));
     }
 
     if (!isExecutable && !fallbackToGlobal) {
