@@ -47,7 +47,23 @@
       "description": "Customise rules used for the formatting, this replaces the ones of the preset",
       "properties": {
         "align_multiline_comment": {
-          "description": "Each line of multi-line DocComments must have an asterisk [PSR-5] and must be aligned with the first one."
+          "description": "Each line of multi-line DocComments must have an asterisk [PSR-5] and must be aligned with the first one.",
+          "type": "object",
+          "properties": {
+            "comment_type": {
+              "description": "Whether to fix PHPDoc comments only (`phpdocs_only`), any multi-line comment whose lines all start with an asterisk (`phpdocs_like`) or any multi-line comment (`all_multiline`).",
+              "default": "phpdocs_only",
+              "oneOf": [
+                {
+                  "enum": [
+                    "phpdocs_only",
+                    "phpdocs_like",
+                    "all_multiline"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "array_indentation": {
           "description": "Each element of an array must be indented exactly once."
@@ -56,7 +72,22 @@
           "description": "Converts simple usages of `array_push($x, $y);` to `$x[] = $y;`."
         },
         "array_syntax": {
-          "description": "PHP arrays should be declared using the configured syntax."
+          "description": "PHP arrays should be declared using the configured syntax.",
+          "type": "object",
+          "properties": {
+            "syntax": {
+              "description": "Whether to use the `long` or `short` array syntax.",
+              "default": "short",
+              "oneOf": [
+                {
+                  "enum": [
+                    "long",
+                    "short"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "assign_null_coalescing_to_coalesce_equal": {
           "description": "Use the null coalescing assignment operator `??=` where possible."
@@ -98,7 +129,53 @@
           "description": "Ensure there is no code on the same line as the PHP open tag and it is followed by a blank line."
         },
         "blank_line_before_statement": {
-          "description": "An empty line feed must precede any configured statement."
+          "description": "An empty line feed must precede any configured statement.",
+          "type": "object",
+          "properties": {
+            "statements": {
+              "description": "List of statements which must be preceded by an empty line.",
+              "default": [
+                "break",
+                "continue",
+                "declare",
+                "return",
+                "throw",
+                "try"
+              ],
+              "type": "array",
+              "oneOf": [
+                {
+                  "enum": [
+                    [
+                      "break",
+                      "case",
+                      "continue",
+                      "declare",
+                      "default",
+                      "do",
+                      "exit",
+                      "for",
+                      "foreach",
+                      "goto",
+                      "if",
+                      "include",
+                      "include_once",
+                      "phpdoc",
+                      "require",
+                      "require_once",
+                      "return",
+                      "switch",
+                      "throw",
+                      "try",
+                      "while",
+                      "yield",
+                      "yield_from"
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
         },
         "blank_line_between_import_groups": {
           "description": "Putting blank lines between `use` statement groups."
@@ -156,10 +233,39 @@
           }
         },
         "cast_spaces": {
-          "description": "A single space or none should be between cast and variable."
+          "description": "A single space or none should be between cast and variable.",
+          "type": "object",
+          "properties": {
+            "space": {
+              "description": "spacing to apply between cast and variable.",
+              "default": "single",
+              "oneOf": [
+                {
+                  "enum": [
+                    "none",
+                    "single"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "class_attributes_separation": {
-          "description": "Class, trait and interface elements must be separated with one or none blank line."
+          "description": "Class, trait and interface elements must be separated with one or none blank line.",
+          "type": "object",
+          "properties": {
+            "elements": {
+              "description": "Dictionary of `const|method|property|trait_import|case` => `none|one|only_if_meta` values.",
+              "default": {
+                "const": "one",
+                "method": "one",
+                "property": "one",
+                "trait_import": "none",
+                "case": "none"
+              },
+              "type": "array"
+            }
+          }
         },
         "class_definition": {
           "description": "Whitespace around the keywords of a class, trait, enum or interfaces definition should be one space.",
@@ -211,22 +317,75 @@
           "description": "Replace multiple nested calls of `dirname` by only one call with second `$level` parameter. Requires PHP >= 7.0."
         },
         "comment_to_phpdoc": {
-          "description": "Comments with annotation should be docblock when used on structural elements."
+          "description": "Comments with annotation should be docblock when used on structural elements.",
+          "type": "object",
+          "properties": {
+            "ignored_tags": {
+              "description": "List of ignored tags",
+              "default": [],
+              "type": "array"
+            }
+          }
         },
         "compact_nullable_typehint": {
           "description": "Remove extra spaces in a nullable typehint."
         },
         "concat_space": {
-          "description": "Concatenation should be spaced according configuration."
+          "description": "Concatenation should be spaced according configuration.",
+          "type": "object",
+          "properties": {
+            "spacing": {
+              "description": "Spacing to apply around concatenation operator.",
+              "default": "none",
+              "oneOf": [
+                {
+                  "enum": [
+                    "one",
+                    "none"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "constant_case": {
-          "description": "The PHP constants `true`, `false`, and `null` MUST be written using the correct casing."
+          "description": "The PHP constants `true`, `false`, and `null` MUST be written using the correct casing.",
+          "type": "object",
+          "properties": {
+            "case": {
+              "description": "Whether to use the `upper` or `lower` case syntax.",
+              "default": "lower",
+              "oneOf": [
+                {
+                  "enum": [
+                    "upper",
+                    "lower"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "control_structure_braces": {
           "description": "The body of each control structure MUST be enclosed within braces."
         },
         "control_structure_continuation_position": {
-          "description": "Control structure continuation keyword must be on the configured line."
+          "description": "Control structure continuation keyword must be on the configured line.",
+          "type": "object",
+          "properties": {
+            "position": {
+              "description": "the position of the keyword that continues the control structure.",
+              "default": "same_line",
+              "oneOf": [
+                {
+                  "enum": [
+                    "next_line",
+                    "same_line"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "curly_braces_position": {
           "description": "Curly braces must be placed as configured.",
@@ -311,7 +470,22 @@
           "description": "Class `DateTimeImmutable` should be used instead of `DateTime`."
         },
         "declare_equal_normalize": {
-          "description": "Equal sign in declare statement should be surrounded by spaces or not following configuration."
+          "description": "Equal sign in declare statement should be surrounded by spaces or not following configuration.",
+          "type": "object",
+          "properties": {
+            "space": {
+              "description": "Spacing to apply around the equal sign.",
+              "default": "none",
+              "oneOf": [
+                {
+                  "enum": [
+                    "single",
+                    "none"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "declare_parentheses": {
           "description": "There must not be spaces around `declare` statement parentheses."
@@ -860,10 +1034,42 @@
           "description": "The keyword `elseif` should be used instead of `else if` so that all control keywords look like single words."
         },
         "empty_loop_body": {
-          "description": "Empty loop-body must be in configured style."
+          "description": "Empty loop-body must be in configured style.",
+          "type": "object",
+          "properties": {
+            "style": {
+              "description": "Style of empty loop-bodies.",
+              "default": "semicolon",
+              "type": "string",
+              "oneOf": [
+                {
+                  "enum": [
+                    "braces",
+                    "semicolon"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "empty_loop_condition": {
-          "description": "Empty loop-condition must be in configured style."
+          "description": "Empty loop-condition must be in configured style.",
+          "type": "object",
+          "properties": {
+            "style": {
+              "description": "Style of empty loop-condition.",
+              "default": "while",
+              "type": "string",
+              "oneOf": [
+                {
+                  "enum": [
+                    "while",
+                    "for"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "encoding": {
           "description": "PHP code MUST use only UTF-8 without BOM (remove BOM)."
@@ -960,7 +1166,15 @@
           "description": "Order the flags in `fopen` calls, `b` and `t` must be last."
         },
         "fopen_flags": {
-          "description": "The flags in `fopen` calls must omit `t`, and `b` must be omitted or included consistently."
+          "description": "The flags in `fopen` calls must omit `t`, and `b` must be omitted or included consistently.",
+          "type": "object",
+          "properties": {
+            "b_mode": {
+              "description": "The `b` flag must be used (`true`) or omitted (`false`).",
+              "default": true,
+              "type": "boolean"
+            }
+          }
         },
         "full_opening_tag": {
           "description": "PHP code must use the long `<?php` tags or short-echo `<?=` tags and not other tag variations."
@@ -1004,7 +1218,36 @@
           }
         },
         "function_to_constant": {
-          "description": "Replace core functions calls returning constants with the constants."
+          "description": "Replace core functions calls returning constants with the constants.",
+          "type": "object",
+          "properties": {
+            "functions": {
+              "description": "List of function names to fix.",
+              "default": [
+                "get_called_class",
+                "get_class",
+                "get_class_this",
+                "php_sapi_name",
+                "phpversion",
+                "pi"
+              ],
+              "type": "array",
+              "oneOf": [
+                {
+                  "enum": [
+                    [
+                      "get_called_class",
+                      "get_class",
+                      "get_class_this",
+                      "php_sapi_name",
+                      "phpversion",
+                      "pi"
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
         },
         "function_typehint_space": {
           "description": "Ensure single space between function's argument and its typehint."
@@ -1151,7 +1394,22 @@
           }
         },
         "heredoc_indentation": {
-          "description": "Heredoc/nowdoc content must be properly indented. Requires PHP >= 7.3."
+          "description": "Heredoc/nowdoc content must be properly indented. Requires PHP >= 7.3.",
+          "type": "object",
+          "properties": {
+            "indentation": {
+              "description": "Whether the indentation should be the same as in the start token line or one level more.",
+              "default": "start_plus_one",
+              "oneOf": [
+                {
+                  "enum": [
+                    "start_plus_one",
+                    "same_as_start"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "heredoc_to_nowdoc": {
           "description": "Convert `heredoc` to `nowdoc` where possible."
@@ -1163,7 +1421,22 @@
           "description": "Include/Require and file path should be divided with a single space. File path should not be placed under brackets."
         },
         "increment_style": {
-          "description": "Pre- or post-increment and decrement operators should be used if possible."
+          "description": "Pre- or post-increment and decrement operators should be used if possible.",
+          "type": "object",
+          "properties": {
+            "style": {
+              "description": "Whether to use pre- or post-increment and decrement operators.",
+              "default": "pre",
+              "oneOf": [
+                {
+                  "enum": [
+                    "pre",
+                    "post"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "indentation_type": {
           "description": "Code MUST use configured indentation type."
@@ -1184,7 +1457,22 @@
           "description": "Ensure there is no code on the same line as the PHP open tag."
         },
         "list_syntax": {
-          "description": "List (`array` destructuring) assignment should be declared using the configured syntax. Requires PHP >= 7.1."
+          "description": "List (`array` destructuring) assignment should be declared using the configured syntax. Requires PHP >= 7.1.",
+          "type": "object",
+          "properties": {
+            "syntax": {
+              "description": "Whether to use the `long` or `short` `list` syntax.",
+              "default": "short",
+              "oneOf": [
+                {
+                  "enum": [
+                    "long",
+                    "short"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "logical_operators": {
           "description": "Use `&&` and `||` logical operators instead of `and` and `or`."
@@ -1249,7 +1537,22 @@
           "description": "DocBlocks must start with two asterisks, multiline comments must start with a single asterisk, after the opening slash. Both must end with a single asterisk before the closing slash."
         },
         "multiline_whitespace_before_semicolons": {
-          "description": "Forbid multi-line whitespace before the closing semicolon or move the semicolon to the new line for chained calls."
+          "description": "Forbid multi-line whitespace before the closing semicolon or move the semicolon to the new line for chained calls.",
+          "type": "object",
+          "properties": {
+            "strategy": {
+              "description": "Forbid multi-line whitespace or move the semicolon to the new line for chained calls.",
+              "default": "no_multi_line",
+              "oneOf": [
+                {
+                  "enum": [
+                    "no_multi_line",
+                    "new_line_for_chained_calls"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "native_constant_invocation": {
           "description": "Add leading `\\` before constant invocation of internal constant to speed up resolving. Constant name match is case-sensitive, except for `null`, `false` and `true`.",
@@ -1351,13 +1654,58 @@
           }
         },
         "no_alias_functions": {
-          "description": "Master functions shall be used instead of aliases."
+          "description": "Master functions shall be used instead of aliases.",
+          "type": "object",
+          "properties": {
+            "sets": {
+              "description": "List of sets to fix. Defined sets are:\n\n* `@all` (all listed sets)\n* `@internal` (native functions)\n* `@exif` (EXIF functions)\n* `@ftp` (FTP functions)\n* `@IMAP` (IMAP functions)\n* `@ldap` (LDAP functions)\n* `@mbreg` (from `ext-mbstring`)\n* `@mysqli` (mysqli functions)\n* `@oci` (oci functions)\n* `@odbc` (odbc functions)\n* `@openssl` (openssl functions)\n* `@pcntl` (PCNTL functions)\n* `@pg` (pg functions)\n* `@posix` (POSIX functions)\n* `@snmp` (SNMP functions)\n* `@sodium` (libsodium functions)\n* `@time` (time functions)\n",
+              "default": [
+                "@internal",
+                "@IMAP",
+                "@pg"
+              ],
+              "type": "array",
+              "oneOf": [
+                {
+                  "enum": [
+                    [
+                      "@all",
+                      "@exif",
+                      "@ftp",
+                      "@IMAP",
+                      "@internal",
+                      "@ldap",
+                      "@mbreg",
+                      "@mysqli",
+                      "@oci",
+                      "@odbc",
+                      "@openssl",
+                      "@pcntl",
+                      "@pg",
+                      "@posix",
+                      "@snmp",
+                      "@sodium",
+                      "@time"
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
         },
         "no_alias_language_construct_call": {
           "description": "Master language constructs shall be used instead of aliases."
         },
         "no_alternative_syntax": {
-          "description": "Replace control structure alternative syntax to use braces."
+          "description": "Replace control structure alternative syntax to use braces.",
+          "type": "object",
+          "properties": {
+            "fix_non_monolithic_code": {
+              "description": "Whether to also fix code with inline HTML.",
+              "default": true,
+              "type": "boolean"
+            }
+          }
         },
         "no_binary_string": {
           "description": "There should not be a binary flag before strings."
@@ -1372,7 +1720,15 @@
           "description": "There should be no blank lines before a namespace declaration."
         },
         "no_break_comment": {
-          "description": "There must be a comment when fall-through is intentional in a non-empty case body."
+          "description": "There must be a comment when fall-through is intentional in a non-empty case body.",
+          "type": "object",
+          "properties": {
+            "comment_text": {
+              "description": "The text to use in the added comment and to detect it.",
+              "default": "no break",
+              "type": "string"
+            }
+          }
         },
         "no_closing_tag": {
           "description": "The closing `?>` tag MUST be omitted from files containing only PHP."
@@ -1387,7 +1743,39 @@
           "description": "Remove useless (semicolon) statements."
         },
         "no_extra_blank_lines": {
-          "description": "Removes extra blank lines and/or blank lines following configuration."
+          "description": "Removes extra blank lines and/or blank lines following configuration.",
+          "type": "object",
+          "properties": {
+            "tokens": {
+              "description": "List of tokens to fix.",
+              "default": [
+                "extra"
+              ],
+              "type": "array",
+              "oneOf": [
+                {
+                  "enum": [
+                    [
+                      "attribute",
+                      "break",
+                      "case",
+                      "continue",
+                      "curly_brace_block",
+                      "default",
+                      "extra",
+                      "parenthesis_brace_block",
+                      "return",
+                      "square_brace_block",
+                      "switch",
+                      "throw",
+                      "use",
+                      "use_trait"
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
         },
         "no_homoglyph_names": {
           "description": "Replace accidental usage of homoglyphs (non ascii characters) in names."
@@ -1399,7 +1787,22 @@
           "description": "The namespace declaration line shouldn't contain leading whitespace."
         },
         "no_mixed_echo_print": {
-          "description": "Either language construct `print` or `echo` should be used."
+          "description": "Either language construct `print` or `echo` should be used.",
+          "type": "object",
+          "properties": {
+            "use": {
+              "description": "The desired language construct.",
+              "default": "echo",
+              "oneOf": [
+                {
+                  "enum": [
+                    "print",
+                    "echo"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "no_multiline_whitespace_around_double_arrow": {
           "description": "Operator `=>` should not be surrounded by multi-line whitespaces."
@@ -1426,7 +1829,28 @@
           "description": "When making a method or function call, there MUST NOT be a space between the method or function name and the opening parenthesis."
         },
         "no_spaces_around_offset": {
-          "description": "There MUST NOT be spaces around offset braces."
+          "description": "There MUST NOT be spaces around offset braces.",
+          "type": "object",
+          "properties": {
+            "positions": {
+              "description": "Whether spacing should be fixed inside and/or outside the offset braces.",
+              "default": [
+                "inside",
+                "outside"
+              ],
+              "type": "array",
+              "oneOf": [
+                {
+                  "enum": [
+                    [
+                      "inside",
+                      "outside"
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
         },
         "no_spaces_inside_parenthesis": {
           "description": "There MUST NOT be a space after the opening parenthesis. There MUST NOT be a space before the closing parenthesis."
@@ -1459,7 +1883,32 @@
           "description": "Remove trailing commas in list function calls."
         },
         "no_trailing_comma_in_singleline": {
-          "description": "If a list of values separated by a comma is contained on a single line, then the last item MUST NOT have a trailing comma."
+          "description": "If a list of values separated by a comma is contained on a single line, then the last item MUST NOT have a trailing comma.",
+          "type": "object",
+          "properties": {
+            "elements": {
+              "description": "Which elements to fix.",
+              "default": [
+                "arguments",
+                "array_destructuring",
+                "array",
+                "group_import"
+              ],
+              "type": "array",
+              "oneOf": [
+                {
+                  "enum": [
+                    [
+                      "arguments",
+                      "array",
+                      "array_destructuring",
+                      "group_import"
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
         },
         "no_trailing_comma_in_singleline_array": {
           "description": "PHP single-line arrays should not have trailing comma."
@@ -1477,13 +1926,63 @@
           "description": "There must be no trailing whitespace in strings."
         },
         "no_unneeded_control_parentheses": {
-          "description": "Removes unneeded parentheses around control statements."
+          "description": "Removes unneeded parentheses around control statements.",
+          "type": "object",
+          "properties": {
+            "statements": {
+              "description": "List of control statements to fix.",
+              "default": [
+                "break",
+                "clone",
+                "continue",
+                "echo_print",
+                "return",
+                "switch_case",
+                "yield"
+              ],
+              "type": "array",
+              "oneOf": [
+                {
+                  "enum": [
+                    [
+                      "break",
+                      "clone",
+                      "continue",
+                      "echo_print",
+                      "negative_instanceof",
+                      "others",
+                      "return",
+                      "switch_case",
+                      "yield",
+                      "yield_from"
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
         },
         "no_unneeded_curly_braces": {
-          "description": "Removes unneeded curly braces that are superfluous and aren't part of a control structure's body."
+          "description": "Removes unneeded curly braces that are superfluous and aren't part of a control structure's body.",
+          "type": "object",
+          "properties": {
+            "namespaces": {
+              "description": "Remove unneeded curly braces from bracketed namespaces.",
+              "default": false,
+              "type": "boolean"
+            }
+          }
         },
         "no_unneeded_final_method": {
-          "description": "Removes `final` from methods where possible."
+          "description": "Removes `final` from methods where possible.",
+          "type": "object",
+          "properties": {
+            "private_methods": {
+              "description": "Private methods of non-`final` classes must not be declared `final`.",
+              "default": true,
+              "type": "boolean"
+            }
+          }
         },
         "no_unneeded_import_alias": {
           "description": "Imports should not be aliased as the same name."
@@ -1501,7 +2000,15 @@
           "description": "Unused `use` statements must be removed."
         },
         "no_useless_concat_operator": {
-          "description": "There should not be useless concat operations."
+          "description": "There should not be useless concat operations.",
+          "type": "object",
+          "properties": {
+            "juggle_simple_strings": {
+              "description": "Allow for simple string quote juggling if it results in more concat-operations merges.",
+              "default": false,
+              "type": "boolean"
+            }
+          }
         },
         "no_useless_else": {
           "description": "There should not be useless `else` cases."
@@ -1516,13 +2023,29 @@
           "description": "There must be no `sprintf` calls with only the first argument."
         },
         "no_whitespace_before_comma_in_array": {
-          "description": "In array declaration, there MUST NOT be a whitespace before each comma."
+          "description": "In array declaration, there MUST NOT be a whitespace before each comma.",
+          "type": "object",
+          "properties": {
+            "after_heredoc": {
+              "description": "Whether the whitespace between heredoc end and comma should be removed.",
+              "default": false,
+              "type": "boolean"
+            }
+          }
         },
         "no_whitespace_in_blank_line": {
           "description": "Remove trailing whitespace at the end of blank lines."
         },
         "non_printable_character": {
-          "description": "Remove Zero-width space (ZWSP), Non-breaking space (NBSP) and other invisible unicode symbols."
+          "description": "Remove Zero-width space (ZWSP), Non-breaking space (NBSP) and other invisible unicode symbols.",
+          "type": "object",
+          "properties": {
+            "use_escape_sequences_in_strings": {
+              "description": "Whether characters should be replaced with escape sequences in strings.",
+              "default": true,
+              "type": "boolean"
+            }
+          }
         },
         "normalize_index_brace": {
           "description": "Array index should always be written by using square braces."
@@ -1534,7 +2057,15 @@
           "description": "Logical NOT operators (`!`) should have one trailing whitespace."
         },
         "nullable_type_declaration_for_default_null_value": {
-          "description": "Adds or removes `?` before type declarations for parameters with a default `null` value."
+          "description": "Adds or removes `?` before type declarations for parameters with a default `null` value.",
+          "type": "object",
+          "properties": {
+            "use_nullable_type_declaration": {
+              "description": "Whether to add or remove `?` before type declarations for parameters with a default `null` value.",
+              "default": true,
+              "type": "boolean"
+            }
+          }
         },
         "object_operator_without_whitespace": {
           "description": "There should not be space before or after object operators `->` and `?->`."
@@ -1712,34 +2243,184 @@
           "description": "Trait `use` statements must be sorted alphabetically."
         },
         "php_unit_construct": {
-          "description": "PHPUnit assertion method calls like `->assertSame(true, $foo)` should be written with dedicated method like `->assertTrue($foo)`."
+          "description": "PHPUnit assertion method calls like `->assertSame(true, $foo)` should be written with dedicated method like `->assertTrue($foo)`.",
+          "type": "object",
+          "properties": {
+            "assertions": {
+              "description": "List of assertion methods to fix.",
+              "default": [
+                "assertEquals",
+                "assertSame",
+                "assertNotEquals",
+                "assertNotSame"
+              ],
+              "type": "array",
+              "oneOf": [
+                {
+                  "enum": [
+                    [
+                      "assertEquals",
+                      "assertNotEquals",
+                      "assertNotSame",
+                      "assertSame"
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
         },
         "php_unit_dedicate_assert": {
-          "description": "PHPUnit assertions like `assertInternalType`, `assertFileExists`, should be used over `assertTrue`."
+          "description": "PHPUnit assertions like `assertInternalType`, `assertFileExists`, should be used over `assertTrue`.",
+          "type": "object",
+          "properties": {
+            "target": {
+              "description": "Target version of PHPUnit.",
+              "default": "newest",
+              "type": "string",
+              "oneOf": [
+                {
+                  "enum": [
+                    "3.0",
+                    "3.5",
+                    "5.0",
+                    "5.6",
+                    "newest"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "php_unit_dedicate_assert_internal_type": {
-          "description": "PHPUnit assertions like `assertIsArray` should be used over `assertInternalType`."
+          "description": "PHPUnit assertions like `assertIsArray` should be used over `assertInternalType`.",
+          "type": "object",
+          "properties": {
+            "target": {
+              "description": "Target version of PHPUnit.",
+              "default": "newest",
+              "type": "string",
+              "oneOf": [
+                {
+                  "enum": [
+                    "7.5",
+                    "newest"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "php_unit_expectation": {
-          "description": "Usages of `->setExpectedException*` methods MUST be replaced by `->expectException*` methods."
+          "description": "Usages of `->setExpectedException*` methods MUST be replaced by `->expectException*` methods.",
+          "type": "object",
+          "properties": {
+            "target": {
+              "description": "Target version of PHPUnit.",
+              "default": "newest",
+              "type": "string",
+              "oneOf": [
+                {
+                  "enum": [
+                    "5.2",
+                    "5.6",
+                    "8.4",
+                    "newest"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "php_unit_fqcn_annotation": {
           "description": "PHPUnit annotations should be a FQCNs including a root namespace."
         },
         "php_unit_internal_class": {
-          "description": "All PHPUnit test classes should be marked as internal."
+          "description": "All PHPUnit test classes should be marked as internal.",
+          "type": "object",
+          "properties": {
+            "types": {
+              "description": "What types of classes to mark as internal",
+              "default": [
+                "normal",
+                "final"
+              ],
+              "type": "array",
+              "oneOf": [
+                {
+                  "enum": [
+                    [
+                      "abstract",
+                      "final",
+                      "normal"
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
         },
         "php_unit_method_casing": {
-          "description": "Enforce camel (or snake) case for PHPUnit test methods, following configuration."
+          "description": "Enforce camel (or snake) case for PHPUnit test methods, following configuration.",
+          "type": "object",
+          "properties": {
+            "case": {
+              "description": "Apply camel or snake case to test methods",
+              "default": "camel_case",
+              "oneOf": [
+                {
+                  "enum": [
+                    "camel_case",
+                    "snake_case"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "php_unit_mock": {
-          "description": "Usages of `->getMock` and `->getMockWithoutInvokingTheOriginalConstructor` methods MUST be replaced by `->createMock` or `->createPartialMock` methods."
+          "description": "Usages of `->getMock` and `->getMockWithoutInvokingTheOriginalConstructor` methods MUST be replaced by `->createMock` or `->createPartialMock` methods.",
+          "type": "object",
+          "properties": {
+            "target": {
+              "description": "Target version of PHPUnit.",
+              "default": "newest",
+              "type": "string",
+              "oneOf": [
+                {
+                  "enum": [
+                    "5.4",
+                    "5.5",
+                    "newest"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "php_unit_mock_short_will_return": {
           "description": "Usage of PHPUnit's mock e.g. `->will($this->returnValue(..))` must be replaced by its shorter equivalent such as `->willReturn(...)`."
         },
         "php_unit_namespaced": {
-          "description": "PHPUnit classes MUST be used in namespaced version, e.g. `\\PHPUnit\\Framework\\TestCase` instead of `\\PHPUnit_Framework_TestCase`."
+          "description": "PHPUnit classes MUST be used in namespaced version, e.g. `\\PHPUnit\\Framework\\TestCase` instead of `\\PHPUnit_Framework_TestCase`.",
+          "type": "object",
+          "properties": {
+            "target": {
+              "description": "Target version of PHPUnit.",
+              "default": "newest",
+              "type": "string",
+              "oneOf": [
+                {
+                  "enum": [
+                    "4.8",
+                    "5.7",
+                    "6.0",
+                    "newest"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "php_unit_no_expectation_annotation": {
           "description": "Usages of `@expectedException*` annotations MUST be replaced by `->setExpectedException*` methods.",
@@ -1770,13 +2451,69 @@
           "description": "Changes the visibility of the `setUp()` and `tearDown()` functions of PHPUnit to `protected`, to match the PHPUnit TestCase."
         },
         "php_unit_size_class": {
-          "description": "All PHPUnit test cases should have `@small`, `@medium` or `@large` annotation to enable run time limits."
+          "description": "All PHPUnit test cases should have `@small`, `@medium` or `@large` annotation to enable run time limits.",
+          "type": "object",
+          "properties": {
+            "group": {
+              "description": "Define a specific group to be used in case no group is already in use",
+              "default": "small",
+              "oneOf": [
+                {
+                  "enum": [
+                    "small",
+                    "medium",
+                    "large"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "php_unit_strict": {
-          "description": "PHPUnit methods like `assertSame` should be used instead of `assertEquals`."
+          "description": "PHPUnit methods like `assertSame` should be used instead of `assertEquals`.",
+          "type": "object",
+          "properties": {
+            "assertions": {
+              "description": "List of assertion methods to fix.",
+              "default": [
+                "assertAttributeEquals",
+                "assertAttributeNotEquals",
+                "assertEquals",
+                "assertNotEquals"
+              ],
+              "type": "array",
+              "oneOf": [
+                {
+                  "enum": [
+                    [
+                      "assertAttributeEquals",
+                      "assertAttributeNotEquals",
+                      "assertEquals",
+                      "assertNotEquals"
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
         },
         "php_unit_test_annotation": {
-          "description": "Adds or removes @test annotations from tests, following configuration."
+          "description": "Adds or removes @test annotations from tests, following configuration.",
+          "type": "object",
+          "properties": {
+            "style": {
+              "description": "Whether to use the @test annotation or not.",
+              "default": "prefix",
+              "oneOf": [
+                {
+                  "enum": [
+                    "prefix",
+                    "annotation"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "php_unit_test_case_static_method_calls": {
           "description": "Calls to `PHPUnit\\Framework\\TestCase` static methods must all be of the same type, either `$this->`, `self::` or `static::`.",
@@ -1807,7 +2544,15 @@
           "description": "Adds a default `@coversNothing` annotation to PHPUnit test classes that have no `@covers*` annotation."
         },
         "phpdoc_add_missing_param_annotation": {
-          "description": "PHPDoc should contain `@param` for all params."
+          "description": "PHPDoc should contain `@param` for all params.",
+          "type": "object",
+          "properties": {
+            "only_untyped": {
+              "description": "Whether to add missing `@param` annotations for untyped parameters only.",
+              "default": true,
+              "type": "boolean"
+            }
+          }
         },
         "phpdoc_align": {
           "description": "All items of the given phpdoc tags must be either left-aligned or (by default) aligned vertically.",
@@ -1865,7 +2610,25 @@
           "description": "Docblocks should have the same indentation as the documented subject."
         },
         "phpdoc_inline_tag_normalizer": {
-          "description": "Fixes PHPDoc inline tags."
+          "description": "Fixes PHPDoc inline tags.",
+          "type": "object",
+          "properties": {
+            "tags": {
+              "description": "The list of tags to normalize",
+              "default": [
+                "example",
+                "id",
+                "internal",
+                "inheritdoc",
+                "inheritdocs",
+                "link",
+                "source",
+                "toc",
+                "tutorial"
+              ],
+              "type": "array"
+            }
+          }
         },
         "phpdoc_line_span": {
           "description": "Changes doc blocks from single to multi line, or reversed. Works for class constants, properties and methods only.",
@@ -1916,7 +2679,20 @@
           "description": "`@access` annotations should be omitted from PHPDoc."
         },
         "phpdoc_no_alias_tag": {
-          "description": "No alias PHPDoc tags should be used."
+          "description": "No alias PHPDoc tags should be used.",
+          "type": "object",
+          "properties": {
+            "replacements": {
+              "description": "Mapping between replaced annotations with new ones.",
+              "default": {
+                "property-read": "property",
+                "property-write": "property",
+                "type": "var",
+                "link": "see"
+              },
+              "type": "array"
+            }
+          }
         },
         "phpdoc_no_empty_return": {
           "description": "`@return void` and `@return null` annotations should be omitted from PHPDoc."
@@ -1928,19 +2704,137 @@
           "description": "Classy that does not inherit must not have `@inheritdoc` tags."
         },
         "phpdoc_order": {
-          "description": "Annotations in PHPDoc should be ordered in defined sequence."
+          "description": "Annotations in PHPDoc should be ordered in defined sequence.",
+          "type": "object",
+          "properties": {
+            "order": {
+              "description": "Sequence in which annotations in PHPDoc should be ordered.",
+              "default": [
+                "param",
+                "throws",
+                "return"
+              ],
+              "type": "string[]"
+            }
+          }
         },
         "phpdoc_order_by_value": {
-          "description": "Order phpdoc tags by value."
+          "description": "Order phpdoc tags by value.",
+          "type": "object",
+          "properties": {
+            "annotations": {
+              "description": "List of annotations to order, e.g. `[\"covers\"]`.",
+              "default": [
+                "covers"
+              ],
+              "type": "array",
+              "oneOf": [
+                {
+                  "enum": [
+                    [
+                      "author",
+                      "covers",
+                      "coversNothing",
+                      "dataProvider",
+                      "depends",
+                      "group",
+                      "internal",
+                      "method",
+                      "mixin",
+                      "property",
+                      "property-read",
+                      "property-write",
+                      "requires",
+                      "throws",
+                      "uses"
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
         },
         "phpdoc_return_self_reference": {
-          "description": "The type of `@return` annotations of methods returning a reference to itself must the configured one."
+          "description": "The type of `@return` annotations of methods returning a reference to itself must the configured one.",
+          "type": "object",
+          "properties": {
+            "replacements": {
+              "description": "Mapping between replaced return types with new ones.",
+              "default": {
+                "this": "$this",
+                "@this": "$this",
+                "$self": "self",
+                "@self": "self",
+                "$static": "static",
+                "@static": "static"
+              },
+              "type": "array"
+            }
+          }
         },
         "phpdoc_scalar": {
-          "description": "Scalar types should always be written in the same form. `int` not `integer`, `bool` not `boolean`, `float` not `real` or `double`."
+          "description": "Scalar types should always be written in the same form. `int` not `integer`, `bool` not `boolean`, `float` not `real` or `double`.",
+          "type": "object",
+          "properties": {
+            "types": {
+              "description": "A list of types to fix.",
+              "default": [
+                "boolean",
+                "callback",
+                "double",
+                "integer",
+                "real",
+                "str"
+              ],
+              "oneOf": [
+                {
+                  "enum": [
+                    [
+                      "boolean",
+                      "callback",
+                      "double",
+                      "integer",
+                      "real",
+                      "str"
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
         },
         "phpdoc_separation": {
-          "description": "Annotations in PHPDoc should be grouped together so that annotations of the same type immediately follow each other. Annotations of a different type are separated by a single blank line."
+          "description": "Annotations in PHPDoc should be grouped together so that annotations of the same type immediately follow each other. Annotations of a different type are separated by a single blank line.",
+          "type": "object",
+          "properties": {
+            "groups": {
+              "description": "Sets of annotation types to be grouped together.",
+              "default": [
+                [
+                  "deprecated",
+                  "link",
+                  "see",
+                  "since"
+                ],
+                [
+                  "author",
+                  "copyright",
+                  "license"
+                ],
+                [
+                  "category",
+                  "package",
+                  "subpackage"
+                ],
+                [
+                  "property",
+                  "property-read",
+                  "property-write"
+                ]
+              ],
+              "type": "string[][]"
+            }
+          }
         },
         "phpdoc_single_line_var_spacing": {
           "description": "Single line `@var` PHPDoc should have proper spacing."
@@ -1949,22 +2843,94 @@
           "description": "PHPDoc summary should end in either a full stop, exclamation mark, or question mark."
         },
         "phpdoc_tag_casing": {
-          "description": "Fixes casing of PHPDoc tags."
+          "description": "Fixes casing of PHPDoc tags.",
+          "type": "object",
+          "properties": {
+            "tags": {
+              "description": "List of tags to fix with their expected casing.",
+              "default": [
+                "inheritDoc"
+              ],
+              "type": "array"
+            }
+          }
         },
         "phpdoc_tag_type": {
-          "description": "Forces PHPDoc tags to be either regular annotations or inline."
+          "description": "Forces PHPDoc tags to be either regular annotations or inline.",
+          "type": "object",
+          "properties": {
+            "tags": {
+              "description": "The list of tags to fix",
+              "default": {
+                "api": "annotation",
+                "author": "annotation",
+                "copyright": "annotation",
+                "deprecated": "annotation",
+                "example": "annotation",
+                "global": "annotation",
+                "inheritDoc": "annotation",
+                "internal": "annotation",
+                "license": "annotation",
+                "method": "annotation",
+                "package": "annotation",
+                "param": "annotation",
+                "property": "annotation",
+                "return": "annotation",
+                "see": "annotation",
+                "since": "annotation",
+                "throws": "annotation",
+                "todo": "annotation",
+                "uses": "annotation",
+                "var": "annotation",
+                "version": "annotation"
+              },
+              "type": "array"
+            }
+          }
         },
         "phpdoc_to_comment": {
-          "description": "Docblocks should only be used on structural elements."
+          "description": "Docblocks should only be used on structural elements.",
+          "type": "object",
+          "properties": {
+            "ignored_tags": {
+              "description": "List of ignored tags (matched case insensitively)",
+              "default": [],
+              "type": "array"
+            }
+          }
         },
         "phpdoc_to_param_type": {
-          "description": "EXPERIMENTAL: Takes `@param` annotations of non-mixed types and adjusts accordingly the function signature. Requires PHP >= 7.0."
+          "description": "EXPERIMENTAL: Takes `@param` annotations of non-mixed types and adjusts accordingly the function signature. Requires PHP >= 7.0.",
+          "type": "object",
+          "properties": {
+            "scalar_types": {
+              "description": "Fix also scalar types; may have unexpected behaviour due to PHP bad type coercion system.",
+              "default": true,
+              "type": "boolean"
+            }
+          }
         },
         "phpdoc_to_property_type": {
-          "description": "EXPERIMENTAL: Takes `@var` annotation of non-mixed types and adjusts accordingly the property signature. Requires PHP >= 7.4."
+          "description": "EXPERIMENTAL: Takes `@var` annotation of non-mixed types and adjusts accordingly the property signature. Requires PHP >= 7.4.",
+          "type": "object",
+          "properties": {
+            "scalar_types": {
+              "description": "Fix also scalar types; may have unexpected behaviour due to PHP bad type coercion system.",
+              "default": true,
+              "type": "boolean"
+            }
+          }
         },
         "phpdoc_to_return_type": {
-          "description": "EXPERIMENTAL: Takes `@return` annotation of non-mixed types and adjusts accordingly the function signature. Requires PHP >= 7.0."
+          "description": "EXPERIMENTAL: Takes `@return` annotation of non-mixed types and adjusts accordingly the function signature. Requires PHP >= 7.0.",
+          "type": "object",
+          "properties": {
+            "scalar_types": {
+              "description": "Fix also scalar types; may have unexpected behaviour due to PHP bad type coercion system.",
+              "default": true,
+              "type": "boolean"
+            }
+          }
         },
         "phpdoc_trim": {
           "description": "PHPDoc should start and end with content, excluding the very first and last line of the docblocks."
@@ -1973,7 +2939,30 @@
           "description": "Removes extra blank lines after summary and after description in PHPDoc."
         },
         "phpdoc_types": {
-          "description": "The correct case must be used for standard PHP types in PHPDoc."
+          "description": "The correct case must be used for standard PHP types in PHPDoc.",
+          "type": "object",
+          "properties": {
+            "groups": {
+              "description": "Type groups to fix.",
+              "default": [
+                "simple",
+                "alias",
+                "meta"
+              ],
+              "type": "array",
+              "oneOf": [
+                {
+                  "enum": [
+                    [
+                      "alias",
+                      "meta",
+                      "simple"
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
         },
         "phpdoc_types_order": {
           "description": "Sorts PHPDoc types.",
@@ -2019,10 +3008,33 @@
           "description": "Converts `protected` variables and methods to `private` where possible."
         },
         "psr_autoloading": {
-          "description": "Classes must be in a path that matches their namespace, be at least one namespace deep and the class name should match the file name."
+          "description": "Classes must be in a path that matches their namespace, be at least one namespace deep and the class name should match the file name.",
+          "type": "object",
+          "properties": {
+            "dir": {
+              "description": "If provided, the directory where the project code is placed.",
+              "default": null,
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          }
         },
         "random_api_migration": {
-          "description": "Replaces `rand`, `srand`, `getrandmax` functions calls with their `mt_*` analogs or `random_int`."
+          "description": "Replaces `rand`, `srand`, `getrandmax` functions calls with their `mt_*` analogs or `random_int`.",
+          "type": "object",
+          "properties": {
+            "replacements": {
+              "description": "Mapping between replaced functions with the new ones.",
+              "default": {
+                "getrandmax": "mt_getrandmax",
+                "rand": "mt_rand",
+                "srand": "mt_srand"
+              },
+              "type": "array"
+            }
+          }
         },
         "regular_callable_call": {
           "description": "Callables must be called without using `call_user_func*` when possible."
@@ -2031,7 +3043,22 @@
           "description": "Local, dynamic and directly referenced variables should not be assigned and directly returned by a function or method."
         },
         "return_type_declaration": {
-          "description": "Adjust spacing around colon in return type declarations and backed enum types."
+          "description": "Adjust spacing around colon in return type declarations and backed enum types.",
+          "type": "object",
+          "properties": {
+            "space_before": {
+              "description": "Spacing to apply before colon.",
+              "default": "none",
+              "oneOf": [
+                {
+                  "enum": [
+                    "one",
+                    "none"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "self_accessor": {
           "description": "Inside class or interface element `self` should be preferred to the class name itself."
@@ -2064,10 +3091,39 @@
           "description": "There should be exactly one blank line before a namespace declaration."
         },
         "single_class_element_per_statement": {
-          "description": "There MUST NOT be more than one property or constant declared per statement."
+          "description": "There MUST NOT be more than one property or constant declared per statement.",
+          "type": "object",
+          "properties": {
+            "elements": {
+              "description": "List of strings which element should be modified.",
+              "default": [
+                "const",
+                "property"
+              ],
+              "type": "array",
+              "oneOf": [
+                {
+                  "enum": [
+                    [
+                      "const",
+                      "property"
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
         },
         "single_import_per_statement": {
-          "description": "There MUST be one use keyword per declaration."
+          "description": "There MUST be one use keyword per declaration.",
+          "type": "object",
+          "properties": {
+            "group_to_single_imports": {
+              "description": "Whether to change group imports into single imports.",
+              "default": true,
+              "type": "boolean"
+            }
+          }
         },
         "single_line_after_imports": {
           "description": "Each namespace use MUST go on its own line and there MUST be one blank line after the use statements block."
@@ -2076,22 +3132,197 @@
           "description": "Single-line comments must have proper spacing."
         },
         "single_line_comment_style": {
-          "description": "Single-line comments and multi-line comments with only one line of actual content should use the `//` syntax."
+          "description": "Single-line comments and multi-line comments with only one line of actual content should use the `//` syntax.",
+          "type": "object",
+          "properties": {
+            "comment_types": {
+              "description": "List of comment types to fix",
+              "default": [
+                "asterisk",
+                "hash"
+              ],
+              "type": "array",
+              "oneOf": [
+                {
+                  "enum": [
+                    [
+                      "asterisk",
+                      "hash"
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
         },
         "single_line_throw": {
           "description": "Throwing exception must be done in single line."
         },
         "single_quote": {
-          "description": "Convert double quotes to single quotes for simple strings."
+          "description": "Convert double quotes to single quotes for simple strings.",
+          "type": "object",
+          "properties": {
+            "strings_containing_single_quote_chars": {
+              "description": "Whether to fix double-quoted strings that contains single-quotes.",
+              "default": false,
+              "type": "boolean"
+            }
+          }
         },
         "single_space_after_construct": {
-          "description": "Ensures a single space after language constructs."
+          "description": "Ensures a single space after language constructs.",
+          "type": "object",
+          "properties": {
+            "constructs": {
+              "description": "List of constructs which must be followed by a single space.",
+              "default": [
+                "abstract",
+                "as",
+                "attribute",
+                "break",
+                "case",
+                "catch",
+                "class",
+                "clone",
+                "comment",
+                "const",
+                "const_import",
+                "continue",
+                "do",
+                "echo",
+                "else",
+                "elseif",
+                "enum",
+                "extends",
+                "final",
+                "finally",
+                "for",
+                "foreach",
+                "function",
+                "function_import",
+                "global",
+                "goto",
+                "if",
+                "implements",
+                "include",
+                "include_once",
+                "instanceof",
+                "insteadof",
+                "interface",
+                "match",
+                "named_argument",
+                "namespace",
+                "new",
+                "open_tag_with_echo",
+                "php_doc",
+                "php_open",
+                "print",
+                "private",
+                "protected",
+                "public",
+                "readonly",
+                "require",
+                "require_once",
+                "return",
+                "static",
+                "switch",
+                "throw",
+                "trait",
+                "try",
+                "use",
+                "use_lambda",
+                "use_trait",
+                "var",
+                "while",
+                "yield",
+                "yield_from"
+              ],
+              "type": "array",
+              "oneOf": [
+                {
+                  "enum": [
+                    [
+                      "abstract",
+                      "as",
+                      "attribute",
+                      "break",
+                      "case",
+                      "catch",
+                      "class",
+                      "clone",
+                      "comment",
+                      "const",
+                      "const_import",
+                      "continue",
+                      "do",
+                      "echo",
+                      "else",
+                      "elseif",
+                      "enum",
+                      "extends",
+                      "final",
+                      "finally",
+                      "for",
+                      "foreach",
+                      "function",
+                      "function_import",
+                      "global",
+                      "goto",
+                      "if",
+                      "implements",
+                      "include",
+                      "include_once",
+                      "instanceof",
+                      "insteadof",
+                      "interface",
+                      "match",
+                      "named_argument",
+                      "namespace",
+                      "new",
+                      "open_tag_with_echo",
+                      "php_doc",
+                      "php_open",
+                      "print",
+                      "private",
+                      "protected",
+                      "public",
+                      "readonly",
+                      "require",
+                      "require_once",
+                      "return",
+                      "static",
+                      "switch",
+                      "throw",
+                      "trait",
+                      "try",
+                      "type_colon",
+                      "use",
+                      "use_lambda",
+                      "use_trait",
+                      "var",
+                      "while",
+                      "yield",
+                      "yield_from"
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
         },
         "single_trait_insert_per_statement": {
           "description": "Each trait `use` must be done as single statement."
         },
         "space_after_semicolon": {
-          "description": "Fix whitespace after a semicolon."
+          "description": "Fix whitespace after a semicolon.",
+          "type": "object",
+          "properties": {
+            "remove_in_empty_for_expressions": {
+              "description": "Whether spaces should be removed for empty `for` expressions.",
+              "default": false,
+              "type": "boolean"
+            }
+          }
         },
         "standardize_increment": {
           "description": "Increment and decrement operators should be used if possible."
@@ -2206,13 +3437,44 @@
           "description": "Anonymous functions with one-liner return statement must use arrow functions."
         },
         "visibility_required": {
-          "description": "Visibility MUST be declared on all properties and methods; `abstract` and `final` MUST be declared before the visibility; `static` MUST be declared after the visibility."
+          "description": "Visibility MUST be declared on all properties and methods; `abstract` and `final` MUST be declared before the visibility; `static` MUST be declared after the visibility.",
+          "type": "object",
+          "properties": {
+            "elements": {
+              "description": "The structural elements to fix (PHP >= 7.1 required for `const`).",
+              "default": [
+                "property",
+                "method",
+                "const"
+              ],
+              "type": "array",
+              "oneOf": [
+                {
+                  "enum": [
+                    [
+                      "const",
+                      "method",
+                      "property"
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
         },
         "void_return": {
           "description": "Add `void` return type to functions with missing or empty return statements, but priority is given to `@return` annotations. Requires PHP >= 7.1."
         },
         "whitespace_after_comma_in_array": {
-          "description": "In array declaration, there MUST be a whitespace after each comma."
+          "description": "In array declaration, there MUST be a whitespace after each comma.",
+          "type": "object",
+          "properties": {
+            "ensure_single_space": {
+              "description": "If there are only horizontal whitespaces after the comma then ensure it is a single space.",
+              "default": false,
+              "type": "boolean"
+            }
+          }
         },
         "yoda_style": {
           "description": "Write conditions in Yoda style (`true`), non-Yoda style (`['equal' => false, 'identical' => false, 'less_and_greater' => false]`) or ignore those conditions (`null`) based on configuration.",
