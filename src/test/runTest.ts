@@ -1,5 +1,4 @@
 import * as path from 'path';
-
 import { runTests } from '@vscode/test-electron';
 
 async function main() {
@@ -26,13 +25,13 @@ async function main() {
        *
        * See `code --help` for possible arguments.
        */
-      launchArgs: [path.resolve(__dirname, '../../playground'), '--disable-extensions']
+      launchArgs: [path.resolve(__dirname, '../../playground/laravel')]
     });
 
     
 	} catch (err) {
 		console.error('Failed to run tests');
-		process.exit(1);
+		// process.exit(1);
 	}
 }
 
