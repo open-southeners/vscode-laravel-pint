@@ -25,6 +25,10 @@ composer require laravel/pint --dev
 - Formatter for PHP files that uses Laravel Pint locally, globally or within Docker (using [Laravel Sail](https://laravel.com/docs/9.x/sail))
 - Format workspace files command to format all **current active workspace PHP files**
 
+## Partners
+
+[![skore logo](https://github.com/open-southeners/partners/raw/main/logos/skore_logo.png)](https://getskore.com)
+
 ## License
 
 **Logo (icon) is property of Laravel Team or Laravel Pint project.**
