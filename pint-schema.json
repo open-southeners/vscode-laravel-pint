@@ -12,7 +12,8 @@
           "enum": [
             "laravel",
             "symfony",
-            "psr12"
+            "psr12",
+            "per"
           ]
         }
       ]
@@ -46,6 +47,10 @@
       "type": "object",
       "description": "Customise rules used for the formatting, this replaces the ones of the preset",
       "properties": {
+        "Laravel/laravel_phpdoc_alignment": {
+          "description": "Aligns PHPDocs (@throws, @return, etc) using Laravel's opinionated style",
+          "type": "boolean"
+        },
         "align_multiline_comment": {
           "description": "Each line of multi-line DocComments must have an asterisk [PSR-5] and must be aligned with the first one.",
           "type": "object",
@@ -106,8 +111,11 @@
                 {
                   "enum": [
                     "align",
+                    "align_by_scope",
                     "align_single_space",
                     "align_single_space_minimal",
+                    "align_single_space_by_scope",
+                    "align_single_space_minimal_by_scope",
                     "single_space",
                     "no_space",
                     null
@@ -116,9 +124,9 @@
               ]
             },
             "operators": {
-              "description": "Dictionary of `binary operator` => `fix strategy` values that differ from the default strategy. Supported are: `=`, `*`, `/`, `%`, `<`, `>`, `|`, `^`, `+`, `-`, `&`, `&=`, `&&`, `||`, `.=`, `/=`, `=>`, `==`, `>=`, `===`, `!=`, `<>`, `!==`, `<=`, `and`, `or`, `xor`, `-=`, `%=`, `*=`, `|=`, `+=`, `<<`, `<<=`, `>>`, `>>=`, `^=`, `**`, `**=`, `<=>`, `??`, `??=`",
+              "description": "Dictionary of `binary operator` => `fix strategy` values that differ from the default strategy. Supported are: `=`, `*`, `/`, `%`, `<`, `>`, `|`, `^`, `+`, `-`, `&`, `&=`, `&&`, `||`, `.=`, `/=`, `=>`, `==`, `>=`, `===`, `!=`, `<>`, `!==`, `<=`, `and`, `or`, `xor`, `-=`, `%=`, `*=`, `|=`, `+=`, `<<`, `<<=`, `>>`, `>>=`, `^=`, `**`, `**=`, `<=>`, `??` and `??=`.",
               "default": {},
-              "type": "array"
+              "type": "object"
             }
           }
         },
@@ -180,6 +188,22 @@
         "blank_line_between_import_groups": {
           "description": "Putting blank lines between `use` statement groups."
         },
+        "blank_lines_before_namespace": {
+          "description": "Controls blank lines before a namespace declaration.",
+          "type": "object",
+          "properties": {
+            "max_line_breaks": {
+              "description": "Maximum line breaks that should exist before namespace declaration.",
+              "default": 2,
+              "type": "int"
+            },
+            "min_line_breaks": {
+              "description": "Minimum line breaks that should exist before namespace declaration.",
+              "default": 2,
+              "type": "int"
+            }
+          }
+        },
         "braces": {
           "description": "The body of each structure MUST be enclosed by braces. Braces should be properly placed. Body of braces should be properly indented.",
           "type": "object",
@@ -195,7 +219,7 @@
               "type": "boolean"
             },
             "position_after_anonymous_constructs": {
-              "description": "whether the opening brace should be placed on \"next\" or \"same\" line after anonymous constructs (anonymous classes and lambda functions).",
+              "description": "Whether the opening brace should be placed on \"next\" or \"same\" line after anonymous constructs (anonymous classes and lambda functions).",
               "default": "same",
               "oneOf": [
                 {
@@ -207,7 +231,7 @@
               ]
             },
             "position_after_control_structures": {
-              "description": "whether the opening brace should be placed on \"next\" or \"same\" line after control structures.",
+              "description": "Whether the opening brace should be placed on \"next\" or \"same\" line after control structures.",
               "default": "same",
               "oneOf": [
                 {
@@ -219,7 +243,7 @@
               ]
             },
             "position_after_functions_and_oop_constructs": {
-              "description": "whether the opening brace should be placed on \"next\" or \"same\" line after classy constructs (non-anonymous classes, interfaces, traits, methods and non-lambda functions).",
+              "description": "Whether the opening brace should be placed on \"next\" or \"same\" line after classy constructs (non-anonymous classes, interfaces, traits, methods and non-lambda functions).",
               "default": "next",
               "oneOf": [
                 {
@@ -237,7 +261,7 @@
           "type": "object",
           "properties": {
             "space": {
-              "description": "spacing to apply between cast and variable.",
+              "description": "Spacing to apply between cast and variable.",
               "default": "single",
               "oneOf": [
                 {
@@ -263,7 +287,7 @@
                 "trait_import": "none",
                 "case": "none"
               },
-              "type": "array"
+              "type": "object"
             }
           }
         },
@@ -321,7 +345,7 @@
           "type": "object",
           "properties": {
             "ignored_tags": {
-              "description": "List of ignored tags",
+              "description": "List of ignored tags.",
               "default": [],
               "type": "array"
             }
@@ -331,7 +355,7 @@
           "description": "Remove extra spaces in a nullable typehint."
         },
         "concat_space": {
-          "description": "Concatenation should be spaced according configuration.",
+          "description": "Concatenation should be spaced according to configuration.",
           "type": "object",
           "properties": {
             "spacing": {
@@ -374,7 +398,7 @@
           "type": "object",
           "properties": {
             "position": {
-              "description": "the position of the keyword that continues the control structure.",
+              "description": "The position of the keyword that continues the control structure.",
               "default": "same_line",
               "oneOf": [
                 {
@@ -392,17 +416,17 @@
           "type": "object",
           "properties": {
             "allow_single_line_anonymous_functions": {
-              "description": "allow anonymous functions to have opening and closing braces on the same line.",
+              "description": "Allow anonymous functions to have opening and closing braces on the same line.",
               "default": true,
               "type": "boolean"
             },
             "allow_single_line_empty_anonymous_classes": {
-              "description": "allow anonymous classes to have opening and closing braces on the same line.",
+              "description": "Allow anonymous classes to have opening and closing braces on the same line.",
               "default": true,
               "type": "boolean"
             },
             "anonymous_classes_opening_brace": {
-              "description": "the position of the opening brace of anonymous classes body.",
+              "description": "The position of the opening brace of anonymous classes‘ body.",
               "default": "same_line",
               "oneOf": [
                 {
@@ -414,7 +438,7 @@
               ]
             },
             "anonymous_functions_opening_brace": {
-              "description": "the position of the opening brace of anonymous functions body.",
+              "description": "The position of the opening brace of anonymous functions‘ body.",
               "default": "same_line",
               "oneOf": [
                 {
@@ -426,7 +450,7 @@
               ]
             },
             "classes_opening_brace": {
-              "description": "the position of the opening brace of classes body.",
+              "description": "The position of the opening brace of classes‘ body.",
               "default": "next_line_unless_newline_at_signature_end",
               "oneOf": [
                 {
@@ -438,7 +462,7 @@
               ]
             },
             "control_structures_opening_brace": {
-              "description": "the position of the opening brace of control structures body.",
+              "description": "The position of the opening brace of control structures‘ body.",
               "default": "same_line",
               "oneOf": [
                 {
@@ -450,7 +474,7 @@
               ]
             },
             "functions_opening_brace": {
-              "description": "the position of the opening brace of functions body.",
+              "description": "The position of the opening brace of functions‘ body.",
               "default": "next_line_unless_newline_at_signature_end",
               "oneOf": [
                 {
@@ -1012,7 +1036,7 @@
               ]
             },
             "long_function": {
-              "description": "The function to be used to expand the short echo tags",
+              "description": "The function to be used to expand the short echo tags.",
               "default": "echo",
               "oneOf": [
                 {
@@ -1024,7 +1048,7 @@
               ]
             },
             "shorten_simple_statements_only": {
-              "description": "Render short-echo tags only in case of simple code",
+              "description": "Render short-echo tags only in case of simple code.",
               "default": true,
               "type": "boolean"
             }
@@ -1092,7 +1116,7 @@
               "type": "boolean"
             },
             "noise_remaining_usages_exclude": {
-              "description": "List of global functions to exclude from removing `@`",
+              "description": "List of global functions to exclude from removing `@`.",
               "default": [],
               "type": "array"
             }
@@ -1133,7 +1157,7 @@
           "type": "object",
           "properties": {
             "annotation_exclude": {
-              "description": "Class level annotations tags that must be omitted to fix the class, even if all of the white list ones are used as well. (case insensitive)",
+              "description": "Class level attribute or annotation tags that must be omitted to fix the class, even if all of the white list ones are used as well (case insensitive).",
               "default": [
                 "@final",
                 "@Entity",
@@ -1146,16 +1170,36 @@
               "type": "array"
             },
             "annotation_include": {
-              "description": "Class level annotations tags that must be set in order to fix the class. (case insensitive)",
+              "description": "Class level attribute or annotation tags that must be set in order to fix the class (case insensitive).",
               "default": [
                 "@internal"
               ],
               "type": "array"
             },
             "consider_absent_docblock_as_internal_class": {
-              "description": "Should classes without any DocBlock be fixed to final?",
+              "description": "Whether classes without any DocBlock should be fixed to final.",
               "default": false,
               "type": "boolean"
+            },
+            "exclude": {
+              "description": "Class level attribute or annotation tags that must be omitted to fix the class, even if all of the white list ones are used as well (case insensitive).",
+              "default": [
+                "final",
+                "Entity",
+                "ORM\\Entity",
+                "ORM\\Mapping\\Entity",
+                "Mapping\\Entity",
+                "Document",
+                "ODM\\Document"
+              ],
+              "type": "array"
+            },
+            "include": {
+              "description": "Class level attribute or annotation tags that must be set in order to fix the class (case insensitive).",
+              "default": [
+                "internal"
+              ],
+              "type": "array"
             }
           }
         },
@@ -1290,7 +1334,7 @@
             "replacements": {
               "description": "A map of tags to replace.",
               "default": {},
-              "type": "array"
+              "type": "object"
             }
           }
         },
@@ -1658,7 +1702,7 @@
           "type": "object",
           "properties": {
             "sets": {
-              "description": "List of sets to fix. Defined sets are:\n\n* `@all` (all listed sets)\n* `@internal` (native functions)\n* `@exif` (EXIF functions)\n* `@ftp` (FTP functions)\n* `@IMAP` (IMAP functions)\n* `@ldap` (LDAP functions)\n* `@mbreg` (from `ext-mbstring`)\n* `@mysqli` (mysqli functions)\n* `@oci` (oci functions)\n* `@odbc` (odbc functions)\n* `@openssl` (openssl functions)\n* `@pcntl` (PCNTL functions)\n* `@pg` (pg functions)\n* `@posix` (POSIX functions)\n* `@snmp` (SNMP functions)\n* `@sodium` (libsodium functions)\n* `@time` (time functions)\n",
+              "description": "List of sets to fix. Defined sets are:\n\n* `@all` (all listed sets);\n* `@internal` (native functions);\n* `@exif` (EXIF functions);\n* `@ftp` (FTP functions);\n* `@IMAP` (IMAP functions);\n* `@ldap` (LDAP functions);\n* `@mbreg` (from `ext-mbstring`);\n* `@mysqli` (mysqli functions);\n* `@oci` (oci functions);\n* `@odbc` (odbc functions);\n* `@openssl` (openssl functions);\n* `@pcntl` (PCNTL functions);\n* `@pg` (pg functions);\n* `@posix` (POSIX functions);\n* `@snmp` (SNMP functions);\n* `@sodium` (libsodium functions);\n* `@time` (time functions).",
               "default": [
                 "@internal",
                 "@IMAP",
@@ -1863,17 +1907,17 @@
           "type": "object",
           "properties": {
             "allow_mixed": {
-              "description": "Whether type `mixed` without description is allowed (`true`) or considered superfluous (`false`)",
+              "description": "Whether type `mixed` without description is allowed (`true`) or considered superfluous (`false`).",
               "default": false,
               "type": "boolean"
             },
             "allow_unused_params": {
-              "description": "Whether `param` annotation without actual signature is allowed (`true`) or considered superfluous (`false`)",
+              "description": "Whether `param` annotation without actual signature is allowed (`true`) or considered superfluous (`false`).",
               "default": false,
               "type": "boolean"
             },
             "remove_inheritdoc": {
-              "description": "Remove `@inheritDoc` tags",
+              "description": "Remove `@inheritDoc` tags.",
               "default": false,
               "type": "boolean"
             }
@@ -2057,11 +2101,11 @@
           "description": "Logical NOT operators (`!`) should have one trailing whitespace."
         },
         "nullable_type_declaration_for_default_null_value": {
-          "description": "Adds or removes `?` before type declarations for parameters with a default `null` value.",
+          "description": "Adds or removes `?` before single type declarations or `|null` at the end of union types when parameters have a default `null` value.",
           "type": "object",
           "properties": {
             "use_nullable_type_declaration": {
-              "description": "Whether to add or remove `?` before type declarations for parameters with a default `null` value.",
+              "description": "Whether to add or remove `?` or `|null` to parameters with a default `null` value.",
               "default": true,
               "type": "boolean"
             }
@@ -2078,12 +2122,12 @@
           "type": "object",
           "properties": {
             "only_booleans": {
-              "description": "whether to limit operators to only boolean ones",
+              "description": "Whether to limit operators to only boolean ones.",
               "default": false,
               "type": "boolean"
             },
             "position": {
-              "description": "whether to place operators at the beginning or at the end of the line",
+              "description": "Whether to place operators at the beginning or at the end of the line.",
               "default": "beginning",
               "oneOf": [
                 {
@@ -2100,6 +2144,11 @@
           "description": "Orders the elements of classes/interfaces/traits/enums.",
           "type": "object",
           "properties": {
+            "case_sensitive": {
+              "description": "Whether the sorting should be case sensitive.",
+              "default": false,
+              "type": "boolean"
+            },
             "order": {
               "description": "List of strings defining order of elements.",
               "default": [
@@ -2119,57 +2168,10 @@
                 "method_protected",
                 "method_private"
               ],
-              "type": "array",
-              "oneOf": [
-                {
-                  "enum": [
-                    [
-                      "case",
-                      "constant",
-                      "constant_private",
-                      "constant_protected",
-                      "constant_public",
-                      "construct",
-                      "destruct",
-                      "magic",
-                      "method",
-                      "method_abstract",
-                      "method_private",
-                      "method_private_abstract",
-                      "method_private_abstract_static",
-                      "method_private_static",
-                      "method_protected",
-                      "method_protected_abstract",
-                      "method_protected_abstract_static",
-                      "method_protected_static",
-                      "method_public",
-                      "method_public_abstract",
-                      "method_public_abstract_static",
-                      "method_public_static",
-                      "method_static",
-                      "phpunit",
-                      "private",
-                      "property",
-                      "property_private",
-                      "property_private_readonly",
-                      "property_private_static",
-                      "property_protected",
-                      "property_protected_readonly",
-                      "property_protected_static",
-                      "property_public",
-                      "property_public_readonly",
-                      "property_public_static",
-                      "property_static",
-                      "protected",
-                      "public",
-                      "use_trait"
-                    ]
-                  ]
-                }
-              ]
+              "type": "array"
             },
             "sort_algorithm": {
-              "description": "How multiple occurrences of same type statements should be sorted",
+              "description": "How multiple occurrences of same type statements should be sorted.",
               "default": "none",
               "oneOf": [
                 {
@@ -2195,7 +2197,7 @@
               ]
             },
             "sort_algorithm": {
-              "description": "whether the statements should be sorted alphabetically or by length, or not sorted",
+              "description": "Whether the statements should be sorted alphabetically or by length, or not sorted.",
               "default": "alpha",
               "oneOf": [
                 {
@@ -2214,7 +2216,7 @@
           "type": "object",
           "properties": {
             "direction": {
-              "description": "Which direction the interfaces should be ordered",
+              "description": "Which direction the interfaces should be ordered.",
               "default": "ascend",
               "oneOf": [
                 {
@@ -2226,7 +2228,7 @@
               ]
             },
             "order": {
-              "description": "How the interfaces should be ordered",
+              "description": "How the interfaces should be ordered.",
               "default": "alpha",
               "oneOf": [
                 {
@@ -2241,6 +2243,37 @@
         },
         "ordered_traits": {
           "description": "Trait `use` statements must be sorted alphabetically."
+        },
+        "ordered_types": {
+          "description": "Sort union types and intersection types using configured order.",
+          "type": "object",
+          "properties": {
+            "null_adjustment": {
+              "description": "Forces the position of `null` (overrides `sort_algorithm`).",
+              "default": "always_first",
+              "oneOf": [
+                {
+                  "enum": [
+                    "always_first",
+                    "always_last",
+                    "none"
+                  ]
+                }
+              ]
+            },
+            "sort_algorithm": {
+              "description": "Whether the types should be sorted alphabetically, or not sorted.",
+              "default": "alpha",
+              "oneOf": [
+                {
+                  "enum": [
+                    "alpha",
+                    "none"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "php_unit_construct": {
           "description": "PHPUnit assertion method calls like `->assertSame(true, $foo)` should be written with dedicated method like `->assertTrue($foo)`.",
@@ -2267,6 +2300,33 @@
                   ]
                 }
               ]
+            }
+          }
+        },
+        "php_unit_data_provider_name": {
+          "description": "Data provider names must match the name of the test.",
+          "type": "object",
+          "properties": {
+            "prefix": {
+              "description": "Prefix that replaces \"test\".",
+              "default": "provide",
+              "type": "string"
+            },
+            "suffix": {
+              "description": "Suffix to be present at the end.",
+              "default": "Cases",
+              "type": "string"
+            }
+          }
+        },
+        "php_unit_data_provider_static": {
+          "description": "Data providers must be static.",
+          "type": "object",
+          "properties": {
+            "force": {
+              "description": "Whether to make the data providers static even if they have a dynamic class call (may introduce fatal error \"using $this when not in object context\", and you may have to adjust the code manually by converting dynamic calls to static ones).",
+              "default": false,
+              "type": "boolean"
             }
           }
         },
@@ -2340,7 +2400,7 @@
           "type": "object",
           "properties": {
             "types": {
-              "description": "What types of classes to mark as internal",
+              "description": "What types of classes to mark as internal.",
               "default": [
                 "normal",
                 "final"
@@ -2365,7 +2425,7 @@
           "type": "object",
           "properties": {
             "case": {
-              "description": "Apply camel or snake case to test methods",
+              "description": "Apply camel or snake case to test methods.",
               "default": "camel_case",
               "oneOf": [
                 {
@@ -2455,7 +2515,7 @@
           "type": "object",
           "properties": {
             "group": {
-              "description": "Define a specific group to be used in case no group is already in use",
+              "description": "Define a specific group to be used in case no group is already in use.",
               "default": "small",
               "oneOf": [
                 {
@@ -2559,7 +2619,7 @@
           "type": "object",
           "properties": {
             "align": {
-              "description": "Align comments",
+              "description": "How comments should be aligned.",
               "default": "vertical",
               "type": "string",
               "oneOf": [
@@ -2582,24 +2642,7 @@
                 "type",
                 "var"
               ],
-              "type": "array",
-              "oneOf": [
-                {
-                  "enum": [
-                    [
-                      "method",
-                      "param",
-                      "property",
-                      "property-read",
-                      "property-write",
-                      "return",
-                      "throws",
-                      "type",
-                      "var"
-                    ]
-                  ]
-                }
-              ]
+              "type": "array"
             }
           }
         },
@@ -2614,7 +2657,7 @@
           "type": "object",
           "properties": {
             "tags": {
-              "description": "The list of tags to normalize",
+              "description": "The list of tags to normalize.",
               "default": [
                 "example",
                 "id",
@@ -2635,7 +2678,7 @@
           "type": "object",
           "properties": {
             "const": {
-              "description": "Whether const blocks should be single or multi line",
+              "description": "Whether const blocks should be single or multi line.",
               "default": "multi",
               "oneOf": [
                 {
@@ -2648,7 +2691,7 @@
               ]
             },
             "method": {
-              "description": "Whether method doc blocks should be single or multi line",
+              "description": "Whether method doc blocks should be single or multi line.",
               "default": "multi",
               "oneOf": [
                 {
@@ -2661,7 +2704,7 @@
               ]
             },
             "property": {
-              "description": "Whether property doc blocks should be single or multi line",
+              "description": "Whether property doc blocks should be single or multi line.",
               "default": "multi",
               "oneOf": [
                 {
@@ -2690,7 +2733,7 @@
                 "type": "var",
                 "link": "see"
               },
-              "type": "array"
+              "type": "object"
             }
           }
         },
@@ -2754,6 +2797,9 @@
             }
           }
         },
+        "phpdoc_param_order": {
+          "description": "Orders all `@param` annotations in DocBlocks according to method signature."
+        },
         "phpdoc_return_self_reference": {
           "description": "The type of `@return` annotations of methods returning a reference to itself must the configured one.",
           "type": "object",
@@ -2768,7 +2814,7 @@
                 "$static": "static",
                 "@static": "static"
               },
-              "type": "array"
+              "type": "object"
             }
           }
         },
@@ -2808,7 +2854,7 @@
           "type": "object",
           "properties": {
             "groups": {
-              "description": "Sets of annotation types to be grouped together.",
+              "description": "Sets of annotation types to be grouped together. Use `*` to match any tag character.",
               "default": [
                 [
                   "deprecated",
@@ -2833,6 +2879,11 @@
                 ]
               ],
               "type": "string[][]"
+            },
+            "skip_unlisted_annotations": {
+              "description": "Whether to skip annotations that are not listed in any group.",
+              "default": false,
+              "type": "boolean"
             }
           }
         },
@@ -2860,7 +2911,7 @@
           "type": "object",
           "properties": {
             "tags": {
-              "description": "The list of tags to fix",
+              "description": "The list of tags to fix.",
               "default": {
                 "api": "annotation",
                 "author": "annotation",
@@ -2884,7 +2935,7 @@
                 "var": "annotation",
                 "version": "annotation"
               },
-              "type": "array"
+              "type": "object"
             }
           }
         },
@@ -2893,7 +2944,7 @@
           "type": "object",
           "properties": {
             "ignored_tags": {
-              "description": "List of ignored tags (matched case insensitively)",
+              "description": "List of ignored tags (matched case insensitively).",
               "default": [],
               "type": "array"
             }
@@ -3032,7 +3083,7 @@
                 "rand": "mt_rand",
                 "srand": "mt_srand"
               },
-              "type": "array"
+              "type": "object"
             }
           }
         },
@@ -3064,7 +3115,7 @@
           "description": "Inside class or interface element `self` should be preferred to the class name itself."
         },
         "self_static_accessor": {
-          "description": "Inside a `final` class or anonymous class `self` should be preferred to `static`."
+          "description": "Inside an enum or `final`/anonymous class, `self` should be preferred over `static`."
         },
         "semicolon_after_instruction": {
           "description": "Instructions must be terminated with a semicolon."
@@ -3136,7 +3187,7 @@
           "type": "object",
           "properties": {
             "comment_types": {
-              "description": "List of comment types to fix",
+              "description": "List of comment types to fix.",
               "default": [
                 "asterisk",
                 "hash"
@@ -3154,6 +3205,9 @@
               ]
             }
           }
+        },
+        "single_line_empty_body": {
+          "description": "Empty body of class, interface, trait, enum or function must be abbreviated as `{}` and placed on the same line as the previous symbol, separated by a single space."
         },
         "single_line_throw": {
           "description": "Throwing exception must be done in single line."
@@ -3310,6 +3364,182 @@
             }
           }
         },
+        "single_space_around_construct": {
+          "description": "Ensures a single space after language constructs.",
+          "type": "object",
+          "properties": {
+            "constructs_contain_a_single_space": {
+              "description": "List of constructs which must contain a single space.",
+              "default": [
+                "yield_from"
+              ],
+              "type": "array",
+              "oneOf": [
+                {
+                  "enum": [
+                    [
+                      "yield_from"
+                    ]
+                  ]
+                }
+              ]
+            },
+            "constructs_followed_by_a_single_space": {
+              "description": "List of constructs which must be followed by a single space.",
+              "default": [
+                "abstract",
+                "as",
+                "attribute",
+                "break",
+                "case",
+                "catch",
+                "class",
+                "clone",
+                "comment",
+                "const",
+                "const_import",
+                "continue",
+                "do",
+                "echo",
+                "else",
+                "elseif",
+                "enum",
+                "extends",
+                "final",
+                "finally",
+                "for",
+                "foreach",
+                "function",
+                "function_import",
+                "global",
+                "goto",
+                "if",
+                "implements",
+                "include",
+                "include_once",
+                "instanceof",
+                "insteadof",
+                "interface",
+                "match",
+                "named_argument",
+                "namespace",
+                "new",
+                "open_tag_with_echo",
+                "php_doc",
+                "php_open",
+                "print",
+                "private",
+                "protected",
+                "public",
+                "readonly",
+                "require",
+                "require_once",
+                "return",
+                "static",
+                "switch",
+                "throw",
+                "trait",
+                "try",
+                "type_colon",
+                "use",
+                "use_lambda",
+                "use_trait",
+                "var",
+                "while",
+                "yield",
+                "yield_from"
+              ],
+              "type": "array",
+              "oneOf": [
+                {
+                  "enum": [
+                    [
+                      "abstract",
+                      "as",
+                      "attribute",
+                      "break",
+                      "case",
+                      "catch",
+                      "class",
+                      "clone",
+                      "comment",
+                      "const",
+                      "const_import",
+                      "continue",
+                      "do",
+                      "echo",
+                      "else",
+                      "elseif",
+                      "enum",
+                      "extends",
+                      "final",
+                      "finally",
+                      "for",
+                      "foreach",
+                      "function",
+                      "function_import",
+                      "global",
+                      "goto",
+                      "if",
+                      "implements",
+                      "include",
+                      "include_once",
+                      "instanceof",
+                      "insteadof",
+                      "interface",
+                      "match",
+                      "named_argument",
+                      "namespace",
+                      "new",
+                      "open_tag_with_echo",
+                      "php_doc",
+                      "php_open",
+                      "print",
+                      "private",
+                      "protected",
+                      "public",
+                      "readonly",
+                      "require",
+                      "require_once",
+                      "return",
+                      "static",
+                      "switch",
+                      "throw",
+                      "trait",
+                      "try",
+                      "type_colon",
+                      "use",
+                      "use_lambda",
+                      "use_trait",
+                      "var",
+                      "while",
+                      "yield",
+                      "yield_from"
+                    ]
+                  ]
+                }
+              ]
+            },
+            "constructs_preceded_by_a_single_space": {
+              "description": "List of constructs which must be preceded by a single space.",
+              "default": [
+                "as",
+                "use_lambda"
+              ],
+              "type": "array",
+              "oneOf": [
+                {
+                  "enum": [
+                    [
+                      "as",
+                      "use_lambda"
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
+        },
         "single_trait_insert_per_statement": {
           "description": "Each trait `use` must be done as single statement."
         },
@@ -3404,7 +3634,7 @@
           "type": "object",
           "properties": {
             "space": {
-              "description": "spacing to apply around union type and intersection type operators.",
+              "description": "Spacing to apply around union type and intersection type operators.",
               "default": "none",
               "oneOf": [
                 {
@@ -3416,7 +3646,7 @@
               ]
             },
             "space_multiple_catch": {
-              "description": "spacing to apply around type operator when catching exceptions of multiple types, use `null` to follow the value configured for `space`.",
+              "description": "Spacing to apply around type operator when catching exceptions of multiple types, use `null` to follow the value configured for `space`.",
               "default": null,
               "oneOf": [
                 {

@@ -5,7 +5,7 @@ import fetch from "node-fetch";
 import { readFileSync, writeFileSync } from "fs";
 import path from "path";
 
-const response = await fetch("https://raw.githubusercontent.com/mlocati/php-cs-fixer-configurator/master/docs/data/3.13.2.json");
+const response = await fetch("https://raw.githubusercontent.com/mlocati/php-cs-fixer-configurator/master/docs/data/3.20.0.json");
 
 const body = await response.text();
 
