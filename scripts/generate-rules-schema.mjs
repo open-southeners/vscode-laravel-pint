@@ -21,9 +21,13 @@ function relativePath(fromPath) {
   return path.resolve(path.dirname(fileURLToPath(import.meta.url)), fromPath);
 }
 
-function mapTypeToJsonSchema(type) {
+function mapTypeToJsonSchema(type, defaultValueType) {
   if (type === 'bool') {
     return 'boolean';
+  }
+
+  if (type === "array" && defaultValueType === "object") {
+    return "object";
   }
 
   return type;
@@ -48,14 +52,28 @@ function ruleIntoJsonSchemaProperty(rule) {
 
       jsonSchemaProperty.properties[configItem.name].description = configItem.description;
 
+      let defaultValueType = undefined;
       if ('defaultValue' in configItem) {
         jsonSchemaProperty.properties[configItem.name].default = configItem.defaultValue;
+
+        if (configItem.defaultValue === null) {
+          defaultValueType = 'null';
+        } else if (typeof configItem.defaultValue === 'object') {
+          if (!Array.isArray(configItem.defaultValue)) {
+            defaultValueType = 'object';
+          } else {
+            defaultValueType = 'array';
+          }
+        } else {
+          defaultValueType = typeof configItem.defaultValue;
+        }
       }
       
       if ('allowedTypes' in configItem) {
-        jsonSchemaProperty.properties[configItem.name].type = configItem.allowedTypes.length > 1
-            ? configItem.allowedTypes.map(mapTypeToJsonSchema)
-            : mapTypeToJsonSchema(configItem.allowedTypes[0]);
+        jsonSchemaProperty.properties[configItem.name].type =
+          configItem.allowedTypes.length > 1
+            ? configItem.allowedTypes.map((type) => mapTypeToJsonSchema(type, defaultValueType))
+            : mapTypeToJsonSchema(configItem.allowedTypes[0], defaultValueType);
       }
       
       if ('allowedValues' in configItem) {
