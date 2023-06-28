@@ -6,6 +6,13 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.1.5] - 2023-06-28
+
+### Added
+
+- `PER` preset to JSON schema and config [#41]
+- Fixes to JSON schema generator [#40 #42] (thanks @yaegassy)
+
 ## [1.1.4] - 2022-11-24
 
 ### Fixed
