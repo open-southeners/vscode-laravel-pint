@@ -1,6 +1,7 @@
 import { accessSync, constants } from "fs";
 import path = require("path");
-import { commands, MessageItem, RelativePattern, window, workspace, WorkspaceFolder } from "vscode";
+import { glob } from "glob";
+import { commands, MessageItem, window, workspace, WorkspaceFolder } from "vscode";
 import { LoggingService } from "./LoggingService";
 import { RESTART_TO_ENABLE } from "./message";
 import { ExtensionConfig } from "./types";
@@ -48,11 +49,12 @@ export function isRelativeTo(from: string, to: string) {
 }
 
 export async function resolvePathFromWorkspaces(pattern: string, relativeTo: WorkspaceFolder) {
-  const matchedPaths = await workspace.findFiles(
-    new RelativePattern(relativeTo, pattern)
-  );
+  const matchedPaths = await glob(pattern, {
+    cwd: relativeTo.uri.fsPath,
+    absolute: true,
+  });
 
-  return matchedPaths.map(foundUri => foundUri.fsPath);
+  return matchedPaths;
 }
 
 export function onConfigChange(loggingService: LoggingService) {
