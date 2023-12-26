@@ -45,7 +45,11 @@ export class ModuleResolver {
       return;
     }
 
-    return new PhpCommand(executable, await this.getPintConfigAsArgs(workspaceFolder, input));
+    const cmd = getWorkspaceConfig('executablePath', path.posix.join(...DEFAULT_EXEC_PATH));
+
+    const cwd = executable.replace( cmd, '' );
+
+    return new PhpCommand(cmd, await this.getPintConfigAsArgs(workspaceFolder, input), cwd);
   }
 
   public async getPintCommandWithinSail(workspaceFolder: WorkspaceFolder, input?: string): Promise<PhpCommand | undefined> {
