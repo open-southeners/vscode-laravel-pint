@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -35,16 +35,17 @@ jobs:
       - name: Package extension to VSIX
         run: yarn run vsce package --no-yarn --pre-release
 
-      - name: Get latest release info
-        id: get-release-info
-        uses: release-flow/keep-a-changelog-action/get-release-info@v1
+      - name: Get release info
+        id: query-release-info
+        uses: release-flow/keep-a-changelog-action@v2
         with:
-          release-version: latest
+          command: query
+          version: latest
 
       - name: Publish to Github releases
         uses: softprops/action-gh-release@v1
         with:
-          body: ${{ steps.get-release-info.outputs.release-notes }}
+          body: ${{ steps.query-release-info.outputs.release-notes }}
           prerelease: true
           files: '*.vsix'
 
