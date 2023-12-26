@@ -6,6 +6,18 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.1.6] - 2023-12-26
+
+### Fixed
+
+- Use relative path as Pint uses current working directory (cwd) [#50 #51] (thanks @mho22)
+- Ignore VSCode excluded paths so Pint executable can be found [#46 #45] (thanks @fritz-c)
+
+### Changed
+
+- VSCode minimum version upgraded (`1.68.0` to `1.82.0`)
+- Pint config json schema updated to PHP CS Fixer 3.41.1
+
 ## [1.1.5] - 2023-06-28
 
 ### Added
