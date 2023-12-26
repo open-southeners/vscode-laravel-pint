@@ -154,7 +154,7 @@
     "vsce": "^2.14.0"
   },
   "engines": {
-    "vscode": "^1.68.0"
+    "vscode": "^1.82.0"
   },
   "__metadata": {
     "id": "6828d529-8cfe-4935-9607-fc07294f1cc0",
@@ -162,5 +162,5 @@
     "publisherId": "158876d3-17b8-41c8-9af0-204a740fc57d",
     "isPreReleaseVersion": false
   },
-  "packageManager": "yarn@3.2.2"
+  "packageManager": "yarn@4.0.2"
 }
