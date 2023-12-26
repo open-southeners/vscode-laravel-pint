@@ -97,6 +97,17 @@
         "assign_null_coalescing_to_coalesce_equal": {
           "description": "Use the null coalescing assignment operator `??=` where possible."
         },
+        "attribute_empty_parentheses": {
+          "description": "PHP attributes declared without arguments must (not) be followed by empty parentheses.",
+          "type": "object",
+          "properties": {
+            "use_parentheses": {
+              "description": "Whether attributes should be followed by parentheses or not.",
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        },
         "backtick_to_shell_exec": {
           "description": "Converts backtick operators to `shell_exec` calls."
         },
@@ -118,6 +129,7 @@
                     "align_single_space_minimal_by_scope",
                     "single_space",
                     "no_space",
+                    "at_least_single_space",
                     null
                   ]
                 }
@@ -256,6 +268,82 @@
             }
           }
         },
+        "braces_position": {
+          "description": "Braces must be placed as configured.",
+          "type": "object",
+          "properties": {
+            "allow_single_line_anonymous_functions": {
+              "description": "Allow anonymous functions to have opening and closing braces on the same line.",
+              "default": true,
+              "type": "boolean"
+            },
+            "allow_single_line_empty_anonymous_classes": {
+              "description": "Allow anonymous classes to have opening and closing braces on the same line.",
+              "default": true,
+              "type": "boolean"
+            },
+            "anonymous_classes_opening_brace": {
+              "description": "The position of the opening brace of anonymous classes‘ body.",
+              "default": "same_line",
+              "oneOf": [
+                {
+                  "enum": [
+                    "next_line_unless_newline_at_signature_end",
+                    "same_line"
+                  ]
+                }
+              ]
+            },
+            "anonymous_functions_opening_brace": {
+              "description": "The position of the opening brace of anonymous functions‘ body.",
+              "default": "same_line",
+              "oneOf": [
+                {
+                  "enum": [
+                    "next_line_unless_newline_at_signature_end",
+                    "same_line"
+                  ]
+                }
+              ]
+            },
+            "classes_opening_brace": {
+              "description": "The position of the opening brace of classes‘ body.",
+              "default": "next_line_unless_newline_at_signature_end",
+              "oneOf": [
+                {
+                  "enum": [
+                    "next_line_unless_newline_at_signature_end",
+                    "same_line"
+                  ]
+                }
+              ]
+            },
+            "control_structures_opening_brace": {
+              "description": "The position of the opening brace of control structures‘ body.",
+              "default": "same_line",
+              "oneOf": [
+                {
+                  "enum": [
+                    "next_line_unless_newline_at_signature_end",
+                    "same_line"
+                  ]
+                }
+              ]
+            },
+            "functions_opening_brace": {
+              "description": "The position of the opening brace of functions‘ body.",
+              "default": "next_line_unless_newline_at_signature_end",
+              "oneOf": [
+                {
+                  "enum": [
+                    "next_line_unless_newline_at_signature_end",
+                    "same_line"
+                  ]
+                }
+              ]
+            }
+          }
+        },
         "cast_spaces": {
           "description": "A single space or none should be between cast and variable.",
           "type": "object",
@@ -350,6 +438,9 @@
               "type": "array"
             }
           }
+        },
+        "compact_nullable_type_declaration": {
+          "description": "Remove extra spaces in a nullable type declaration."
         },
         "compact_nullable_typehint": {
           "description": "Remove extra spaces in a nullable typehint."
@@ -1224,7 +1315,15 @@
           "description": "PHP code must use the long `<?php` tags or short-echo `<?=` tags and not other tag variations."
         },
         "fully_qualified_strict_types": {
-          "description": "Transforms imported FQCN parameters and return types in function arguments to short version."
+          "description": "Transforms imported FQCN parameters and return types in function arguments to short version.",
+          "type": "object",
+          "properties": {
+            "leading_backslash_in_global_namespace": {
+              "description": "Whether FQCN is prefixed with backslash when that FQCN is used in global namespace context.",
+              "default": false,
+              "type": "boolean"
+            }
+          }
         },
         "function_declaration": {
           "description": "Spaces should be properly placed in a function declaration.",
@@ -1438,7 +1537,7 @@
           }
         },
         "heredoc_indentation": {
-          "description": "Heredoc/nowdoc content must be properly indented. Requires PHP >= 7.3.",
+          "description": "Heredoc/nowdoc content must be properly indented.",
           "type": "object",
           "properties": {
             "indentation": {
@@ -1462,7 +1561,7 @@
           "description": "Function `implode` must be called with 2 arguments in the documented order."
         },
         "include": {
-          "description": "Include/Require and file path should be divided with a single space. File path should not be placed under brackets."
+          "description": "Include/Require and file path should be divided with a single space. File path should not be placed within parentheses."
         },
         "increment_style": {
           "description": "Pre- or post-increment and decrement operators should be used if possible.",
@@ -1505,7 +1604,7 @@
           "type": "object",
           "properties": {
             "syntax": {
-              "description": "Whether to use the `long` or `short` `list` syntax.",
+              "description": "Whether to use the `long` or `short` syntax for array destructuring.",
               "default": "short",
               "oneOf": [
                 {
@@ -1520,6 +1619,9 @@
         },
         "logical_operators": {
           "description": "Use `&&` and `||` logical operators instead of `and` and `or`."
+        },
+        "long_to_shorthand_operator": {
+          "description": "Shorthand notation for operators should be used if possible."
         },
         "lowercase_cast": {
           "description": "Cast should be written in lower case."
@@ -1547,6 +1649,19 @@
               "description": "Whether the whitespace between heredoc end and comma should be removed.",
               "default": false,
               "type": "boolean"
+            },
+            "attribute_placement": {
+              "description": "Defines how to handle argument attributes when function definition is multiline.",
+              "default": "standalone",
+              "oneOf": [
+                {
+                  "enum": [
+                    "ignore",
+                    "same_line",
+                    "standalone"
+                  ]
+                }
+              ]
             },
             "keep_multiple_spaces_after_comma": {
               "description": "Whether keep multiple spaces after comma.",
@@ -1679,10 +1794,29 @@
           }
         },
         "native_function_type_declaration_casing": {
-          "description": "Native type hints for functions should use the correct case."
+          "description": "Native type declarations for functions should use the correct case."
+        },
+        "native_type_declaration_casing": {
+          "description": "Native type declarations should be used in the correct case."
         },
         "new_with_braces": {
           "description": "All instances created with `new` keyword must (not) be followed by braces.",
+          "type": "object",
+          "properties": {
+            "anonymous_class": {
+              "description": "Whether anonymous classes should be followed by parentheses.",
+              "default": true,
+              "type": "boolean"
+            },
+            "named_class": {
+              "description": "Whether named classes should be followed by parentheses.",
+              "default": true,
+              "type": "boolean"
+            }
+          }
+        },
+        "new_with_parentheses": {
+          "description": "All instances created with `new` keyword must (not) be followed by parentheses.",
           "type": "object",
           "properties": {
             "anonymous_class": {
@@ -1969,6 +2103,17 @@
         "no_trailing_whitespace_in_string": {
           "description": "There must be no trailing whitespace in strings."
         },
+        "no_unneeded_braces": {
+          "description": "Removes unneeded braces that are superfluous and aren't part of a control structure's body.",
+          "type": "object",
+          "properties": {
+            "namespaces": {
+              "description": "Remove unneeded braces from bracketed namespaces.",
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        },
         "no_unneeded_control_parentheses": {
           "description": "Removes unneeded parentheses around control statements.",
           "type": "object",
@@ -2058,7 +2203,7 @@
           "description": "There should not be useless `else` cases."
         },
         "no_useless_nullsafe_operator": {
-          "description": "There should not be useless `null-safe-operators` `?->` used."
+          "description": "There should not be useless Null-safe operator `?->` used."
         },
         "no_useless_return": {
           "description": "There should not be an empty `return` statement at the end of a function."
@@ -2099,6 +2244,24 @@
         },
         "not_operator_with_successor_space": {
           "description": "Logical NOT operators (`!`) should have one trailing whitespace."
+        },
+        "nullable_type_declaration": {
+          "description": "Nullable single type declaration should be standardised using configured syntax.",
+          "type": "object",
+          "properties": {
+            "syntax": {
+              "description": "Whether to use question mark (`?`) or explicit `null` union for nullable type.",
+              "default": "question_mark",
+              "oneOf": [
+                {
+                  "enum": [
+                    "union",
+                    "question_mark"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "nullable_type_declaration_for_default_null_value": {
           "description": "Adds or removes `?` before single type declarations or `|null` at the end of union types when parameters have a default `null` value.",
@@ -2188,6 +2351,11 @@
           "description": "Ordering `use` statements.",
           "type": "object",
           "properties": {
+            "case_sensitive": {
+              "description": "Whether the sorting should be case sensitive.",
+              "default": false,
+              "type": "boolean"
+            },
             "imports_order": {
               "description": "Defines the order of import types.",
               "default": null,
@@ -2215,6 +2383,11 @@
           "description": "Orders the interfaces in an `implements` or `interface extends` clause.",
           "type": "object",
           "properties": {
+            "case_sensitive": {
+              "description": "Whether the sorting should be case sensitive.",
+              "default": false,
+              "type": "boolean"
+            },
             "direction": {
               "description": "Which direction the interfaces should be ordered.",
               "default": "ascend",
@@ -2242,12 +2415,25 @@
           }
         },
         "ordered_traits": {
-          "description": "Trait `use` statements must be sorted alphabetically."
+          "description": "Trait `use` statements must be sorted alphabetically.",
+          "type": "object",
+          "properties": {
+            "case_sensitive": {
+              "description": "Whether the sorting should be case sensitive.",
+              "default": false,
+              "type": "boolean"
+            }
+          }
         },
         "ordered_types": {
           "description": "Sort union types and intersection types using configured order.",
           "type": "object",
           "properties": {
+            "case_sensitive": {
+              "description": "Whether the sorting should be case sensitive.",
+              "default": false,
+              "type": "boolean"
+            },
             "null_adjustment": {
               "description": "Forces the position of `null` (overrides `sort_algorithm`).",
               "default": "always_first",
@@ -2318,6 +2504,9 @@
               "type": "string"
             }
           }
+        },
+        "php_unit_data_provider_return_type": {
+          "description": "The return type of PHPUnit data provider must be `iterable`."
         },
         "php_unit_data_provider_static": {
           "description": "Data providers must be static.",
@@ -2632,7 +2821,7 @@
               ]
             },
             "tags": {
-              "description": "The tags that should be aligned.",
+              "description": "The tags that should be aligned. Allowed values are tags with name (`'param', 'property', 'property-read', 'property-write', 'phpstan-param', 'phpstan-property', 'phpstan-property-read', 'phpstan-property-write', 'phpstan-assert', 'phpstan-assert-if-true', 'phpstan-assert-if-false', 'psalm-param', 'psalm-param-out', 'psalm-property', 'psalm-property-read', 'psalm-property-write', 'psalm-assert', 'psalm-assert-if-true', 'psalm-assert-if-false'`), tags with method signature (`'method', 'phpstan-method', 'psalm-method'`) and any custom tag with description (e.g. `@tag <desc>`).",
               "default": [
                 "method",
                 "param",
@@ -2800,6 +2989,9 @@
         "phpdoc_param_order": {
           "description": "Orders all `@param` annotations in DocBlocks according to method signature."
         },
+        "phpdoc_readonly_class_comment_to_keyword": {
+          "description": "Converts readonly comment on classes to the readonly keyword."
+        },
         "phpdoc_return_self_reference": {
           "description": "The type of `@return` annotations of methods returning a reference to itself must the configured one.",
           "type": "object",
@@ -2857,12 +3049,6 @@
               "description": "Sets of annotation types to be grouped together. Use `*` to match any tag character.",
               "default": [
                 [
-                  "deprecated",
-                  "link",
-                  "see",
-                  "since"
-                ],
-                [
                   "author",
                   "copyright",
                   "license"
@@ -2876,6 +3062,12 @@
                   "property",
                   "property-read",
                   "property-write"
+                ],
+                [
+                  "deprecated",
+                  "link",
+                  "see",
+                  "since"
                 ]
               ],
               "type": "string[][]"
@@ -2973,7 +3165,7 @@
           }
         },
         "phpdoc_to_return_type": {
-          "description": "EXPERIMENTAL: Takes `@return` annotation of non-mixed types and adjusts accordingly the function signature. Requires PHP >= 7.0.",
+          "description": "EXPERIMENTAL: Takes `@return` annotation of non-mixed types and adjusts accordingly the function signature.",
           "type": "object",
           "properties": {
             "scalar_types": {
@@ -3019,6 +3211,11 @@
           "description": "Sorts PHPDoc types.",
           "type": "object",
           "properties": {
+            "case_sensitive": {
+              "description": "Whether the sorting should be case sensitive.",
+              "default": false,
+              "type": "boolean"
+            },
             "null_adjustment": {
               "description": "Forces the position of `null` (overrides `sort_algorithm`).",
               "default": "always_first",
@@ -3092,6 +3289,9 @@
         },
         "return_assignment": {
           "description": "Local, dynamic and directly referenced variables should not be assigned and directly returned by a function or method."
+        },
+        "return_to_yield_from": {
+          "description": "If the function explicitly returns an array, and has the return type `iterable`, then `yield from` must be used instead of `return`."
         },
         "return_type_declaration": {
           "description": "Adjust spacing around colon in return type declarations and backed enum types.",
@@ -3554,6 +3754,24 @@
             }
           }
         },
+        "spaces_inside_parentheses": {
+          "description": "Parentheses must be declared using the configured whitespace.",
+          "type": "object",
+          "properties": {
+            "space": {
+              "description": "Whether to have `single` or `none` space inside parentheses.",
+              "default": "none",
+              "oneOf": [
+                {
+                  "enum": [
+                    "none",
+                    "single"
+                  ]
+                }
+              ]
+            }
+          }
+        },
         "standardize_increment": {
           "description": "Increment and decrement operators should be used if possible."
         },
@@ -3564,7 +3782,7 @@
           "description": "Each statement must be indented."
         },
         "static_lambda": {
-          "description": "Lambdas not (indirect) referencing `$this` must be declared `static`."
+          "description": "Lambdas not (indirectly) referencing `$this` must be declared `static`."
         },
         "strict_comparison": {
           "description": "Comparisons should be strict."
@@ -3628,6 +3846,30 @@
         },
         "trim_array_spaces": {
           "description": "Arrays should be formatted like function/method arguments, without leading or trailing single line space."
+        },
+        "type_declaration_spaces": {
+          "description": "Ensure single space between a variable and its type declaration in function arguments and properties.",
+          "type": "object",
+          "properties": {
+            "elements": {
+              "description": "Structural elements where the spacing after the type declaration should be fixed.",
+              "default": [
+                "function",
+                "property"
+              ],
+              "type": "array",
+              "oneOf": [
+                {
+                  "enum": [
+                    [
+                      "function",
+                      "property"
+                    ]
+                  ]
+                }
+              ]
+            }
+          }
         },
         "types_spaces": {
           "description": "A single space or none should be around union type and intersection type operators.",
@@ -3705,6 +3947,9 @@
               "type": "boolean"
             }
           }
+        },
+        "yield_from_array_to_yields": {
+          "description": "Yield from array must be unpacked to series of yields."
         },
         "yoda_style": {
           "description": "Write conditions in Yoda style (`true`), non-Yoda style (`['equal' => false, 'identical' => false, 'less_and_greater' => false]`) or ignore those conditions (`null`) based on configuration.",
