@@ -1,51 +1,50 @@
 import * as assert from 'assert';
-
-// You can import and use all API from the 'vscode' module
-// as well as import your extension to test it
+import { afterEach } from 'mocha';
 import * as fs from 'fs';
-import { beforeEach } from 'mocha';
-import path = require('path');
 import * as vscode from 'vscode';
-import * as myExtension from '../../extension';
-import { PresetOptions } from '../../types';
-import { asAbsolutePathFromWorkspaceFolder, buildCommandFromConfig } from '../../util';
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+let originalFile = {
+  path: '',
+  content: ''
+};
+
+afterEach(async () => {
+  if (originalFile.path !== '') {
+    fs.writeFileSync(originalFile.path, originalFile.content, { encoding: 'utf-8' });
+  }
+});
 
 suite('Extension Test Suite', () => {
-	vscode.window.showInformationMessage('Start all tests.');
+  test('Open messy file and run formatting over it', async () => {
+    await vscode.extensions.getExtension('open-southeners.laravel-pint')!.activate();
 
-  // TODO: Not there yet...
-  // myExtension.activate();
+    const foundFiles = await vscode.workspace.findFiles("config/vendor.php");
+    const document = await vscode.workspace.openTextDocument(foundFiles[0]);
 
-  beforeEach(() => {
-    const workspaceConfigFile = path.resolve(__dirname, '../../../plaground/.vscode/settings.json');
-
-    if (fs.existsSync(workspaceConfigFile)) {
-      fs.rmSync(workspaceConfigFile);
+    await vscode.languages.setTextDocumentLanguage(document, "php");
+    try {
+      await vscode.window.showTextDocument(document);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      throw error;
     }
-  });
+    
+    const oldText = document.getText();
+    
+    originalFile.path = document.uri.path;
+    originalFile.content = oldText;
 
-	test('Default config settings', () => {
-    const config = vscode.workspace.getConfiguration('laravel-pint');
+    console.time('formatting file with Pint');
+    
+    await vscode.commands.executeCommand("laravel-pint.format");
 
-    assert.strictEqual(config.get<string>('configPath'), '');
-    assert.strictEqual(config.get<string>('executablePath'), '');
-    assert.strictEqual(config.get<boolean>('formatOnSave'), true);
-    assert.strictEqual(config.get<PresetOptions>('preset'), 'auto');
-    assert.strictEqual(config.get<boolean>('runInLaravelSail'), false);
-    assert.strictEqual(config.get<string>('sailExecutablePath'), '');
-	});
-	
-  test('Build command with config args', async () => {
-    const config = vscode.workspace.getConfiguration('laravel-pint');
+    console.timeEnd('formatting file with Pint');
 
-    await config.update('executablePath', 'pint');
-    await config.update('configPath', 'mypintconfig.json');
-
-    const cmd = await buildCommandFromConfig('index.php', config);
-
-    console.log(cmd);
-
-    assert.ok(cmd);
-    assert.ok(cmd.filter(value => ['vendor/bin/pint', 'index.php', '--config', 'mypintconfig.json'].includes(value)).length > 1);
-	});
+    await wait(1000);
+    
+    assert.notStrictEqual(oldText, document.getText());
+	}).timeout(5000);
 });

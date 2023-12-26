@@ -21,8 +21,12 @@
 			"type": "extensionHost",
 			"request": "launch",
 			"args": [
+				"--skip-welcome",
+				"--disable-extensions",
+				"--skip-release-notes",
 				"--extensionDevelopmentPath=${workspaceFolder}",
-				"--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
+				"--extensionTestsPath=${workspaceFolder}/out/test/suite/index",
+				"${workspaceFolder}/playground/laravel"
 			],
 			"outFiles": [
 				"${workspaceFolder}/out/test/**/*.js"
