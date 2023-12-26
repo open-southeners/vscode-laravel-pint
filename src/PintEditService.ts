@@ -200,7 +200,7 @@ export default class PintEditService implements Disposable {
       return false;
     }
 
-    command.run(workspaceFolder?.uri.fsPath);
+    command.run();
 
     this.loggingService.logDebug(RUNNING_PINT_ON_PATH, { command: command.toString() });
 
