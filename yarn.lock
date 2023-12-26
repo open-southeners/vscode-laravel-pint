@@ -204,17 +204,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:14.x":
-  version: 14.18.21
-  resolution: "@types/node@npm:14.18.21"
-  checksum: e6f333886c3e9ff455bebdf3fccc719514d76a5a2453f04824dcdd305a779fe29eca8370d66d754c8e1d9f014b9063ef33a26139d50352db18a064e309abc842
+"@types/node@npm:18.x":
+  version: 18.19.3
+  resolution: "@types/node@npm:18.19.3"
+  dependencies:
+    undici-types: "npm:~5.26.4"
+  checksum: b95d0c0be342275e27d882bb6ca73c0b757d1672a121cae1fc3249eda4f86a8abeb5745e5c5c1150914bcfda323a3fc51526cd34e2097f8355bf7cbf12fa6bcb
   languageName: node
   linkType: hard
 
-"@types/vscode@npm:^1.68.0":
-  version: 1.73.1
-  resolution: "@types/vscode@npm:1.73.1"
-  checksum: 0b88c2b5bdb63460fdff70779a4cd88b314d711fcaf5501655d67927ab609294b598ff78052dae53e75be74cf3afa4b274d8b522d68ea9afdaf4b98982a9eebf
+"@types/vscode@npm:^1.82.0":
+  version: 1.85.0
+  resolution: "@types/vscode@npm:1.85.0"
+  checksum: 100b4dc63629028212ad85d305db57f963ac2eb295c2a96044039f21bb4e68bb0374a9f35780d47c79de7e414b44c06a0d4dc8f3b3218814c4380cef5735818d
   languageName: node
   linkType: hard
 
@@ -2325,8 +2327,8 @@ __metadata:
     "@types/fs-extra": "npm:^9.0.13"
     "@types/glob": "npm:^8.0.0"
     "@types/mocha": "npm:^9.1.1"
-    "@types/node": "npm:14.x"
-    "@types/vscode": "npm:^1.68.0"
+    "@types/node": "npm:18.x"
+    "@types/vscode": "npm:^1.82.0"
     "@typescript-eslint/eslint-plugin": "npm:^5.12.1"
     "@typescript-eslint/parser": "npm:^5.12.1"
     "@vscode/test-electron": "npm:^2.1.2"
@@ -3656,6 +3658,13 @@ __metadata:
   version: 1.13.4
   resolution: "underscore@npm:1.13.4"
   checksum: c704bb64a970087c9fe687d3a38aae5c6fa1dad1431fa49c54b5905d657e58aad7e8919964b8d922360b8f39a232b15d2df9b8b61fa790ef168e86835acc07e5
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:~5.26.4":
+  version: 5.26.5
+  resolution: "undici-types@npm:5.26.5"
+  checksum: 0097779d94bc0fd26f0418b3a05472410408877279141ded2bd449167be1aed7ea5b76f756562cb3586a07f251b90799bab22d9019ceba49c037c76445f7cddd
   languageName: node
   linkType: hard
 
