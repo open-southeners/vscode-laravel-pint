@@ -47,7 +47,7 @@ export class ModuleResolver {
 
     const cmd = getWorkspaceConfig('executablePath', path.posix.join(...DEFAULT_EXEC_PATH));
 
-    const cwd = executable.replace( cmd, '' );
+    const cwd = path.normalize(executable).replace(path.normalize(cmd), '');
 
     return new PhpCommand(cmd, await this.getPintConfigAsArgs(workspaceFolder, input), cwd);
   }
