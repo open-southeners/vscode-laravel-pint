@@ -5,6 +5,7 @@ import { commands, MessageItem, window, workspace, WorkspaceFolder } from "vscod
 import { LoggingService } from "./LoggingService";
 import { RESTART_TO_ENABLE } from "./message";
 import { ExtensionConfig } from "./types";
+import { WINDOWS_DRIVE_LETTER_REGEX } from "./constants";
 
 type GetFieldType<Obj, Path> = Path extends `${infer Left}.${string}`
   ? Left extends keyof Obj
@@ -72,4 +73,14 @@ export function onConfigChange(loggingService: LoggingService) {
       }
     }
   });
+}
+
+export function normalizeWindowsDriveLetter(path: string): string {
+  if (process.platform !== 'win32') {
+    return path;
+  }
+  if (!WINDOWS_DRIVE_LETTER_REGEX.test(path)) {
+    return path;
+  }
+  return path.charAt(0).toUpperCase() + path.slice(1);
 }

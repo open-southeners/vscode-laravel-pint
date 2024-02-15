@@ -5,7 +5,7 @@ import { CONFIG_FILE_NAME, DEFAULT_EXEC_PATH, DEFAULT_LARAVEL_SAIL_EXEC_PATH } f
 import { LoggingService } from "./LoggingService";
 import { CONFIG_PATHS_FOUND_FOR_WORKSPACE, NO_CONFIG_FOUND_FOR_WORKSPACE, PINT_CANNOT_BE_EXECUTED, SAIL_CANNOT_BE_EXECUTED, UNTRUSTED_WORKSPACE_ERROR, UNTRUSTED_WORKSPACE_USING_GLOBAL_PINT } from "./message";
 import PhpCommand from "./PhpCommand";
-import { canExecuteFile, getWorkspaceConfig, resolvePathFromWorkspaces } from "./util";
+import { canExecuteFile, getWorkspaceConfig, normalizeWindowsDriveLetter, resolvePathFromWorkspaces } from "./util";
 
 export class ModuleResolver {
   constructor(private loggingService: LoggingService) { }
@@ -103,7 +103,7 @@ export class ModuleResolver {
 
     const executableArgsAsArray = Object.entries(executableArgs).filter(arg => !!arg[1]).flat();
 
-    executableArgsAsArray.push(input || workspaceFolder.uri.fsPath);
+    executableArgsAsArray.push(normalizeWindowsDriveLetter(input || workspaceFolder.uri.fsPath));
 
     return executableArgsAsArray;
   }
