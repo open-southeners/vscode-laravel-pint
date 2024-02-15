@@ -410,6 +410,9 @@
             }
           }
         },
+        "class_keyword": {
+          "description": "Converts FQCN strings to `*::class` keywords."
+        },
         "class_keyword_remove": {
           "description": "Converts `::class` keywords to FQCN strings."
         },
@@ -1315,13 +1318,44 @@
           "description": "PHP code must use the long `<?php` tags or short-echo `<?=` tags and not other tag variations."
         },
         "fully_qualified_strict_types": {
-          "description": "Transforms imported FQCN parameters and return types in function arguments to short version.",
+          "description": "Removes the leading part of fully qualified symbol references if a given symbol is imported or belongs to the current namespace.",
           "type": "object",
           "properties": {
+            "import_symbols": {
+              "description": "Whether FQCNs found during analysis should be automatically imported.",
+              "default": false,
+              "type": "boolean"
+            },
             "leading_backslash_in_global_namespace": {
               "description": "Whether FQCN is prefixed with backslash when that FQCN is used in global namespace context.",
               "default": false,
               "type": "boolean"
+            },
+            "phpdoc_tags": {
+              "description": "Collection of PHPDoc annotation tags where FQCNs should be processed. As of now only simple tags with `@tag \\F\\Q\\C\\N` format are supported (no complex types).",
+              "default": [
+                "param",
+                "phpstan-param",
+                "phpstan-property",
+                "phpstan-property-read",
+                "phpstan-property-write",
+                "phpstan-return",
+                "phpstan-var",
+                "property",
+                "property-read",
+                "property-write",
+                "psalm-param",
+                "psalm-property",
+                "psalm-property-read",
+                "psalm-property-write",
+                "psalm-return",
+                "psalm-var",
+                "return",
+                "see",
+                "throws",
+                "var"
+              ],
+              "type": "array"
             }
           }
         },
@@ -1536,6 +1570,41 @@
             }
           }
         },
+        "heredoc_closing_marker": {
+          "description": "Unify `heredoc` or `nowdoc` closing marker.",
+          "type": "object",
+          "properties": {
+            "closing_marker": {
+              "description": "Preferred closing marker.",
+              "default": "EOD",
+              "type": "string"
+            },
+            "explicit_heredoc_style": {
+              "description": "Whether the closing marker should be wrapped in double quotes.",
+              "default": false,
+              "type": "boolean"
+            },
+            "reserved_closing_markers": {
+              "description": "Reserved closing markers to be kept unchanged.",
+              "default": [
+                "CSS",
+                "DIFF",
+                "HTML",
+                "JS",
+                "JSON",
+                "MD",
+                "PHP",
+                "PYTHON",
+                "RST",
+                "TS",
+                "SQL",
+                "XML",
+                "YAML"
+              ],
+              "type": "array"
+            }
+          }
+        },
         "heredoc_indentation": {
           "description": "Heredoc/nowdoc content must be properly indented.",
           "type": "object",
@@ -1694,6 +1763,9 @@
         },
         "multiline_comment_opening_closing": {
           "description": "DocBlocks must start with two asterisks, multiline comments must start with a single asterisk, after the opening slash. Both must end with a single asterisk before the closing slash."
+        },
+        "multiline_string_to_heredoc": {
+          "description": "Convert multiline string to `heredoc` or `nowdoc`."
         },
         "multiline_whitespace_before_semicolons": {
           "description": "Forbid multi-line whitespace before the closing semicolon or move the semicolon to the new line for chained calls.",
@@ -2274,6 +2346,29 @@
             }
           }
         },
+        "numeric_literal_separator": {
+          "description": "Adds separators to numeric literals of any kind.",
+          "type": "object",
+          "properties": {
+            "override_existing": {
+              "description": "Whether literals already containing underscores should be reformatted.",
+              "default": false,
+              "type": "boolean"
+            },
+            "strategy": {
+              "description": "Whether numeric literal should be separated by underscores or not.",
+              "default": "use_separator",
+              "oneOf": [
+                {
+                  "enum": [
+                    "use_separator",
+                    "no_separator"
+                  ]
+                }
+              ]
+            }
+          }
+        },
         "object_operator_without_whitespace": {
           "description": "There should not be space before or after object operators `->` and `?->`."
         },
@@ -2804,7 +2899,7 @@
           }
         },
         "phpdoc_align": {
-          "description": "All items of the given phpdoc tags must be either left-aligned or (by default) aligned vertically.",
+          "description": "All items of the given PHPDoc tags must be either left-aligned or (by default) aligned vertically.",
           "type": "object",
           "properties": {
             "align": {
@@ -2818,6 +2913,14 @@
                     "vertical"
                   ]
                 }
+              ]
+            },
+            "spacing": {
+              "description": "Spacing between tag, hint, comment, signature, etc. You can set same spacing for all tags using a positive integer or different spacings for different tags using an associative array of positive integers `['tagA' => spacingForA, 'tagB' => spacingForB]`. If you want to define default spacing to more than 1 space use `_default` key in config array, e.g.: `['tagA' => spacingForA, 'tagB' => spacingForB, '_default' => spacingForAllOthers]`.",
+              "default": 1,
+              "type": [
+                "int",
+                "int[]"
               ]
             },
             "tags": {
@@ -2907,6 +3010,9 @@
             }
           }
         },
+        "phpdoc_list_type": {
+          "description": "PHPDoc `list` type must be used instead of `array` without a key."
+        },
         "phpdoc_no_access": {
           "description": "`@access` annotations should be omitted from PHPDoc."
         },
@@ -2951,7 +3057,7 @@
           }
         },
         "phpdoc_order_by_value": {
-          "description": "Order phpdoc tags by value.",
+          "description": "Order PHPDoc tags by value.",
           "type": "object",
           "properties": {
             "annotations": {
@@ -3135,6 +3241,11 @@
           "description": "Docblocks should only be used on structural elements.",
           "type": "object",
           "properties": {
+            "allow_before_return_statement": {
+              "description": "Whether to allow PHPDoc before return statement.",
+              "default": false,
+              "type": "boolean"
+            },
             "ignored_tags": {
               "description": "List of ignored tags (matched case insensitively).",
               "default": [],
@@ -3143,33 +3254,48 @@
           }
         },
         "phpdoc_to_param_type": {
-          "description": "EXPERIMENTAL: Takes `@param` annotations of non-mixed types and adjusts accordingly the function signature. Requires PHP >= 7.0.",
+          "description": "Takes `@param` annotations of non-mixed types and adjusts accordingly the function signature. Requires PHP >= 7.0.",
           "type": "object",
           "properties": {
             "scalar_types": {
               "description": "Fix also scalar types; may have unexpected behaviour due to PHP bad type coercion system.",
+              "default": true,
+              "type": "boolean"
+            },
+            "union_types": {
+              "description": "Fix also union types; turned on by default on PHP >= 8.0.0.",
               "default": true,
               "type": "boolean"
             }
           }
         },
         "phpdoc_to_property_type": {
-          "description": "EXPERIMENTAL: Takes `@var` annotation of non-mixed types and adjusts accordingly the property signature. Requires PHP >= 7.4.",
+          "description": "Takes `@var` annotation of non-mixed types and adjusts accordingly the property signature. Requires PHP >= 7.4.",
           "type": "object",
           "properties": {
             "scalar_types": {
               "description": "Fix also scalar types; may have unexpected behaviour due to PHP bad type coercion system.",
               "default": true,
               "type": "boolean"
+            },
+            "union_types": {
+              "description": "Fix also union types; turned on by default on PHP >= 8.0.0.",
+              "default": true,
+              "type": "boolean"
             }
           }
         },
         "phpdoc_to_return_type": {
-          "description": "EXPERIMENTAL: Takes `@return` annotation of non-mixed types and adjusts accordingly the function signature.",
+          "description": "Takes `@return` annotation of non-mixed types and adjusts accordingly the function signature.",
           "type": "object",
           "properties": {
             "scalar_types": {
               "description": "Fix also scalar types; may have unexpected behaviour due to PHP bad type coercion system.",
+              "default": true,
+              "type": "boolean"
+            },
+            "union_types": {
+              "description": "Fix also union types; turned on by default on PHP >= 8.0.0.",
               "default": true,
               "type": "boolean"
             }
@@ -3779,7 +3905,15 @@
           "description": "Replace all `<>` with `!=`."
         },
         "statement_indentation": {
-          "description": "Each statement must be indented."
+          "description": "Each statement must be indented.",
+          "type": "object",
+          "properties": {
+            "stick_comment_to_next_continuous_control_statement": {
+              "description": "Last comment of code block counts as comment for next block.",
+              "default": false,
+              "type": "boolean"
+            }
+          }
         },
         "static_lambda": {
           "description": "Lambdas not (indirectly) referencing `$this` must be declared `static`."
@@ -3789,6 +3923,51 @@
         },
         "strict_param": {
           "description": "Functions should be used with `$strict` param set to `true`."
+        },
+        "string_implicit_backslashes": {
+          "description": "Handles implicit backslashes in strings and heredocs. Depending on the chosen strategy, it can escape implicit backslashes to ease the understanding of which are special chars interpreted by PHP and which not (`escape`), or it can remove these additional backslashes if you find them superfluous (`unescape`). You can also leave them as-is using `ignore` strategy.",
+          "type": "object",
+          "properties": {
+            "double_quoted": {
+              "description": "Whether to escape backslashes in double-quoted strings.",
+              "default": "escape",
+              "oneOf": [
+                {
+                  "enum": [
+                    "escape",
+                    "unescape",
+                    "ignore"
+                  ]
+                }
+              ]
+            },
+            "heredoc": {
+              "description": "Whether to escape backslashes in heredoc syntax.",
+              "default": "escape",
+              "oneOf": [
+                {
+                  "enum": [
+                    "escape",
+                    "unescape",
+                    "ignore"
+                  ]
+                }
+              ]
+            },
+            "single_quoted": {
+              "description": "Whether to escape backslashes in single-quoted strings.",
+              "default": "unescape",
+              "oneOf": [
+                {
+                  "enum": [
+                    "escape",
+                    "unescape",
+                    "ignore"
+                  ]
+                }
+              ]
+            }
+          }
         },
         "string_length_to_empty": {
           "description": "String tests for empty must be done against `''`, not with `strlen`."
@@ -3903,7 +4082,15 @@
           }
         },
         "unary_operator_spaces": {
-          "description": "Unary operators should be placed adjacent to their operands."
+          "description": "Unary operators should be placed adjacent to their operands.",
+          "type": "object",
+          "properties": {
+            "only_dec_inc": {
+              "description": "Limit to increment and decrement operators.",
+              "default": false,
+              "type": "boolean"
+            }
+          }
         },
         "use_arrow_functions": {
           "description": "Anonymous functions with one-liner return statement must use arrow functions."
