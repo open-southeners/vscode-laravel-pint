@@ -6,6 +6,16 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.1.7] - 2024-02-15
+
+### Fixed
+
+- Windows paths [#55 #57] (regression from d421f4b3c58fb2dc42c0096db084eaa06974088e, thanks @balthild)
+
+### Changed
+
+- Pint config json schema updated to PHP CS Fixer 3.49.0
+
 ## [1.1.6] - 2023-12-26
 
 ### Fixed
