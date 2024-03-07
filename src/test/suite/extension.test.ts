@@ -33,6 +33,7 @@ suite('Extension Test Suite', () => {
     assert.strictEqual(config.get<PresetOptions>('preset'), 'auto');
     assert.strictEqual(config.get<boolean>('runInLaravelSail'), false);
     assert.strictEqual(config.get<string>('sailExecutablePath'), '');
+    assert.strictEqual(config.get<boolean>('dirtyOnly'), false);
 	});
 	
   test('Build command with config args', async () => {

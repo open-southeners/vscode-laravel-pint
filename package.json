@@ -119,6 +119,12 @@
           "type": "string",
           "markdownDescription": "%ext.config.sailExecutablePath%",
           "scope": "resource"
+        },
+        "laravel-pint.dirtyOnly": {
+          "default": false,
+          "type": "boolean",
+          "markdownDescription": "%ext.config.dirtyOnly%",
+          "scope": "resource"
         }
       }
     },
