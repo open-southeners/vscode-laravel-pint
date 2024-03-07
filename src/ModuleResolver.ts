@@ -16,12 +16,18 @@ export class ModuleResolver {
     return new PhpCommand(globalPintPath, args);
   }
 
-  public async getPintCommand(workspaceFolder: WorkspaceFolder, input?: string): Promise<PhpCommand | undefined> {
+  public async getPintCommand(
+    workspaceFolder: WorkspaceFolder,
+    input?: string,
+    isFormatWorkspace = false
+  ): Promise<PhpCommand | undefined> {
     if (!workspace.isTrusted) {
       this.loggingService.logDebug(UNTRUSTED_WORKSPACE_USING_GLOBAL_PINT);
 
       // This doesn't respect fallbackToGlobal config
-      return this.getGlobalPintCommand(await this.getPintConfigAsArgs(workspaceFolder, input));
+      return this.getGlobalPintCommand(
+        await this.getPintConfigAsArgs(workspaceFolder, input, isFormatWorkspace)
+      );
     }
 
     const executableArr = await resolvePathFromWorkspaces(
@@ -36,7 +42,9 @@ export class ModuleResolver {
     const fallbackToGlobal = getWorkspaceConfig('fallbackToGlobalBin') && commandExists.sync('pint');
 
     if (!isExecutable && fallbackToGlobal) {
-      return this.getGlobalPintCommand(await this.getPintConfigAsArgs(workspaceFolder, input));
+      return this.getGlobalPintCommand(
+        await this.getPintConfigAsArgs(workspaceFolder, input, isFormatWorkspace)
+      );
     }
 
     if (!isExecutable && !fallbackToGlobal) {
@@ -49,7 +57,11 @@ export class ModuleResolver {
 
     const cwd = path.normalize(executable).replace(path.normalize(cmd), '');
 
-    return new PhpCommand(cmd, await this.getPintConfigAsArgs(workspaceFolder, input), cwd);
+    return new PhpCommand(
+      cmd,
+      await this.getPintConfigAsArgs(workspaceFolder, input, isFormatWorkspace),
+      cwd
+    );
   }
 
   public async getPintCommandWithinSail(workspaceFolder: WorkspaceFolder, input?: string): Promise<PhpCommand | undefined> {
@@ -81,7 +93,11 @@ export class ModuleResolver {
     return new PhpCommand(executable, ['bin', 'pint', ...await this.getPintConfigAsArgs(workspaceFolder, input)]);
   }
 
-  private async getPintConfigAsArgs(workspaceFolder: WorkspaceFolder, input?: string) {
+  private async getPintConfigAsArgs(
+    workspaceFolder: WorkspaceFolder,
+    input?: string,
+    isFormatWorkspace = false
+  ) {
     const executableArgs: Record<string, string> = {};
     const configPath = getWorkspaceConfig('configPath', CONFIG_FILE_NAME);
 
@@ -104,6 +120,13 @@ export class ModuleResolver {
     const executableArgsAsArray = Object.entries(executableArgs).filter(arg => !!arg[1]).flat();
 
     executableArgsAsArray.push(input || workspaceFolder.uri.fsPath);
+
+    if (isFormatWorkspace) {
+      const dirtyOnly = getWorkspaceConfig("dirtyOnly", false);
+      if (dirtyOnly) {
+        executableArgsAsArray.push("--dirty");
+      }
+    }
 
     return executableArgsAsArray;
   }

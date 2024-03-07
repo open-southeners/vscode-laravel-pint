@@ -9,6 +9,7 @@ export interface ExtensionConfig {
   fallbackToGlobalBin: boolean
   runInLaravelSail: boolean
   sailExecutablePath: string
+  dirtyOnly: boolean
 }
 
 export interface ExtensionFormattingOptions {

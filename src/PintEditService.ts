@@ -176,10 +176,10 @@ export default class PintEditService implements Disposable {
       return;
     }
 
-    await this.formatFile(workspaceFolder.uri);
+    await this.formatFile(workspaceFolder.uri, true);
   }
 
-  public async formatFile(file: Uri) {
+  public async formatFile(file: Uri, isFormatWorkspace = false) {
     if (this.isDocumentExcluded(file)) {
       this.loggingService.logWarning(`The file "${file.fsPath}" is excluded either by you or by Laravel Pint`);
 
@@ -189,7 +189,7 @@ export default class PintEditService implements Disposable {
     const workspaceFolder = workspace.getWorkspaceFolder(file);
 
     let command = workspaceFolder
-      ? await this.moduleResolver.getPintCommand(workspaceFolder, file.fsPath)
+      ? await this.moduleResolver.getPintCommand(workspaceFolder, file.fsPath, isFormatWorkspace)
       : await this.moduleResolver.getGlobalPintCommand([file.fsPath]);
 
     if (!command) {

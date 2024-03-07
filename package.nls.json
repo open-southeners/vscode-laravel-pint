@@ -6,5 +6,6 @@
   "ext.config.executablePath": "**Workspace-relative path** to the executable binary. Default: `vendor/bin/pint`.",
   "ext.config.fallbackToGlobalBin": "Enable/disable fallback to global composer Pint binary in case local wasn't found. Default: `true`.",
   "ext.config.runInLaravelSail": "Run formatting through Docker using [Laravel Sail](https://laravel.com/docs/master/sail). This will ignore `#laravel-pint.executablePath#`.",
-  "ext.config.sailExecutablePath": "Path to Laravel Sail executable, only used if is enabled `#laravel-pint.runInLaravelSail#`. Default: `vendor/bin/sail`."
+  "ext.config.sailExecutablePath": "Path to Laravel Sail executable, only used if is enabled `#laravel-pint.runInLaravelSail#`. Default: `vendor/bin/sail`.",
+  "ext.config.dirtyOnly": "Enable/disable formatting only on **active workspace** dirty files. Only work with command `Format active workspace files using Laravel Pint`."
 }
