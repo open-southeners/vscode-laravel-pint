@@ -7,7 +7,7 @@ import { CONFIG_PATHS_FOUND_FOR_WORKSPACE, NO_CONFIG_FOUND_FOR_WORKSPACE, PINT_C
 import PhpCommand from "./PhpCommand";
 import { canExecuteFile, getWorkspaceConfig, resolvePathFromWorkspaces } from "./util";
 
-export class ModuleResolver {
+export class CommandResolver {
   constructor(private loggingService: LoggingService) { }
 
   public async getGlobalPintCommand(args: Array<string>): Promise<PhpCommand> {

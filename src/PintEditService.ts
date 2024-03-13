@@ -4,7 +4,7 @@ import { Disposable, TextEditor, Uri, workspace, languages, RelativePattern, Tex
 import { CONFIG_FILE_NAME } from "./constants";
 import { LoggingService } from "./LoggingService";
 import { ENABLING_PINT_FOR_WORKSPACE, FORMAT_WORKSPACE_NON_ACTIVE_DOCUMENT, RUNNING_PINT_ON_PATH, SOMETHING_WENT_WRONG_FINDING_EXECUTABLE, UPDATING_EXTENSION_EXCLUDE_PATTERNS } from "./message";
-import { ModuleResolver } from "./ModuleResolver";
+import { CommandResolver } from "./CommandResolver";
 import { PintEditProvider } from "./PintEditProvider";
 import { FormatterStatus, StatusBar } from "./StatusBar";
 import { getWorkspaceConfig, onConfigChange } from "./util";
@@ -39,7 +39,7 @@ export default class PintEditService implements Disposable {
   ];
 
   constructor(
-    private moduleResolver: ModuleResolver,
+    private commandResolver: CommandResolver,
     private loggingService: LoggingService,
     private statusBar: StatusBar
   ) { }
@@ -123,8 +123,8 @@ export default class PintEditService implements Disposable {
     }
 
     const pintCommand = getWorkspaceConfig('runInLaravelSail', false)
-      ? await this.moduleResolver.getPintCommandWithinSail(workspaceFolder)
-      : await this.moduleResolver.getPintCommand(workspaceFolder);
+      ? await this.commandResolver.getPintCommandWithinSail(workspaceFolder)
+      : await this.commandResolver.getPintCommand(workspaceFolder);
 
     // If there isn't an instance here, it is because the module
     // could not be loaded either locally or globally when specified
@@ -189,8 +189,8 @@ export default class PintEditService implements Disposable {
     const workspaceFolder = workspace.getWorkspaceFolder(file);
 
     let command = workspaceFolder
-      ? await this.moduleResolver.getPintCommand(workspaceFolder, file.fsPath, isFormatWorkspace)
-      : await this.moduleResolver.getGlobalPintCommand([file.fsPath]);
+      ? await this.commandResolver.getPintCommand(workspaceFolder, file.fsPath, isFormatWorkspace)
+      : await this.commandResolver.getGlobalPintCommand([file.fsPath]);
 
     if (!command) {
       this.statusBar.update(FormatterStatus.Error);

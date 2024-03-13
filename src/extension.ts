@@ -1,7 +1,7 @@
 import { commands, ExtensionContext, workspace, ConfigurationTarget } from 'vscode';
 import { formatCommand } from './commands';
 import { LoggingService } from './LoggingService';
-import { ModuleResolver } from './ModuleResolver';
+import { CommandResolver } from './CommandResolver';
 import PintEditService from './PintEditService';
 import { StatusBar } from './StatusBar';
 import { getWorkspaceConfig, onConfigChange } from './util';
@@ -29,11 +29,11 @@ export async function activate(context: ExtensionContext) {
     return;
   }
 
-  const moduleResolver = new ModuleResolver(loggingService);
+  const commandResolver = new CommandResolver(loggingService);
   const statusBar = new StatusBar();
 
   const editService = new PintEditService(
-    moduleResolver,
+    commandResolver,
     loggingService,
     statusBar
   );
