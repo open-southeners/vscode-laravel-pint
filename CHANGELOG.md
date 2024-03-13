@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.2.0] - 2024-03-13
+
+### Added
+
+- Pint `--dirty` option as a extension setting [#60] (thanks @tobinguyenn)
+
 ## [1.1.7] - 2024-02-15
 
 ### Fixed
