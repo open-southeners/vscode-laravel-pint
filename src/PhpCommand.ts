@@ -13,7 +13,8 @@ export default class PhpCommand {
     }
 
     const exec = spawn(this.cmd, this.args, {
-      cwd: cwd || this.cwd
+      cwd: cwd || this.cwd,
+      shell: platform() === "win32" ? true : undefined
     });
   }
 
