@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.2.1] - 2024-07-05
+
+### Fixed
+
+- Fix compatibility with Laravel Herd on Windows [#62] (thanks @vikas5914)
+
 ## [1.2.0] - 2024-03-13
 
 ### Added
