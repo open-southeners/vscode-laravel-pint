@@ -1,5 +1,6 @@
 import { readFile } from "fs-extra";
 import path = require("node:path");
+import fs = require("node:fs");
 import { Disposable, TextEditor, Uri, workspace, languages, RelativePattern, TextDocument, TextEdit, WorkspaceFolder, window, FileSystemWatcher } from "vscode";
 import { CONFIG_FILE_NAME } from "./constants";
 import { LoggingService } from "./LoggingService";
@@ -180,8 +181,10 @@ export default class PintEditService implements Disposable {
   }
 
   public async formatFile(file: Uri, isFormatWorkspace = false) {
+    let filePath = fs.realpathSync.native(file.fsPath);
+
     if (this.isDocumentExcluded(file)) {
-      this.loggingService.logWarning(`The file "${file.fsPath}" is excluded either by you or by Laravel Pint`);
+      this.loggingService.logWarning(`The file "${filePath}" is excluded either by you or by Laravel Pint`);
 
       return false;
     }
@@ -189,8 +192,8 @@ export default class PintEditService implements Disposable {
     const workspaceFolder = workspace.getWorkspaceFolder(file);
 
     let command = workspaceFolder
-      ? await this.commandResolver.getPintCommand(workspaceFolder, file.fsPath, isFormatWorkspace)
-      : await this.commandResolver.getGlobalPintCommand([file.fsPath]);
+      ? await this.commandResolver.getPintCommand(workspaceFolder, filePath, isFormatWorkspace)
+      : await this.commandResolver.getGlobalPintCommand([filePath]);
 
     if (!command) {
       this.statusBar.update(FormatterStatus.Error);
