@@ -1,6 +1,6 @@
 import { readFile } from "fs-extra";
 import path = require("node:path");
-import fs = require("node:fs");
+import fs = require("node:fs/promises");
 import { Disposable, TextEditor, Uri, workspace, languages, RelativePattern, TextDocument, TextEdit, WorkspaceFolder, window, FileSystemWatcher } from "vscode";
 import { CONFIG_FILE_NAME } from "./constants";
 import { LoggingService } from "./LoggingService";
@@ -181,7 +181,7 @@ export default class PintEditService implements Disposable {
   }
 
   public async formatFile(file: Uri, isFormatWorkspace = false) {
-    let filePath = fs.realpathSync.native(file.fsPath);
+    let filePath = await fs.realpath(file.fsPath);
 
     if (this.isDocumentExcluded(file)) {
       this.loggingService.logWarning(`The file "${filePath}" is excluded either by you or by Laravel Pint`);
