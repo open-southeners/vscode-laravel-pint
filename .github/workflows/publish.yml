@@ -49,7 +49,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           body: ${{ steps.query-release-info.outputs.release-notes }}
-          prerelease: true
+          prerelease: false
           files: '*.vsix'
 
       - name: Publish extension to Visual Studio Marketplace
