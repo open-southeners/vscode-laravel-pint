@@ -14,7 +14,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Changed
 
-- Pint config json schema updated to PHP CS Fixer 3.49.0
+- Pint config json schema updated to PHP CS Fixer 3.56.2
 
 ### Removed
 
