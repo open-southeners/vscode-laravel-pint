@@ -5,17 +5,11 @@ import fetch from "node-fetch";
 import { readFileSync, writeFileSync } from "fs";
 import path from "path";
 
-const response = await fetch("https://raw.githubusercontent.com/mlocati/php-cs-fixer-configurator/master/docs/data/3.49.0.json");
+const response = await fetch("https://raw.githubusercontent.com/mlocati/php-cs-fixer-configurator/master/docs/data/3.56.2.json");
 
 const body = await response.text();
 
 let rulesProperties = {};
-
-// Adding Laravel opinionated ones from https://github.com/laravel/pint/tree/main/app/Fixers
-rulesProperties["Laravel/laravel_phpdoc_alignment"] = {
-  description: "Aligns PHPDocs (@throws, @return, etc) using Laravel's opinionated style",
-  type: "boolean"
-};
 
 function relativePath(fromPath) {
   return path.resolve(path.dirname(fileURLToPath(import.meta.url)), fromPath);

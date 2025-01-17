@@ -47,10 +47,6 @@
       "type": "object",
       "description": "Customise rules used for the formatting, this replaces the ones of the preset",
       "properties": {
-        "Laravel/laravel_phpdoc_alignment": {
-          "description": "Aligns PHPDocs (@throws, @return, etc) using Laravel's opinionated style",
-          "type": "boolean"
-        },
         "align_multiline_comment": {
           "description": "Each line of multi-line DocComments must have an asterisk [PSR-5] and must be aligned with the first one.",
           "type": "object",
@@ -1322,7 +1318,7 @@
           "type": "object",
           "properties": {
             "import_symbols": {
-              "description": "Whether FQCNs found during analysis should be automatically imported.",
+              "description": "Whether FQCNs should be automatically imported.",
               "default": false,
               "type": "boolean"
             },
@@ -2112,6 +2108,11 @@
           "description": "Removes `@param`, `@return` and `@var` tags that don't provide any useful information.",
           "type": "object",
           "properties": {
+            "allow_hidden_params": {
+              "description": "Whether `param` annotation for hidden params in method signature are allowed.",
+              "default": false,
+              "type": "boolean"
+            },
             "allow_mixed": {
               "description": "Whether type `mixed` without description is allowed (`true`) or considered superfluous (`false`).",
               "default": false,
@@ -2398,6 +2399,29 @@
             }
           }
         },
+        "ordered_attributes": {
+          "description": "Sorts attributes using the configured sort algorithm.",
+          "type": "object",
+          "properties": {
+            "order": {
+              "description": "A list of FQCNs of attributes defining the desired order used when custom sorting algorithm is configured.",
+              "default": [],
+              "type": "string[]"
+            },
+            "sort_algorithm": {
+              "description": "How the attributes should be sorted.",
+              "default": "alpha",
+              "oneOf": [
+                {
+                  "enum": [
+                    "alpha",
+                    "custom"
+                  ]
+                }
+              ]
+            }
+          }
+        },
         "ordered_class_elements": {
           "description": "Orders the elements of classes/interfaces/traits/enums.",
           "type": "object",
@@ -2555,6 +2579,9 @@
               ]
             }
           }
+        },
+        "php_unit_attributes": {
+          "description": "PHPUnit attributes must be used over their respective PHPDoc-based annotations."
         },
         "php_unit_construct": {
           "description": "PHPUnit assertion method calls like `->assertSame(true, $foo)` should be written with dedicated method like `->assertTrue($foo)`.",
@@ -2940,6 +2967,9 @@
         },
         "phpdoc_annotation_without_dot": {
           "description": "PHPDoc annotation descriptions should not be a sentence."
+        },
+        "phpdoc_array_type": {
+          "description": "PHPDoc `array<T>` type must be used instead of `T[]`."
         },
         "phpdoc_indent": {
           "description": "Docblocks should have the same indentation as the documented subject."
