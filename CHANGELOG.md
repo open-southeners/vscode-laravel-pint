@@ -6,6 +6,20 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [1.3.0] - 2025-01-17
+
+### Fixed
+
+- Fix casing on case-insensitive filesystems [#67] (thanks @adrum)
+
+### Changed
+
+- Pint config json schema updated to PHP CS Fixer 3.49.0
+
+### Removed
+
+- Pint config json schema with Laravel Pint own fixers (`Laravel/laravel_phpdoc_alignment`)
+
 ## [1.2.1] - 2024-07-05
 
 ### Fixed
