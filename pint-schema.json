@@ -3204,7 +3204,13 @@
                   "since"
                 ]
               ],
-              "type": "object"
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
             },
             "skip_unlisted_annotations": {
               "description": "Whether to skip annotations that are not listed in any group.",
