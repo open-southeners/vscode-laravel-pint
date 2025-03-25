@@ -28,7 +28,7 @@ function mapTypeToJsonSchema(type, defaultValueType) {
     return "object";
   }
 
-  if (type === 'string[]' && defaultValueType === 'array') {
+  if ((type === 'string[]' || type === 'string[][]') && defaultValueType === 'array') {
     return 'array';
   }
 

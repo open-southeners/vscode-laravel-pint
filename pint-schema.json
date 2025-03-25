@@ -3204,7 +3204,7 @@
                   "since"
                 ]
               ],
-              "type": "string[][]"
+              "type": "array"
             },
             "skip_unlisted_annotations": {
               "description": "Whether to skip annotations that are not listed in any group.",
