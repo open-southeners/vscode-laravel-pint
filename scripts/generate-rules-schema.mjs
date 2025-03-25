@@ -83,11 +83,19 @@ function ruleIntoJsonSchemaProperty(rule) {
       }
       
       if ('allowedValues' in configItem) {
-        jsonSchemaProperty.properties[configItem.name].oneOf = [
-          {
-            enum: configItem.allowedValues
-          }
-        ];
+        if (rule.fullClassName == String.raw`PhpCsFixer\Fixer\Whitespace\NoExtraBlankLinesFixer`) {
+          jsonSchemaProperty.properties[configItem.name].items = {
+            enum: configItem.allowedValues[0]
+          };
+          jsonSchemaProperty.properties[configItem.name].uniqueItems = true
+          jsonSchemaProperty.properties[configItem.name].minItems = 1
+        } else {
+          jsonSchemaProperty.properties[configItem.name].oneOf = [
+            {
+              enum: configItem.allowedValues
+            }
+          ]
+        };
       }
     });
   }
