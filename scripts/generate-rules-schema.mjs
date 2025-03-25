@@ -16,12 +16,24 @@ function relativePath(fromPath) {
 }
 
 function mapTypeToJsonSchema(type, defaultValueType) {
+  if (type === 'int') {
+    return 'integer';
+  }
+  
   if (type === 'bool') {
     return 'boolean';
   }
 
   if (type === "array" && defaultValueType === "object") {
     return "object";
+  }
+
+  if (type === 'string[]' && defaultValueType === 'array') {
+    return 'array';
+  }
+
+  if (type === 'int[]' && defaultValueType === 'number') {
+    return 'number';
   }
 
   return type;
