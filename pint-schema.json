@@ -1998,7 +1998,7 @@
                 "extra"
               ],
               "type": "array",
-            "items": {
+              "items": {
                 "enum": [
                   "attribute",
                   "break",
@@ -2945,7 +2945,7 @@
               "default": 1,
               "type": [
                 "integer",
-                "array"
+                "number"
               ]
             },
             "tags": {
@@ -3204,13 +3204,7 @@
                   "since"
                 ]
               ],
-              "type": "array",
-              "items": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              }
+              "type": "string[][]"
             },
             "skip_unlisted_annotations": {
               "description": "Whether to skip annotations that are not listed in any group.",
