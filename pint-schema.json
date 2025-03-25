@@ -203,12 +203,12 @@
             "max_line_breaks": {
               "description": "Maximum line breaks that should exist before namespace declaration.",
               "default": 2,
-              "type": "int"
+              "type": "integer"
             },
             "min_line_breaks": {
               "description": "Minimum line breaks that should exist before namespace declaration.",
               "default": 2,
-              "type": "int"
+              "type": "integer"
             }
           }
         },
@@ -1998,28 +1998,26 @@
                 "extra"
               ],
               "type": "array",
-              "oneOf": [
-                {
-                  "enum": [
-                    [
-                      "attribute",
-                      "break",
-                      "case",
-                      "continue",
-                      "curly_brace_block",
-                      "default",
-                      "extra",
-                      "parenthesis_brace_block",
-                      "return",
-                      "square_brace_block",
-                      "switch",
-                      "throw",
-                      "use",
-                      "use_trait"
-                    ]
-                  ]
-                }
-              ]
+              "items": {
+                "enum": [
+                  "attribute",
+                  "break",
+                  "case",
+                  "continue",
+                  "curly_brace_block",
+                  "default",
+                  "extra",
+                  "parenthesis_brace_block",
+                  "return",
+                  "square_brace_block",
+                  "switch",
+                  "throw",
+                  "use",
+                  "use_trait"
+                ]
+              },
+              "uniqueItems": true,
+              "minItems": 1
             }
           }
         },
@@ -2406,7 +2404,7 @@
             "order": {
               "description": "A list of FQCNs of attributes defining the desired order used when custom sorting algorithm is configured.",
               "default": [],
-              "type": "string[]"
+              "type": "array"
             },
             "sort_algorithm": {
               "description": "How the attributes should be sorted.",
@@ -2946,8 +2944,8 @@
               "description": "Spacing between tag, hint, comment, signature, etc. You can set same spacing for all tags using a positive integer or different spacings for different tags using an associative array of positive integers `['tagA' => spacingForA, 'tagB' => spacingForB]`. If you want to define default spacing to more than 1 space use `_default` key in config array, e.g.: `['tagA' => spacingForA, 'tagB' => spacingForB, '_default' => spacingForAllOthers]`.",
               "default": 1,
               "type": [
-                "int",
-                "int[]"
+                "integer",
+                "number"
               ]
             },
             "tags": {
@@ -3082,7 +3080,7 @@
                 "throws",
                 "return"
               ],
-              "type": "string[]"
+              "type": "array"
             }
           }
         },
@@ -3206,7 +3204,7 @@
                   "since"
                 ]
               ],
-              "type": "string[][]"
+              "type": "array"
             },
             "skip_unlisted_annotations": {
               "description": "Whether to skip annotations that are not listed in any group.",

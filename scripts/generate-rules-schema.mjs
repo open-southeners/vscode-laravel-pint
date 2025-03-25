@@ -16,12 +16,24 @@ function relativePath(fromPath) {
 }
 
 function mapTypeToJsonSchema(type, defaultValueType) {
+  if (type === 'int') {
+    return 'integer';
+  }
+  
   if (type === 'bool') {
     return 'boolean';
   }
 
   if (type === "array" && defaultValueType === "object") {
     return "object";
+  }
+
+  if ((type === 'string[]' || type === 'string[][]') && defaultValueType === 'array') {
+    return 'array';
+  }
+
+  if (type === 'int[]' && defaultValueType === 'number') {
+    return 'number';
   }
 
   return type;
@@ -71,11 +83,19 @@ function ruleIntoJsonSchemaProperty(rule) {
       }
       
       if ('allowedValues' in configItem) {
-        jsonSchemaProperty.properties[configItem.name].oneOf = [
-          {
-            enum: configItem.allowedValues
-          }
-        ];
+        if (rule.fullClassName == String.raw`PhpCsFixer\Fixer\Whitespace\NoExtraBlankLinesFixer`) {
+          jsonSchemaProperty.properties[configItem.name].items = {
+            enum: configItem.allowedValues[0]
+          };
+          jsonSchemaProperty.properties[configItem.name].uniqueItems = true
+          jsonSchemaProperty.properties[configItem.name].minItems = 1
+        } else {
+          jsonSchemaProperty.properties[configItem.name].oneOf = [
+            {
+              enum: configItem.allowedValues
+            }
+          ]
+        };
       }
     });
   }
