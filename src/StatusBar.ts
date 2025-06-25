@@ -8,6 +8,7 @@ export enum FormatterStatus {
   Warn = "warning",
   Error = "alert",
   Disabled = "circle-slash",
+  Loading = "loading~spin",
 }
 
 // TODO: Not there yet...
@@ -74,6 +75,14 @@ export class StatusBar {
       );
 
       this.statusBarItem.tooltip = "Laravel Pint ran successfully fixing this file";
+    }
+
+    if (result === FormatterStatus.Loading) {
+      this.statusBarItem.backgroundColor = new ThemeColor(
+        "statusBarItem.prominentBackground"
+      );
+
+      this.statusBarItem.tooltip = "Laravel Pint is running on this file";
     }
     
     this.statusBarItem.show();
