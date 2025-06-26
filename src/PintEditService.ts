@@ -203,25 +203,25 @@ export default class PintEditService implements Disposable {
       return false;
     }
 
-    this.statusBar.update(FormatterStatus.Loading);
+    const editCount = this.statusBar.update(FormatterStatus.Loading);
 
     this.loggingService.logDebug(RUNNING_PINT_ON_PATH, { command: command.toString() });
 
-    try {
-      const { code, output } = await command.run();
-
+    command.run().then(({ output, code }) => {;
       this.loggingService.logDebug(output, { code });
 
-      this.statusBar.update(FormatterStatus.Success);
-
-      return true;
-    } catch (error) {
-      this.statusBar.update(FormatterStatus.Error);
+      if (this.statusBar.getEditCount() === editCount) {
+        this.statusBar.update(FormatterStatus.Success);
+      }
+    }).catch((error) => {
+      if (this.statusBar.getEditCount() === editCount) {
+        this.statusBar.update(FormatterStatus.Error);
+      }
 
       this.loggingService.logError(SOMETHING_WENT_WRONG_RUNNING_PINT, error);
+    });
 
-      return false;
-    }
+    return true;
   }
 
   private provideEdits = async (document: TextDocument): Promise<TextEdit[]> => {

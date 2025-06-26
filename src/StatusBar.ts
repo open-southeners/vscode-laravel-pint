@@ -19,6 +19,7 @@ interface StatusBarResultMeta {
 
 export class StatusBar {
   private statusBarItem: StatusBarItem;
+  private editCount: number = 0;
   
   constructor() {
     // Setup the statusBarItem
@@ -34,7 +35,7 @@ export class StatusBar {
     this.statusBarItem.show();
   }
   
-  public update(result: FormatterStatus, meta?: StatusBarResultMeta): void {
+  public update(result: FormatterStatus, meta?: StatusBarResultMeta): number {
     this.statusBarItem.text = `$(${result.toString()}) Laravel Pint`;
     
     if (result === FormatterStatus.Disabled) {
@@ -86,9 +87,15 @@ export class StatusBar {
     }
     
     this.statusBarItem.show();
+
+    return ++this.editCount;
   }
 
   public hide() {
     this.statusBarItem.hide();
+  }
+
+  public getEditCount(): number {
+    return this.editCount;
   }
 }
