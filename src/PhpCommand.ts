@@ -5,7 +5,7 @@ import { workspace } from "vscode";
 export default class PhpCommand {
   constructor(private cmd: string, private args: Array<string>, private cwd?: string) { }
 
-  run(cwd?: string) {
+  run(cwd?: string): Promise<{ output: string, code: number|null }> {
     if (platform() === "win32") {
       this.args = [this.cmd].concat(this.args);
 
@@ -16,6 +16,29 @@ export default class PhpCommand {
     const exec = spawn(this.cmd, this.args, {
       cwd: cwd || this.cwd,
       shell: platform() === "win32" ? true : undefined
+    });
+    
+    const output: Array<string> = [];
+
+    const onOutput = (data: string) => {
+      output.push(data);
+    };
+
+    exec.stdout.on('data', onOutput);
+    exec.stderr.on('data', onOutput);
+
+    return new Promise((resolve, reject) => {
+      exec.on('error', reject);
+      exec.on('exit', (code) => {
+        if (code !== 0) {
+          reject(new Error(`Command failed with exit code ${code} and output: ${output.join('')}`));
+        } else {
+          resolve({
+            code,
+            output: output.join(''),
+          });
+        }
+      });
     });
   }
 

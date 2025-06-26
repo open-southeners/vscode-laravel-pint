@@ -4,6 +4,7 @@ export const SAIL_CANNOT_BE_EXECUTED = 'Executable not readable or lacks permiss
 export const PINT_CANNOT_BE_EXECUTED = 'Executable not readable or lacks permissions for Laravel Pint.';
 export const SOMETHING_WENT_WRONG_FORMATTING = 'Something went wrong! Active document does not support formatting. Please check before create an issue on';
 export const SOMETHING_WENT_WRONG_FINDING_EXECUTABLE = 'Something went wrong! Executable does not exists or lacks permissions. Please check before create an issue on';
+export const SOMETHING_WENT_WRONG_RUNNING_PINT = 'Something went wrong! Laravel Pint returned an error.';
 export const RESTART_TO_ENABLE = 'Restart or reload this VSCode project window to enable/disable Laravel Pint extension.';
 export const FORMAT_WORKSPACE_NON_ACTIVE_DOCUMENT = 'There is active workspace. Please open a document and run this command leaving this document open.';
 

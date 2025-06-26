@@ -4,7 +4,7 @@ import fs = require("node:fs/promises");
 import { Disposable, TextEditor, Uri, workspace, languages, RelativePattern, TextDocument, TextEdit, WorkspaceFolder, window, FileSystemWatcher } from "vscode";
 import { CONFIG_FILE_NAME } from "./constants";
 import { LoggingService } from "./LoggingService";
-import { ENABLING_PINT_FOR_WORKSPACE, FORMAT_WORKSPACE_NON_ACTIVE_DOCUMENT, RUNNING_PINT_ON_PATH, SOMETHING_WENT_WRONG_FINDING_EXECUTABLE, UPDATING_EXTENSION_EXCLUDE_PATTERNS } from "./message";
+import { ENABLING_PINT_FOR_WORKSPACE, FORMAT_WORKSPACE_NON_ACTIVE_DOCUMENT, RUNNING_PINT_ON_PATH, SOMETHING_WENT_WRONG_FINDING_EXECUTABLE, UPDATING_EXTENSION_EXCLUDE_PATTERNS, SOMETHING_WENT_WRONG_RUNNING_PINT } from "./message";
 import { CommandResolver } from "./CommandResolver";
 import { PintEditProvider } from "./PintEditProvider";
 import { FormatterStatus, StatusBar } from "./StatusBar";
@@ -203,11 +203,23 @@ export default class PintEditService implements Disposable {
       return false;
     }
 
-    command.run();
+    const editCount = this.statusBar.update(FormatterStatus.Loading);
 
     this.loggingService.logDebug(RUNNING_PINT_ON_PATH, { command: command.toString() });
 
-    this.statusBar.update(FormatterStatus.Success);
+    command.run().then(({ output, code }) => {;
+      this.loggingService.logDebug(output, { code });
+
+      if (this.statusBar.getEditCount() === editCount) {
+        this.statusBar.update(FormatterStatus.Success);
+      }
+    }).catch((error) => {
+      if (this.statusBar.getEditCount() === editCount) {
+        this.statusBar.update(FormatterStatus.Error);
+      }
+
+      this.loggingService.logError(SOMETHING_WENT_WRONG_RUNNING_PINT, error);
+    });
 
     return true;
   }

@@ -8,6 +8,7 @@ export enum FormatterStatus {
   Warn = "warning",
   Error = "alert",
   Disabled = "circle-slash",
+  Loading = "loading~spin",
 }
 
 // TODO: Not there yet...
@@ -18,6 +19,7 @@ interface StatusBarResultMeta {
 
 export class StatusBar {
   private statusBarItem: StatusBarItem;
+  private editCount: number = 0;
   
   constructor() {
     // Setup the statusBarItem
@@ -33,7 +35,7 @@ export class StatusBar {
     this.statusBarItem.show();
   }
   
-  public update(result: FormatterStatus, meta?: StatusBarResultMeta): void {
+  public update(result: FormatterStatus, meta?: StatusBarResultMeta): number {
     this.statusBarItem.text = `$(${result.toString()}) Laravel Pint`;
     
     if (result === FormatterStatus.Disabled) {
@@ -75,11 +77,25 @@ export class StatusBar {
 
       this.statusBarItem.tooltip = "Laravel Pint ran successfully fixing this file";
     }
+
+    if (result === FormatterStatus.Loading) {
+      this.statusBarItem.backgroundColor = new ThemeColor(
+        "statusBarItem.prominentBackground"
+      );
+
+      this.statusBarItem.tooltip = "Laravel Pint is running on this file";
+    }
     
     this.statusBarItem.show();
+
+    return ++this.editCount;
   }
 
   public hide() {
     this.statusBarItem.hide();
+  }
+
+  public getEditCount(): number {
+    return this.editCount;
   }
 }
