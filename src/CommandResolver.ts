@@ -128,6 +128,8 @@ export class CommandResolver {
       }
     }
 
+    executableArgsAsArray.push('--repair');
+
     return executableArgsAsArray;
   }
 }
