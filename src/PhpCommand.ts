@@ -17,6 +17,8 @@ export default class PhpCommand {
       cwd: cwd || this.cwd,
       shell: platform() === "win32" ? true : undefined
     });
+
+    exec.stdin.end();
   }
 
   toString() {
