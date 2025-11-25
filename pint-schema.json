@@ -13,7 +13,8 @@
             "laravel",
             "symfony",
             "psr12",
-            "per"
+            "per",
+            "empty"
           ]
         }
       ]
