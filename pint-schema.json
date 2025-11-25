@@ -40,9 +40,9 @@
         "type": "string"
       }
     },
-    "cache-folder": {
+    "cache-file": {
       "type": "string",
-      "description": "Cache file path for customise it. Defaults to tmp folder that your operating system uses."
+      "description": "The path to the cache file to use (defaults to a file in the temp folder used by PHP)."
     },
     "rules": {
       "type": "object",
