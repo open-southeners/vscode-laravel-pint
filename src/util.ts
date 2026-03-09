@@ -1,4 +1,5 @@
-import { accessSync, constants } from "fs";
+import { accessSync, constants, statSync } from "fs";
+import { platform } from "os";
 import path = require("path");
 import { glob } from "glob";
 import { commands, MessageItem, window, workspace, WorkspaceFolder } from "vscode";
@@ -34,6 +35,12 @@ export function getWorkspaceConfig<T = ExtensionConfig, K extends string = Extra
 
 export function canExecuteFile(file: string) {
   try {
+    if (platform() === "win32") {
+      accessSync(file, constants.F_OK);
+
+      return statSync(file).isFile();
+    }
+
     accessSync(file, constants.X_OK);
 
     return true;
