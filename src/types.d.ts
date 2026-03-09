@@ -1,4 +1,4 @@
-export type PresetOptions = 'auto' | 'laravel' | 'psr12' | 'symfony';
+export type PresetOptions = 'auto' | 'laravel' | 'psr12' | 'symfony' | 'per' | 'empty';
 
 export interface ExtensionConfig {
   enable: boolean

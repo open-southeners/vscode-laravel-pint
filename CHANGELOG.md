@@ -6,6 +6,11 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+### Changed
+
+- Support latest Laravel Pint presets, including `empty`
+- Rules schema generator now fetches the latest `php-cs-fixer-configurator` dataset automatically
+
 ## [1.3.0] - 2025-01-17
 
 ### Fixed

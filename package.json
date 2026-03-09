@@ -90,7 +90,8 @@
             "laravel",
             "psr12",
             "symfony",
-            "per"
+            "per",
+            "empty"
           ],
           "default": "auto",
           "markdownDescription": "%ext.config.preset%",

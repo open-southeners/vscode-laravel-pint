@@ -22,7 +22,7 @@ composer require laravel/pint --dev
 ## Features
 
 - `pint.json` autocompletion and validation
-- Formatter for PHP files that uses Laravel Pint locally, globally or within Docker (using [Laravel Sail](https://laravel.com/docs/9.x/sail))
+- Formatter for PHP files that uses Laravel Pint locally, globally or within Docker (using [Laravel Sail](https://laravel.com/docs/12.x/sail))
 - Format workspace files command to format all **current active workspace PHP files**
 
 ## Partners
