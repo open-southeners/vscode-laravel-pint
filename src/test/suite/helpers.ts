@@ -6,6 +6,14 @@ import * as vscode from 'vscode';
 
 const EXTENSION_ID = 'open-southeners.laravel-pint';
 
+function normalizeNewlines(content: string) {
+  return content.replace(/\r\n/g, '\n');
+}
+
+function getPhpExecutablePath() {
+  return process.env.TEST_PHP_BIN ?? 'php';
+}
+
 export const DEFAULT_SOURCE = `<?php
 
 function playground_example( ) {return ['hello'=>'world'];}
@@ -130,7 +138,7 @@ export async function applyExtensionConfiguration(overrides: Partial<{
     'editor.formatOnSave': true
   }, vscode.ConfigurationTarget.Workspace);
   /* eslint-enable @typescript-eslint/naming-convention */
-  await phpValidateConfig.update('executablePath', 'php', vscode.ConfigurationTarget.Workspace);
+  await phpValidateConfig.update('executablePath', getPhpExecutablePath(), vscode.ConfigurationTarget.Workspace);
 
   await delay(300);
 }
@@ -160,11 +168,11 @@ export async function replaceDocumentContents(document: vscode.TextDocument, con
 }
 
 export async function readWorkspaceFile(relativePath: string) {
-  return fs.readFile(workspaceFile(relativePath), 'utf8');
+  return normalizeNewlines(await fs.readFile(workspaceFile(relativePath), 'utf8'));
 }
 
 export async function writeWorkspaceFile(relativePath: string, content: string) {
-  await fs.writeFile(workspaceFile(relativePath), content, 'utf8');
+  await fs.writeFile(workspaceFile(relativePath), normalizeNewlines(content), 'utf8');
 }
 
 export async function waitForFileContents(relativePath: string, expected: string, timeoutMs = 15000) {
@@ -177,7 +185,7 @@ export async function waitForFileContents(relativePath: string, expected: string
 
 export async function waitForDocumentContents(document: vscode.TextDocument, expected: string, timeoutMs = 15000) {
   await waitForCondition(
-    async () => document.getText() === expected,
+    async () => normalizeNewlines(document.getText()) === expected,
     `Timed out waiting for document "${document.uri.fsPath}" to match expected contents.`,
     timeoutMs
   );

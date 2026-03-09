@@ -17,6 +17,7 @@ const TEMPLATE_FILES = [
 
 interface PreparedPlayground {
   binPath: string;
+  phpPath: string;
   workspacePath: string;
 }
 
@@ -34,7 +35,7 @@ async function ensureDirectory(directoryPath: string) {
 
 async function copyTemplateFile(templateName: typeof TEMPLATE_FILES[number], destinationPath: string) {
   const sourcePath = repoRootPath('playground', 'templates', templateName);
-  const content = await fs.readFile(sourcePath, 'utf8');
+  const content = (await fs.readFile(sourcePath, 'utf8')).replace(/\r\n/g, '\n');
 
   await fs.writeFile(destinationPath, content, 'utf8');
 }
@@ -125,10 +126,10 @@ exit($exitCode);
 `;
 }
 
-function globalWindowsWrapperSource() {
+function globalWindowsWrapperSource(phpPath: string) {
   return `@echo off
 set TEST_PINT_WRAPPER_MODE=global
-php "%~dp0..\\tools\\pint-proxy.php" %*
+"${phpPath.replace(/\\/g, '\\\\')}" "%~dp0..\\tools\\pint-proxy.php" %*
 `;
 }
 
@@ -166,7 +167,26 @@ async function seedWorkspaceFiles() {
   await copyTemplateFile('custom-pint.json', workspacePath('config', 'custom-pint.json'));
 }
 
-async function writeWorkspaceSettings() {
+function resolvePhpExecutable() {
+  const lookupCommand = process.platform === 'win32' ? 'where' : 'which';
+  const output = execFileSync(lookupCommand, ['php'], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'ignore']
+  });
+
+  const phpPath = output
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .find(Boolean);
+
+  if (!phpPath) {
+    throw new Error('Unable to resolve a PHP executable for integration tests.');
+  }
+
+  return phpPath;
+}
+
+async function writeWorkspaceSettings(phpPath: string) {
   /* eslint-disable @typescript-eslint/naming-convention */
   const settings = {
     'laravel-pint.enable': true,
@@ -177,7 +197,7 @@ async function writeWorkspaceSettings() {
     'laravel-pint.runInLaravelSail': false,
     'laravel-pint.sailExecutablePath': 'vendor/bin/sail',
     'laravel-pint.dirtyOnly': false,
-    'php.validate.executablePath': 'php',
+    'php.validate.executablePath': phpPath,
     '[php]': {
       'editor.defaultFormatter': EXTENSION_ID,
       'editor.formatOnSave': true
@@ -195,6 +215,7 @@ async function writeWorkspaceSettings() {
 export async function setupPlayground(): Promise<PreparedPlayground> {
   const workspaceRoot = workspacePath();
   const binPath = workspacePath('bin');
+  const phpPath = resolvePhpExecutable();
   const vendorBinPath = workspacePath('vendor', 'bin');
   const toolsPath = workspacePath('tools');
 
@@ -211,7 +232,7 @@ export async function setupPlayground(): Promise<PreparedPlayground> {
   ]);
 
   await seedWorkspaceFiles();
-  await writeWorkspaceSettings();
+  await writeWorkspaceSettings(phpPath);
 
   await fs.writeFile(workspacePath('.gitignore'), ".runtime/\n", 'utf8');
 
@@ -223,12 +244,13 @@ export async function setupPlayground(): Promise<PreparedPlayground> {
   await writeExecutable(workspacePath('tools', 'pint-custom'), wrapperSource('custom', 'pint-proxy.php'));
   await writeExecutable(workspacePath('bin', 'pint'), wrapperSource('global', '../tools/pint-proxy.php'));
   await writeExecutable(workspacePath('vendor', 'bin', 'sail'), sailWrapperSource());
-  await fs.writeFile(workspacePath('bin', 'pint.cmd'), globalWindowsWrapperSource(), 'utf8');
+  await fs.writeFile(workspacePath('bin', 'pint.cmd'), globalWindowsWrapperSource(phpPath), 'utf8');
 
   await rebuildWorkspaceRepository(workspaceRoot);
 
   return {
     binPath,
+    phpPath,
     workspacePath: workspaceRoot
   };
 }

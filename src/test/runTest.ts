@@ -9,7 +9,7 @@ async function main() {
       const playground = await setupPlayground();
 
       process.env.PATH = `${playground.binPath}${delimiter}${process.env.PATH ?? ''}`;
-      process.env.TEST_PHP_BIN = 'php';
+      process.env.TEST_PHP_BIN = playground.phpPath;
       process.env.TEST_PINT_VERSION = TEST_PINT_VERSION;
       process.env.TEST_PLAYGROUND_WORKSPACE = playground.workspacePath;
 
