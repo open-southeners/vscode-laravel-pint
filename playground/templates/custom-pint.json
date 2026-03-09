@@ -1,0 +1,8 @@
+{
+  "preset": "laravel",
+  "rules": {
+    "array_syntax": {
+      "syntax": "long"
+    }
+  }
+}

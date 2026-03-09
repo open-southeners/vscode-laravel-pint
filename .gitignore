@@ -7,6 +7,7 @@ coverage
 .nyc_output
 .vscode-test
 playground/.vscode
+playground/workspace
 scripts/**
 !scripts/generate-rules-schema.mjs
 .pnp.*
