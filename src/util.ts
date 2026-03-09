@@ -64,16 +64,20 @@ export async function resolvePathFromWorkspaces(pattern: string, relativeTo: Wor
   return matchedPaths;
 }
 
-export function onConfigChange(loggingService: LoggingService) {
+export function onConfigChange(loggingService: LoggingService, onChanged?: () => void) {
   return workspace.onDidChangeConfiguration(async (event) => {
+    if (event.affectsConfiguration("laravel-pint")) {
+      onChanged?.();
+    }
+
     if (event.affectsConfiguration("laravel-pint.enable")) {
       loggingService.logWarning(RESTART_TO_ENABLE);
-  
+
       const reload: MessageItem = { title: "Reload project" };
       const cancel: MessageItem = { title: "Cancel", isCloseAffordance: true };
-  
+
       const prompt = await window.showInformationMessage(RESTART_TO_ENABLE, reload, cancel);
-  
+
       if (prompt === reload) {
         commands.executeCommand('workbench.action.reloadWindow');
       }
