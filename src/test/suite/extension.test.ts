@@ -20,6 +20,10 @@ import {
   writeWorkspaceFile
 } from './helpers';
 
+function normalizePathSeparators(value: string) {
+  return value.replace(/\\/g, '/');
+}
+
 suite('Laravel Pint Extension', function () {
   this.timeout(20000);
 
@@ -64,7 +68,7 @@ suite('Laravel Pint Extension', function () {
     const marker = await readRuntimeMarker('custom');
 
     assert.ok(marker.args.includes('--config'));
-    assert.ok(marker.args.some((arg) => arg.endsWith('config/custom-pint.json')));
+    assert.ok(marker.args.some((arg) => normalizePathSeparators(arg).endsWith('config/custom-pint.json')));
   });
 
   test('formats using the global Pint fallback when the local executable is missing', async () => {

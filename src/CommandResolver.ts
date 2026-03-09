@@ -1,4 +1,6 @@
 import commandExists = require("command-exists");
+import { execFileSync, execSync } from "node:child_process";
+import { platform } from "node:os";
 import path = require("path");
 import { workspace, WorkspaceFolder } from "vscode";
 import { CONFIG_FILE_NAME, DEFAULT_EXEC_PATH, DEFAULT_LARAVEL_SAIL_EXEC_PATH } from "./constants";
@@ -11,7 +13,7 @@ export class CommandResolver {
   constructor(private loggingService: LoggingService) { }
 
   public async getGlobalPintCommand(args: Array<string>): Promise<PhpCommand> {
-    const globalPintPath = await commandExists('pint');
+    const globalPintPath = await this.resolveGlobalPintPath();
 
     return new PhpCommand(globalPintPath, args);
   }
@@ -62,6 +64,33 @@ export class CommandResolver {
       await this.getPintConfigAsArgs(workspaceFolder, input, isFormatWorkspace),
       cwd
     );
+  }
+
+  private async resolveGlobalPintPath() {
+    await commandExists('pint');
+
+    if (platform() === "win32") {
+      const output = execFileSync('where', ['pint'], {
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore']
+      });
+
+      const resolvedPath = output
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .find(Boolean);
+
+      if (resolvedPath) {
+        return resolvedPath;
+      }
+    }
+
+    const output = execSync('command -v pint', {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore']
+    }).trim();
+
+    return output || 'pint';
   }
 
   public async getPintCommandWithinSail(
