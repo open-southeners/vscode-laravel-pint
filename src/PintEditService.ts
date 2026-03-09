@@ -1,6 +1,5 @@
 import { readFile } from "fs-extra";
 import path = require("node:path");
-import os = require("node:os");
 import fs = require("node:fs/promises");
 import { Disposable, TextEditor, Uri, workspace, languages, RelativePattern, TextDocument, TextEdit, WorkspaceFolder, window, FileSystemWatcher, Range, Position } from "vscode";
 import { CONFIG_FILE_NAME } from "./constants";
@@ -255,8 +254,11 @@ export default class PintEditService implements Disposable {
       return [];
     }
 
-    const tempDirectory = await fs.mkdtemp(path.join(os.tmpdir(), 'vscode-laravel-pint-'));
-    const tempFilePath = path.join(tempDirectory, path.basename(document.uri.fsPath));
+    const parsedPath = path.parse(document.uri.fsPath);
+    const tempFilePath = path.join(
+      parsedPath.dir,
+      `${parsedPath.name}.vscode-laravel-pint-${Date.now()}-${process.pid}${parsedPath.ext}`
+    );
     const documentText = document.getText();
 
     await fs.writeFile(tempFilePath, documentText, 'utf8');
@@ -264,7 +266,7 @@ export default class PintEditService implements Disposable {
     const command = await this.getWorkspaceCommand(workspaceFolder, tempFilePath);
 
     if (!command) {
-      await fs.rm(tempDirectory, { recursive: true, force: true });
+      await fs.rm(tempFilePath, { force: true });
 
       this.statusBar.update(FormatterStatus.Error);
       this.loggingService.logError(SOMETHING_WENT_WRONG_FINDING_EXECUTABLE + ' ' + pkg.bugs.url);
@@ -275,14 +277,14 @@ export default class PintEditService implements Disposable {
     const result = await this.runCommand(command);
 
     if (!result) {
-      await fs.rm(tempDirectory, { recursive: true, force: true });
+      await fs.rm(tempFilePath, { force: true });
 
       return [];
     }
 
     const formattedText = await fs.readFile(tempFilePath, 'utf8');
 
-    await fs.rm(tempDirectory, { recursive: true, force: true });
+    await fs.rm(tempFilePath, { force: true });
 
     if (!result) {
       return [];
