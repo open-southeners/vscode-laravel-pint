@@ -1,52 +1,130 @@
 import * as assert from 'assert';
-
-// You can import and use all API from the 'vscode' module
-// as well as import your extension to test it
-import * as fs from 'fs';
-import { beforeEach } from 'mocha';
-import path = require('path');
 import * as vscode from 'vscode';
-import * as myExtension from '../../extension';
-import { PresetOptions } from '../../types';
-import { asAbsolutePathFromWorkspaceFolder, buildCommandFromConfig } from '../../util';
+import {
+  activateExtension,
+  applyExtensionConfiguration,
+  closeAllEditors,
+  CUSTOM_EXPECTED,
+  DEFAULT_EXPECTED,
+  DEFAULT_SOURCE,
+  openPhpDocument,
+  readRuntimeMarker,
+  readWorkspaceFile,
+  resetWorkspace,
+  waitForDocumentContents,
+  waitForFileContents,
+  WORKSPACE_FIRST_EXPECTED,
+  WORKSPACE_FIRST_SOURCE,
+  WORKSPACE_SECOND_EXPECTED,
+  WORKSPACE_SECOND_SOURCE,
+  writeWorkspaceFile
+} from './helpers';
 
-suite('Extension Test Suite', () => {
-	vscode.window.showInformationMessage('Start all tests.');
+suite('Laravel Pint Extension', function () {
+  this.timeout(20000);
 
-  // TODO: Not there yet...
-  // myExtension.activate();
-
-  beforeEach(() => {
-    const workspaceConfigFile = path.resolve(__dirname, '../../../plaground/.vscode/settings.json');
-
-    if (fs.existsSync(workspaceConfigFile)) {
-      fs.rmSync(workspaceConfigFile);
-    }
+  suiteSetup(async () => {
+    await activateExtension();
   });
 
-	test('Default config settings', () => {
-    const config = vscode.workspace.getConfiguration('laravel-pint');
+  setup(async () => {
+    await closeAllEditors();
+    await resetWorkspace();
+    await applyExtensionConfiguration({});
+  });
 
-    assert.strictEqual(config.get<string>('configPath'), '');
-    assert.strictEqual(config.get<string>('executablePath'), '');
-    assert.strictEqual(config.get<boolean>('formatOnSave'), true);
-    assert.strictEqual(config.get<PresetOptions>('preset'), 'auto');
-    assert.strictEqual(config.get<boolean>('runInLaravelSail'), false);
-    assert.strictEqual(config.get<string>('sailExecutablePath'), '');
-    assert.strictEqual(config.get<boolean>('dirtyOnly'), false);
-	});
-	
-  test('Build command with config args', async () => {
-    const config = vscode.workspace.getConfiguration('laravel-pint');
+  test('formats the active file with the local workspace Pint binary', async () => {
+    const document = await openPhpDocument('src/command.php');
 
-    await config.update('executablePath', 'pint');
-    await config.update('configPath', 'mypintconfig.json');
+    await vscode.commands.executeCommand('laravel-pint.format');
 
-    const cmd = await buildCommandFromConfig('index.php', config);
+    await waitForFileContents('src/command.php', DEFAULT_EXPECTED);
+    await waitForDocumentContents(document, DEFAULT_EXPECTED);
 
-    console.log(cmd);
+    const marker = await readRuntimeMarker('local');
 
-    assert.ok(cmd);
-    assert.ok(cmd.filter(value => ['vendor/bin/pint', 'index.php', '--config', 'mypintconfig.json'].includes(value)).length > 1);
-	});
+    assert.ok(marker.args.some((arg) => arg.endsWith('command.php')));
+    assert.ok(marker.args.includes('--repair'));
+  });
+
+  test('formats using a custom executable path and custom config path', async () => {
+    await applyExtensionConfiguration({
+      configPath: 'config/custom-pint.json',
+      executablePath: 'tools/pint-custom',
+      fallbackToGlobalBin: false
+    });
+
+    const document = await openPhpDocument('src/custom.php');
+
+    await vscode.commands.executeCommand('laravel-pint.format');
+
+    await waitForFileContents('src/custom.php', CUSTOM_EXPECTED);
+    await waitForDocumentContents(document, CUSTOM_EXPECTED);
+
+    const marker = await readRuntimeMarker('custom');
+
+    assert.ok(marker.args.includes('--config'));
+    assert.ok(marker.args.some((arg) => arg.endsWith('config/custom-pint.json')));
+  });
+
+  test('formats using the global Pint fallback when the local executable is missing', async () => {
+    await applyExtensionConfiguration({
+      executablePath: 'missing/bin/pint',
+      fallbackToGlobalBin: true
+    });
+
+    const document = await openPhpDocument('src/global.php');
+
+    await vscode.commands.executeCommand('laravel-pint.format');
+
+    await waitForFileContents('src/global.php', DEFAULT_EXPECTED);
+    await waitForDocumentContents(document, DEFAULT_EXPECTED);
+
+    const marker = await readRuntimeMarker('global');
+
+    assert.ok(marker.args.some((arg) => arg.endsWith('global.php')));
+  });
+
+  test('formats through the Sail executable when Sail mode is enabled', async () => {
+    await applyExtensionConfiguration({
+      runInLaravelSail: true
+    });
+
+    const document = await openPhpDocument('src/sail.php');
+
+    await vscode.commands.executeCommand('laravel-pint.format');
+
+    await waitForFileContents('src/sail.php', DEFAULT_EXPECTED);
+    await waitForDocumentContents(document, DEFAULT_EXPECTED);
+
+    const marker = await readRuntimeMarker('sail');
+
+    assert.ok(marker.args.some((arg) => arg.endsWith('sail.php')));
+  });
+
+  test('formats all workspace PHP files with the workspace command', async () => {
+    await openPhpDocument('src/workspace-first.php');
+
+    await vscode.commands.executeCommand('laravel-pint.formatProject');
+
+    await waitForFileContents('src/workspace-first.php', WORKSPACE_FIRST_EXPECTED);
+    await waitForFileContents('src/workspace-second.php', WORKSPACE_SECOND_EXPECTED);
+  });
+
+  test('formats only dirty workspace files when dirtyOnly is enabled', async () => {
+    await applyExtensionConfiguration({
+      dirtyOnly: true
+    });
+
+    await writeWorkspaceFile('src/workspace-first.php', DEFAULT_SOURCE);
+    await openPhpDocument('src/workspace-second.php');
+
+    await vscode.commands.executeCommand('laravel-pint.formatProject');
+
+    await waitForFileContents('src/workspace-first.php', DEFAULT_EXPECTED);
+
+    const untouchedFile = await readWorkspaceFile('src/workspace-second.php');
+
+    assert.strictEqual(untouchedFile, WORKSPACE_SECOND_SOURCE);
+  });
 });
