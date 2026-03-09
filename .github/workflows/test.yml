@@ -9,6 +9,9 @@ jobs:
   build:
     permissions:
       contents: read
+    env:
+      PHP_VERSION: '8.4'
+      PINT_VERSION: '1.27.1'
 
     strategy:
       matrix:
@@ -24,8 +27,21 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          tools: laravel/pint:${{ env.PINT_VERSION }}
+          coverage: none
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Install dependencies
         run: bun install --frozen-lockfile
+
+      - name: Verify PHP and Pint
+        run: |
+          php --version
+          pint --version
 
       - name: Transpile tests
         run: bun x tsc -p ./
