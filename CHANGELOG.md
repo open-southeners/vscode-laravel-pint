@@ -16,8 +16,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ### Fixed
 
-- Corrected the `cache-file` property key and description in the Pint schema
-- Added the `--repair` flag to Pint command execution
+- Corrected the `cache-file` property key and description in the Pint schema [#80] (thanks @patrickcarlohickman)
+- Added the `--repair` flag to Pint command execution [#79] (thanks @saade)
 - Closed command stdin explicitly to avoid hanging subprocesses
 - Awaited Pint command completion so formatting failures surface correctly
 - Applied Laravel Sail resolution in the actual formatting path, not only during readiness checks
