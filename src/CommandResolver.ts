@@ -64,7 +64,11 @@ export class CommandResolver {
     );
   }
 
-  public async getPintCommandWithinSail(workspaceFolder: WorkspaceFolder, input?: string): Promise<PhpCommand | undefined> {
+  public async getPintCommandWithinSail(
+    workspaceFolder: WorkspaceFolder,
+    input?: string,
+    isFormatWorkspace = false
+  ): Promise<PhpCommand | undefined> {
     if (!workspace.isTrusted) {
       this.loggingService.logDebug(UNTRUSTED_WORKSPACE_ERROR);
 
@@ -90,7 +94,10 @@ export class CommandResolver {
       return;
     }
 
-    return new PhpCommand(executable, ['bin', 'pint', ...await this.getPintConfigAsArgs(workspaceFolder, input)]);
+    return new PhpCommand(
+      executable,
+      ['bin', 'pint', ...await this.getPintConfigAsArgs(workspaceFolder, input, isFormatWorkspace)]
+    );
   }
 
   private async getPintConfigAsArgs(

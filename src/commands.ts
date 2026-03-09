@@ -8,5 +8,5 @@ export function formatCommand(pintEditService: PintEditService) {
     return;
   }
 
-  pintEditService.formatFile(activeTextEditorDocumentUri);
+  return pintEditService.formatFile(activeTextEditorDocumentUri);
 }

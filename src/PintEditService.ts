@@ -1,7 +1,8 @@
 import { readFile } from "fs-extra";
 import path = require("node:path");
+import os = require("node:os");
 import fs = require("node:fs/promises");
-import { Disposable, TextEditor, Uri, workspace, languages, RelativePattern, TextDocument, TextEdit, WorkspaceFolder, window, FileSystemWatcher } from "vscode";
+import { Disposable, TextEditor, Uri, workspace, languages, RelativePattern, TextDocument, TextEdit, WorkspaceFolder, window, FileSystemWatcher, Range, Position } from "vscode";
 import { CONFIG_FILE_NAME } from "./constants";
 import { LoggingService } from "./LoggingService";
 import { ENABLING_PINT_FOR_WORKSPACE, FORMAT_WORKSPACE_NON_ACTIVE_DOCUMENT, RUNNING_PINT_ON_PATH, SOMETHING_WENT_WRONG_FINDING_EXECUTABLE, UPDATING_EXTENSION_EXCLUDE_PATTERNS } from "./message";
@@ -9,6 +10,7 @@ import { CommandResolver } from "./CommandResolver";
 import { PintEditProvider } from "./PintEditProvider";
 import { FormatterStatus, StatusBar } from "./StatusBar";
 import { getWorkspaceConfig, onConfigChange } from "./util";
+import PhpCommand from "./PhpCommand";
 const pkg = require('../package.json');
 
 export default class PintEditService implements Disposable {
@@ -51,10 +53,21 @@ export default class PintEditService implements Disposable {
     const textEditorChange = window.onDidChangeActiveTextEditor(
       this.handleActiveTextEditorChanged
     );
+    const documentWillSave = workspace.onWillSaveTextDocument((event) => {
+      if (event.document.languageId !== 'php' || this.isDocumentExcluded(event.document)) {
+        return;
+      }
+
+      if (!workspace.getWorkspaceFolder(event.document.uri)) {
+        return;
+      }
+
+      event.waitUntil(this.provideEdits(event.document));
+    });
 
     this.handleActiveTextEditorChanged(window.activeTextEditor);
 
-    return [configurationWatcher, textEditorChange];
+    return [configurationWatcher, textEditorChange, documentWillSave];
   }
 
   public dispose = () => {
@@ -123,9 +136,7 @@ export default class PintEditService implements Disposable {
       return;
     }
 
-    const pintCommand = getWorkspaceConfig('runInLaravelSail', false)
-      ? await this.commandResolver.getPintCommandWithinSail(workspaceFolder)
-      : await this.commandResolver.getPintCommand(workspaceFolder);
+    const pintCommand = await this.getWorkspaceCommand(workspaceFolder);
 
     // If there isn't an instance here, it is because the module
     // could not be loaded either locally or globally when specified
@@ -160,6 +171,32 @@ export default class PintEditService implements Disposable {
     ).length > 0;
   }
 
+  private async getWorkspaceCommand(
+    workspaceFolder: WorkspaceFolder,
+    input?: string,
+    isFormatWorkspace = false
+  ) {
+    return getWorkspaceConfig('runInLaravelSail', false)
+      ? this.commandResolver.getPintCommandWithinSail(workspaceFolder, input, isFormatWorkspace)
+      : this.commandResolver.getPintCommand(workspaceFolder, input, isFormatWorkspace);
+  }
+
+  private async runCommand(command: PhpCommand) {
+    try {
+      await command.run();
+    } catch (error) {
+      this.statusBar.update(FormatterStatus.Error);
+      this.loggingService.logError(`Pint command failed: ${command.toString()}`, error);
+
+      return false;
+    }
+
+    this.loggingService.logDebug(RUNNING_PINT_ON_PATH, { command: command.toString() });
+    this.statusBar.update(FormatterStatus.Success);
+
+    return true;
+  }
+
   public async formatWorkspace() {
     const activeDocument = window.activeTextEditor?.document;
 
@@ -192,7 +229,7 @@ export default class PintEditService implements Disposable {
     const workspaceFolder = workspace.getWorkspaceFolder(file);
 
     let command = workspaceFolder
-      ? await this.commandResolver.getPintCommand(workspaceFolder, filePath, isFormatWorkspace)
+      ? await this.getWorkspaceCommand(workspaceFolder, filePath, isFormatWorkspace)
       : await this.commandResolver.getGlobalPintCommand([filePath]);
 
     if (!command) {
@@ -203,19 +240,49 @@ export default class PintEditService implements Disposable {
       return false;
     }
 
-    command.run();
-
-    this.loggingService.logDebug(RUNNING_PINT_ON_PATH, { command: command.toString() });
-
-    this.statusBar.update(FormatterStatus.Success);
+    if (!await this.runCommand(command)) {
+      return false;
+    }
 
     return true;
   }
 
   private provideEdits = async (document: TextDocument): Promise<TextEdit[]> => {
     const startTime = new Date().getTime();
+    const workspaceFolder = workspace.getWorkspaceFolder(document.uri);
 
-    const result = await this.formatFile(document.uri);
+    if (!workspaceFolder || this.isDocumentExcluded(document)) {
+      return [];
+    }
+
+    const tempDirectory = await fs.mkdtemp(path.join(os.tmpdir(), 'vscode-laravel-pint-'));
+    const tempFilePath = path.join(tempDirectory, path.basename(document.uri.fsPath));
+    const documentText = document.getText();
+
+    await fs.writeFile(tempFilePath, documentText, 'utf8');
+
+    const command = await this.getWorkspaceCommand(workspaceFolder, tempFilePath);
+
+    if (!command) {
+      await fs.rm(tempDirectory, { recursive: true, force: true });
+
+      this.statusBar.update(FormatterStatus.Error);
+      this.loggingService.logError(SOMETHING_WENT_WRONG_FINDING_EXECUTABLE + ' ' + pkg.bugs.url);
+
+      return [];
+    }
+
+    const result = await this.runCommand(command);
+
+    if (!result) {
+      await fs.rm(tempDirectory, { recursive: true, force: true });
+
+      return [];
+    }
+
+    const formattedText = await fs.readFile(tempFilePath, 'utf8');
+
+    await fs.rm(tempDirectory, { recursive: true, force: true });
 
     if (!result) {
       return [];
@@ -225,6 +292,15 @@ export default class PintEditService implements Disposable {
 
     this.loggingService.logInfo(`Formatting completed in ${duration}ms.`);
 
-    return [];
+    if (formattedText === documentText) {
+      return [];
+    }
+
+    return [
+      TextEdit.replace(
+        new Range(new Position(0, 0), document.positionAt(documentText.length)),
+        formattedText
+      )
+    ];
   };
 }
