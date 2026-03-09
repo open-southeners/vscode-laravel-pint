@@ -6,6 +6,27 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-03-09
+
+### Added
+
+- Cross-platform VS Code tasks for compile, lint, test, package, and Laravel Sail test runs
+- More detailed Laravel Pint output logs, including resolved executable paths, arguments, working directory, duration, and captured stdout / stderr
+
+### Changed
+
+- Manual document formatting now uses direct file formatting for clean files and the in-memory edit path for dirty buffers
+- Integration tests now run with a deterministic temp root and a higher format-on-save timeout for slower runners
+
+### Fixed
+
+- Workspace command resolution now caches executable and config lookups and invalidates them when extension settings change
+- Laravel Sail document formatting now rewrites host absolute paths to workspace-relative paths before entering the container
+- Process spawning now handles native Windows launchers more reliably and treats Laravel Pint's `FIXED` exit status as a successful formatting run
+- Workspace exclude patterns are now reloaded from `pint.json` without forcing a window reload
+- Format-on-save no longer double-runs the Pint process through a second ad hoc save hook
+- Integration coverage is now stable for manual formatting, custom executable/config usage, global fallback, Laravel Sail, workspace formatting, and `dirtyOnly`
+
 ## [2.0.0] - 2026-03-09
 
 ### Added
