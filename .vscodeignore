@@ -1,4 +1,5 @@
 .github/**
+.claude/**
 .vscode/**
 .vscode-test/**
 src/**

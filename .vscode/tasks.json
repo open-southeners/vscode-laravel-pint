@@ -1,0 +1,70 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "compile",
+      "type": "process",
+      "command": "bun",
+      "args": ["run", "compile", "--sourcemap"],
+      "group": "build",
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "watch",
+      "type": "process",
+      "command": "bun",
+      "args": ["run", "watch"],
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": ["$tsc-watch"]
+    },
+    {
+      "label": "transpile",
+      "type": "process",
+      "command": "bun",
+      "args": ["run", "transpile"],
+      "group": "build",
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "lint",
+      "type": "process",
+      "command": "bun",
+      "args": ["run", "lint"],
+      "group": "test",
+      "problemMatcher": ["$eslint-stylish"]
+    },
+    {
+      "label": "test",
+      "type": "process",
+      "command": "bun",
+      "args": ["run", "test"],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "dependsOn": ["transpile", "lint"],
+      "problemMatcher": []
+    },
+    {
+      "label": "package:vsix",
+      "type": "process",
+      "command": "bun",
+      "args": ["x", "@vscode/vsce", "package", "--no-yarn"],
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "test:sail",
+      "type": "shell",
+      "command": "sh",
+      "args": [
+        "-lc",
+        "if [ -x ./vendor/bin/sail ]; then ./vendor/bin/sail exec -T laravel.test bun run test; else docker compose exec -T laravel.test sh -lc 'cd /var/www/html && bun run test'; fi"
+      ],
+      "group": "test",
+      "problemMatcher": [],
+      "detail": "Run the integration suite inside a Laravel Sail container"
+    }
+  ]
+}

@@ -200,7 +200,8 @@ async function writeWorkspaceSettings(phpPath: string) {
     'php.validate.executablePath': phpPath,
     '[php]': {
       'editor.defaultFormatter': EXTENSION_ID,
-      'editor.formatOnSave': true
+      'editor.formatOnSave': true,
+      'editor.formatOnSaveTimeout': 10000
     }
   };
   /* eslint-enable @typescript-eslint/naming-convention */

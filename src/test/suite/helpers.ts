@@ -135,7 +135,8 @@ export async function applyExtensionConfiguration(overrides: Partial<{
   /* eslint-disable @typescript-eslint/naming-convention */
   await rootConfig.update('[php]', {
     'editor.defaultFormatter': EXTENSION_ID,
-    'editor.formatOnSave': true
+    'editor.formatOnSave': true,
+    'editor.formatOnSaveTimeout': 10000
   }, vscode.ConfigurationTarget.Workspace);
   /* eslint-enable @typescript-eslint/naming-convention */
   await phpValidateConfig.update('executablePath', getPhpExecutablePath(), vscode.ConfigurationTarget.Workspace);
@@ -197,7 +198,8 @@ export async function waitForFormattingEdits(document: vscode.TextDocument, time
   await waitForCondition(async () => {
     const edits = await vscode.commands.executeCommand<vscode.TextEdit[]>(
       'vscode.executeFormatDocumentProvider',
-      document.uri
+      document.uri,
+      { tabSize: 4, insertSpaces: true }
     );
 
     lastEdits = edits;

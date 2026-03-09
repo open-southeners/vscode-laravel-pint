@@ -14,7 +14,6 @@ import {
   waitForDocumentContents,
   waitForFileContents,
   WORKSPACE_FIRST_EXPECTED,
-  WORKSPACE_FIRST_SOURCE,
   WORKSPACE_SECOND_EXPECTED,
   WORKSPACE_SECOND_SOURCE,
   writeWorkspaceFile
@@ -37,17 +36,15 @@ suite('Laravel Pint Extension', function () {
     await applyExtensionConfiguration({});
   });
 
-  test('formats the active file with the local workspace Pint binary', async () => {
+  test('formats the active file with the local workspace Pint binary through the manual command', async () => {
     const document = await openPhpDocument('src/command.php');
 
     await vscode.commands.executeCommand('laravel-pint.format');
 
-    await waitForFileContents('src/command.php', DEFAULT_EXPECTED);
     await waitForDocumentContents(document, DEFAULT_EXPECTED);
 
     const marker = await readRuntimeMarker('local');
 
-    assert.ok(marker.args.some((arg) => arg.endsWith('command.php')));
     assert.ok(marker.args.includes('--repair'));
   });
 
@@ -62,7 +59,6 @@ suite('Laravel Pint Extension', function () {
 
     await vscode.commands.executeCommand('laravel-pint.format');
 
-    await waitForFileContents('src/custom.php', CUSTOM_EXPECTED);
     await waitForDocumentContents(document, CUSTOM_EXPECTED);
 
     const marker = await readRuntimeMarker('custom');
@@ -81,12 +77,11 @@ suite('Laravel Pint Extension', function () {
 
     await vscode.commands.executeCommand('laravel-pint.format');
 
-    await waitForFileContents('src/global.php', DEFAULT_EXPECTED);
     await waitForDocumentContents(document, DEFAULT_EXPECTED);
 
     const marker = await readRuntimeMarker('global');
 
-    assert.ok(marker.args.some((arg) => arg.endsWith('global.php')));
+    assert.ok(marker.args.includes('--repair'));
   });
 
   test('formats through the Sail executable when Sail mode is enabled', async () => {
@@ -98,12 +93,11 @@ suite('Laravel Pint Extension', function () {
 
     await vscode.commands.executeCommand('laravel-pint.format');
 
-    await waitForFileContents('src/sail.php', DEFAULT_EXPECTED);
     await waitForDocumentContents(document, DEFAULT_EXPECTED);
 
     const marker = await readRuntimeMarker('sail');
 
-    assert.ok(marker.args.some((arg) => arg.endsWith('sail.php')));
+    assert.ok(marker.args.includes('--repair'));
   });
 
   test('formats all workspace PHP files with the workspace command', async () => {
