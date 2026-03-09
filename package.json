@@ -38,17 +38,17 @@
   },
   "main": "./out/extension.js",
   "scripts": {
-    "bundle": "yarn run vscode:prepublish && vsce package",
+    "bundle": "bun run vscode:prepublish && vsce package --no-yarn",
     "compile": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
-    "deploy": "vsce publish --yarn",
-    "esbuild": "yarn run compile --sourcemap",
+    "deploy": "bun run vscode:prepublish && vsce publish --no-yarn",
+    "esbuild": "bun run compile --sourcemap",
     "lint": "eslint src --ext ts",
-    "lint:fix": "yarn run lint --fix",
+    "lint:fix": "bun run lint --fix",
     "transpile": "tsc -p ./",
-    "pretest": "yarn run transpile && yarn run lint",
+    "pretest": "bun run transpile && bun run lint",
     "test": "node ./out/test/runTest.js",
-    "vscode:prepublish": "yarn run compile --minify",
-    "watch": "yarn run compile --sourcemap --watch"
+    "vscode:prepublish": "bun run compile --minify",
+    "watch": "bun run compile --sourcemap --watch"
   },
   "contributes": {
     "commands": [
@@ -167,6 +167,5 @@
     "publisherDisplayName": "Open Southeners",
     "publisherId": "158876d3-17b8-41c8-9af0-204a740fc57d",
     "isPreReleaseVersion": false
-  },
-  "packageManager": "yarn@4.1.0+sha256.81a00df816059803e6b5148acf03ce313cad36b7f6e5af6efa040a15981a6ffb"
+  }
 }

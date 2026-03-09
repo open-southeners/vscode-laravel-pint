@@ -7,57 +7,44 @@ on:
 
 jobs:
   build:
+    permissions:
+      contents: write
+
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.2
 
-      - name: Enable Corepack
-        run: corepack enable
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2.1.3
         with:
-          node-version: 18
-          cache: yarn
-
-      - name: Get Yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
-
-      - uses: actions/cache@v3
-        id: yarn-cache
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+          bun-version: latest
 
       - name: Install dependencies
-        run: yarn install --immutable
+        run: bun install --frozen-lockfile
 
       - name: Package extension to VSIX
-        run: yarn run vsce package --no-yarn --pre-release
+        run: bun x @vscode/vsce package --no-yarn --pre-release
 
       - name: Get release info
         id: query-release-info
-        uses: release-flow/keep-a-changelog-action@v2
+        uses: release-flow/keep-a-changelog-action@v3.0.0
         with:
           command: query
           version: latest
 
       - name: Publish to Github releases
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2.5.0
         with:
           body: ${{ steps.query-release-info.outputs.release-notes }}
           prerelease: false
           files: '*.vsix'
 
       - name: Publish extension to Visual Studio Marketplace
-        run: yarn run vsce publish --no-yarn
+        run: bun x @vscode/vsce publish --no-yarn
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
       - name: Publish extension to Open VSX
-        run: yarn run ovsx publish *.vsix
+        run: bun x ovsx publish *.vsix
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
