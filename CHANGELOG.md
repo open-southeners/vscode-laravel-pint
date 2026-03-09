@@ -14,15 +14,6 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - A generated integration-test playground that downloads pinned Laravel Pint `v1.27.1` during test runs
 - End-to-end extension coverage for local Pint, custom executable/config, global fallback, Laravel Sail, workspace formatting, and `dirtyOnly` workspace formatting
 
-### Changed
-
-- Migrated local tooling and GitHub workflows from Yarn to Bun
-- Upgraded the local Node.js version target from `18` to `24`
-- Updated GitHub Actions workflows to current action release lines
-- Refreshed Laravel Pint and Laravel Sail documentation links in extension metadata
-- Regenerated the Pint schema against the latest upstream PHP CS Fixer configurator data
-- The rules schema generator now discovers the latest `php-cs-fixer-configurator` dataset automatically
-
 ### Fixed
 
 - Corrected the `cache-file` property key and description in the Pint schema
