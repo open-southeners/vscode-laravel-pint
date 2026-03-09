@@ -41,10 +41,21 @@ jobs:
         if: runner.os != 'Linux'
         run: bun run ./out/test/runTest.js
 
-      - uses: codecov/codecov-action@v5.5.2
+      - name: Check coverage report
         if: success() && matrix.os == 'ubuntu-latest'
+        id: coverage-report
+        run: |
+          if [ -f ./coverage/clover.xml ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: codecov/codecov-action@v5.5.2
+        if: success() && matrix.os == 'ubuntu-latest' && steps.coverage-report.outputs.exists == 'true'
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/clover.xml
           fail_ci_if_error: true
+          handle_no_reports_found: true
           verbose: true
