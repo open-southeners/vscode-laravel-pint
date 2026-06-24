@@ -122,7 +122,8 @@ suite('Laravel Pint Extension', function () {
       assert.strictEqual(marker.container, 'laravel.test');
       assert.strictEqual(marker.cwd, '/var/www/html');
       assert.ok(marker.command?.endsWith('/vendor/bin/pint'));
-      assert.ok(marker.args.some((arg) => normalizePathSeparators(arg).includes('/var/www/html/.runtime/temp/')));
+      assert.ok(marker.args.some((arg) => normalizePathSeparators(arg).includes('/tmp/vscode-laravel-pint-')));
+      assert.ok(marker.args.some((arg) => normalizePathSeparators(arg).endsWith('/pint.json')));
       assert.ok(marker.args.includes('--repair'));
     } finally {
       if (previousTempRoot) {

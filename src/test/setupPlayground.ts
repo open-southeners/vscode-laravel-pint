@@ -86,7 +86,93 @@ function dockerWrapperSource() {
 <?php
 
 $workspacePath = dirname(__DIR__);
+$runtimeDirectory = $workspacePath.DIRECTORY_SEPARATOR.'.runtime';
+$containerFilesystemRoot = $runtimeDirectory.DIRECTORY_SEPARATOR.'docker-container';
 $arguments = array_slice($_SERVER['argv'], 1);
+
+if (! is_dir($runtimeDirectory)) {
+  mkdir($runtimeDirectory, 0777, true);
+}
+
+if (! is_dir($containerFilesystemRoot)) {
+  mkdir($containerFilesystemRoot, 0777, true);
+}
+
+function removePath(string $target): void
+{
+  if (! file_exists($target)) {
+    return;
+  }
+
+  if (is_file($target) || is_link($target)) {
+    unlink($target);
+    return;
+  }
+
+  $entries = scandir($target);
+
+  if (! is_array($entries)) {
+    return;
+  }
+
+  foreach ($entries as $entry) {
+    if ($entry === '.' || $entry === '..') {
+      continue;
+    }
+
+    removePath($target.DIRECTORY_SEPARATOR.$entry);
+  }
+
+  rmdir($target);
+}
+
+function translateContainerPath(string $containerPath, string $workspacePath, string $workspaceMountPath, string $containerFilesystemRoot): string
+{
+  if (strpos($containerPath, $workspaceMountPath) === 0) {
+    return $workspacePath.substr($containerPath, strlen($workspaceMountPath));
+  }
+
+  return $containerFilesystemRoot.str_replace('/', DIRECTORY_SEPARATOR, $containerPath);
+}
+
+$workspaceMountPath = '/var/www/html';
+
+if (($arguments[0] ?? null) === 'cp') {
+  $source = $arguments[1] ?? null;
+  $destination = $arguments[2] ?? null;
+
+  if (! $source || ! $destination) {
+    fwrite(STDERR, "Incomplete Docker copy command.\\n");
+    exit(1);
+  }
+
+  if (strpos($destination, ':') !== false) {
+    [, $containerDestination] = explode(':', $destination, 2);
+    $translatedDestination = translateContainerPath($containerDestination, $workspacePath, $workspaceMountPath, $containerFilesystemRoot);
+
+    if (! is_dir(dirname($translatedDestination))) {
+      mkdir(dirname($translatedDestination), 0777, true);
+    }
+
+    copy($source, $translatedDestination);
+    exit(0);
+  }
+
+  if (strpos($source, ':') !== false) {
+    [, $containerSource] = explode(':', $source, 2);
+    $translatedSource = translateContainerPath($containerSource, $workspacePath, $workspaceMountPath, $containerFilesystemRoot);
+
+    if (! is_dir(dirname($destination))) {
+      mkdir(dirname($destination), 0777, true);
+    }
+
+    copy($translatedSource, $destination);
+    exit(0);
+  }
+
+  fwrite(STDERR, "Unsupported Docker copy direction.\\n");
+  exit(1);
+}
 
 if (($arguments[0] ?? null) !== 'exec') {
   fwrite(STDERR, "Unexpected Docker command.\\n");
@@ -110,10 +196,30 @@ if (! $workingDirectory || ! $containerName || ! $command) {
   exit(1);
 }
 
-$runtimeDirectory = $workspacePath.DIRECTORY_SEPARATOR.'.runtime';
+if ($command === 'mkdir') {
+  $targetDirectory = $commandArguments[1] ?? null;
 
-if (! is_dir($runtimeDirectory)) {
-  mkdir($runtimeDirectory, 0777, true);
+  if (! $targetDirectory) {
+    fwrite(STDERR, "Missing Docker mkdir target.\\n");
+    exit(1);
+  }
+
+  $translatedDirectory = translateContainerPath($targetDirectory, $workspacePath, $workspaceMountPath, $containerFilesystemRoot);
+  mkdir($translatedDirectory, 0777, true);
+  exit(0);
+}
+
+if ($command === 'rm') {
+  $targetDirectory = $commandArguments[1] ?? null;
+
+  if (! $targetDirectory) {
+    fwrite(STDERR, "Missing Docker rm target.\\n");
+    exit(1);
+  }
+
+  $translatedDirectory = translateContainerPath($targetDirectory, $workspacePath, $workspaceMountPath, $containerFilesystemRoot);
+  removePath($translatedDirectory);
+  exit(0);
 }
 
 file_put_contents(
@@ -127,9 +233,9 @@ file_put_contents(
   ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
 );
 
-$translatedArguments = array_map(static function (string $argument) use ($workspacePath, $workingDirectory) {
-  if (strpos($argument, $workingDirectory) === 0) {
-    return $workspacePath.substr($argument, strlen($workingDirectory));
+$translatedArguments = array_map(static function (string $argument) use ($containerFilesystemRoot, $workspaceMountPath, $workspacePath) {
+  if (str_starts_with($argument, '/')) {
+    return translateContainerPath($argument, $workspacePath, $workspaceMountPath, $containerFilesystemRoot);
   }
 
   return $argument;
