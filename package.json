@@ -109,6 +109,30 @@
           "markdownDescription": "%ext.config.enableDebugLogs%",
           "scope": "resource"
         },
+        "laravel-pint.runInDocker": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "%ext.config.runInDocker%",
+          "scope": "resource"
+        },
+        "laravel-pint.dockerExecutablePath": {
+          "type": "string",
+          "default": "docker",
+          "markdownDescription": "%ext.config.dockerExecutablePath%",
+          "scope": "resource"
+        },
+        "laravel-pint.dockerContainerName": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "%ext.config.dockerContainerName%",
+          "scope": "resource"
+        },
+        "laravel-pint.dockerContainerRootPath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "%ext.config.dockerContainerRootPath%",
+          "scope": "resource"
+        },
         "laravel-pint.runInLaravelSail": {
           "type": "boolean",
           "default": false,
