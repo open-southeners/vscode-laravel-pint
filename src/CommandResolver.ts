@@ -5,9 +5,17 @@ import path = require("path");
 import { workspace, WorkspaceFolder } from "vscode";
 import { CONFIG_FILE_NAME, DEFAULT_EXEC_PATH, DEFAULT_LARAVEL_SAIL_EXEC_PATH } from "./constants";
 import { LoggingService } from "./LoggingService";
-import { CONFIG_PATHS_FOUND_FOR_WORKSPACE, DOCKER_CANNOT_BE_EXECUTED, DOCKER_CONFIGURATION_INCOMPLETE, NO_CONFIG_FOUND_FOR_WORKSPACE, PINT_CANNOT_BE_EXECUTED, SAIL_CANNOT_BE_EXECUTED, UNTRUSTED_WORKSPACE_ERROR, UNTRUSTED_WORKSPACE_USING_GLOBAL_PINT } from "./message";
+import { CONFIG_PATHS_FOUND_FOR_WORKSPACE, DOCKER_CONFIGURATION_INCOMPLETE, NO_CONFIG_FOUND_FOR_WORKSPACE, PINT_CANNOT_BE_EXECUTED, SAIL_CANNOT_BE_EXECUTED, UNTRUSTED_WORKSPACE_ERROR, UNTRUSTED_WORKSPACE_USING_GLOBAL_PINT } from "./message";
 import PhpCommand from "./PhpCommand";
 import { canExecuteFile, getWorkspaceConfig, resolvePathFromWorkspaces } from "./util";
+
+export interface DockerExecutionContext {
+  containerName: string;
+  containerRootPath: string;
+  dockerExecutable: string;
+  pintExecutablePath: string;
+  workspaceRoot: string;
+}
 
 export class CommandResolver {
   private globCache = new Map<string, string[]>();
@@ -44,6 +52,51 @@ export class CommandResolver {
     return relativePath === ''
       ? containerRoot
       : path.posix.join(containerRoot, relativePath);
+  }
+
+  public getDockerExecutionContext(workspaceFolder: WorkspaceFolder): DockerExecutionContext | undefined {
+    if (!workspace.isTrusted) {
+      this.loggingService.logDebug(UNTRUSTED_WORKSPACE_ERROR);
+
+      return;
+    }
+
+    const dockerExecutable = getWorkspaceConfig('dockerExecutablePath', 'docker');
+    const containerName = getWorkspaceConfig('dockerContainerName', '');
+    const containerRootPath = getWorkspaceConfig('dockerContainerRootPath', '');
+
+    this.loggingService.logDebug('Resolved Docker configuration.', {
+      containerName,
+      containerRootPath,
+      dockerExecutable,
+      path: process.env.PATH,
+      workspace: workspaceFolder.uri.fsPath
+    });
+
+    if (!dockerExecutable || !containerName || !containerRootPath) {
+      this.loggingService.logError(DOCKER_CONFIGURATION_INCOMPLETE, {
+        containerName,
+        containerRootPath,
+        dockerExecutable,
+        workspace: workspaceFolder.uri.fsPath
+      });
+
+      return;
+    }
+
+    const normalizedContainerRoot = this.normalizeContainerPath(containerRootPath);
+    const configuredExecutablePath = getWorkspaceConfig('executablePath', path.posix.join(...DEFAULT_EXEC_PATH)).replace(/\\/g, '/');
+    const pintExecutablePath = path.posix.isAbsolute(configuredExecutablePath)
+      ? configuredExecutablePath
+      : path.posix.join(normalizedContainerRoot, configuredExecutablePath);
+
+    return {
+      containerName,
+      containerRootPath: normalizedContainerRoot,
+      dockerExecutable,
+      pintExecutablePath,
+      workspaceRoot: workspaceFolder.uri.fsPath
+    };
   }
 
   private async resolvePathCached(pattern: string, workspaceFolder: WorkspaceFolder): Promise<string[]> {
@@ -230,51 +283,29 @@ export class CommandResolver {
     input?: string,
     isFormatWorkspace = false
   ): Promise<PhpCommand | undefined> {
-    if (!workspace.isTrusted) {
-      this.loggingService.logDebug(UNTRUSTED_WORKSPACE_ERROR);
+    const dockerContext = this.getDockerExecutionContext(workspaceFolder);
 
-      return;
-    }
-
-    const dockerExecutable = getWorkspaceConfig('dockerExecutablePath', 'docker');
-    const containerName = getWorkspaceConfig('dockerContainerName', '');
-    const containerRootPath = getWorkspaceConfig('dockerContainerRootPath', '');
-
-    if (!dockerExecutable || !commandExists.sync(dockerExecutable)) {
-      this.loggingService.logError(DOCKER_CANNOT_BE_EXECUTED);
-
-      return;
-    }
-
-    if (!containerName || !containerRootPath) {
-      this.loggingService.logError(DOCKER_CONFIGURATION_INCOMPLETE);
-
+    if (!dockerContext) {
       return;
     }
 
     const args = await this.getPintConfigAsArgs(workspaceFolder, input, isFormatWorkspace);
-    const workspaceRoot = workspaceFolder.uri.fsPath;
-    const normalizedContainerRoot = this.normalizeContainerPath(containerRootPath);
-    const configuredExecutablePath = getWorkspaceConfig('executablePath', path.posix.join(...DEFAULT_EXEC_PATH)).replace(/\\/g, '/');
-    const executablePath = path.posix.isAbsolute(configuredExecutablePath)
-      ? configuredExecutablePath
-      : path.posix.join(normalizedContainerRoot, configuredExecutablePath);
-    const containerArgs = args.map((arg) => this.toContainerPath(arg, workspaceRoot, normalizedContainerRoot));
+    const containerArgs = args.map((arg) => this.toContainerPath(arg, dockerContext.workspaceRoot, dockerContext.containerRootPath));
 
     this.loggingService.logInfo('Resolved Docker Pint command.', {
       args: containerArgs,
-      containerName,
-      containerRootPath: normalizedContainerRoot,
-      dockerExecutable,
-      executable: executablePath,
+      containerName: dockerContext.containerName,
+      containerRootPath: dockerContext.containerRootPath,
+      dockerExecutable: dockerContext.dockerExecutable,
+      executable: dockerContext.pintExecutablePath,
       input,
-      workspace: workspaceRoot
+      workspace: dockerContext.workspaceRoot
     });
 
     return new PhpCommand(
-      dockerExecutable,
-      ['exec', '-w', normalizedContainerRoot, containerName, executablePath, ...containerArgs],
-      workspaceRoot
+      dockerContext.dockerExecutable,
+      ['exec', '-w', dockerContext.containerRootPath, dockerContext.containerName, dockerContext.pintExecutablePath, ...containerArgs],
+      dockerContext.workspaceRoot
     );
   }
 
