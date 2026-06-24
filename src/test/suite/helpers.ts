@@ -114,8 +114,12 @@ export async function resetWorkspace() {
 export async function applyExtensionConfiguration(overrides: Partial<{
   configPath: string;
   dirtyOnly: boolean;
+  dockerContainerName: string;
+  dockerContainerRootPath: string;
+  dockerExecutablePath: string;
   executablePath: string;
   fallbackToGlobalBin: boolean;
+  runInDocker: boolean;
   runInLaravelSail: boolean;
   sailExecutablePath: string;
 }>) {
@@ -127,8 +131,12 @@ export async function applyExtensionConfiguration(overrides: Partial<{
   await config.update('enableDebugLogs', true, vscode.ConfigurationTarget.Workspace);
   await config.update('configPath', overrides.configPath ?? 'pint.json', vscode.ConfigurationTarget.Workspace);
   await config.update('dirtyOnly', overrides.dirtyOnly ?? false, vscode.ConfigurationTarget.Workspace);
+  await config.update('dockerContainerName', overrides.dockerContainerName ?? '', vscode.ConfigurationTarget.Workspace);
+  await config.update('dockerContainerRootPath', overrides.dockerContainerRootPath ?? '', vscode.ConfigurationTarget.Workspace);
+  await config.update('dockerExecutablePath', overrides.dockerExecutablePath ?? 'docker', vscode.ConfigurationTarget.Workspace);
   await config.update('executablePath', overrides.executablePath ?? 'vendor/bin/pint', vscode.ConfigurationTarget.Workspace);
   await config.update('fallbackToGlobalBin', overrides.fallbackToGlobalBin ?? true, vscode.ConfigurationTarget.Workspace);
+  await config.update('runInDocker', overrides.runInDocker ?? false, vscode.ConfigurationTarget.Workspace);
   await config.update('runInLaravelSail', overrides.runInLaravelSail ?? false, vscode.ConfigurationTarget.Workspace);
   await config.update('sailExecutablePath', overrides.sailExecutablePath ?? 'vendor/bin/sail', vscode.ConfigurationTarget.Workspace);
 
@@ -210,7 +218,7 @@ export async function waitForFormattingEdits(document: vscode.TextDocument, time
   return lastEdits ?? [];
 }
 
-export async function readRuntimeMarker(mode: 'custom' | 'global' | 'local' | 'sail') {
+export async function readRuntimeMarker(mode: 'custom' | 'docker' | 'global' | 'local' | 'sail') {
   const runtimeMarkerPath = workspaceFile('.runtime', `${mode}.json`);
 
   await waitForCondition(
@@ -227,6 +235,8 @@ export async function readRuntimeMarker(mode: 'custom' | 'global' | 'local' | 's
 
   return JSON.parse(await fs.readFile(runtimeMarkerPath, 'utf8')) as {
     args: string[];
+    command?: string;
+    container?: string;
     cwd: string;
     mode: string;
   };

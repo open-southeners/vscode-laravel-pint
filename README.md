@@ -22,8 +22,18 @@ composer require laravel/pint --dev
 ## Features
 
 - `pint.json` autocompletion and validation
-- Formatter for PHP files that uses Laravel Pint locally, globally or within Docker (using [Laravel Sail](https://laravel.com/docs/12.x/sail))
+- Formatter for PHP files that uses Laravel Pint locally, globally, through plain Docker containers, or within Docker using [Laravel Sail](https://laravel.com/docs/12.x/sail)
 - Format workspace files command to format all **current active workspace PHP files**
+
+## Docker
+
+If your PHP project runs inside a regular Docker container instead of Laravel Sail, enable `laravel-pint.runInDocker` and configure:
+
+- `laravel-pint.dockerExecutablePath`
+- `laravel-pint.dockerContainerName`
+- `laravel-pint.dockerContainerRootPath`
+
+The extension will execute Pint through `docker exec` and map workspace paths into the configured container root. Document formatting temp files are kept inside the workspace so they remain visible from the container bind mount.
 
 ## Partners
 

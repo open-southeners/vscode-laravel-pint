@@ -81,6 +81,73 @@ require __DIR__ . '/../../tools/pint-proxy.php';
 `;
 }
 
+function dockerWrapperSource() {
+  return `#!/usr/bin/env php
+<?php
+
+$workspacePath = dirname(__DIR__);
+$arguments = array_slice($_SERVER['argv'], 1);
+
+if (($arguments[0] ?? null) !== 'exec') {
+  fwrite(STDERR, "Unexpected Docker command.\\n");
+  exit(1);
+}
+
+$arguments = array_slice($arguments, 1);
+$workingDirectory = null;
+
+if (($arguments[0] ?? null) === '-w') {
+  $workingDirectory = $arguments[1] ?? null;
+  $arguments = array_slice($arguments, 2);
+}
+
+$containerName = $arguments[0] ?? null;
+$command = $arguments[1] ?? null;
+$commandArguments = array_slice($arguments, 2);
+
+if (! $workingDirectory || ! $containerName || ! $command) {
+  fwrite(STDERR, "Incomplete Docker exec command.\\n");
+  exit(1);
+}
+
+$runtimeDirectory = $workspacePath.DIRECTORY_SEPARATOR.'.runtime';
+
+if (! is_dir($runtimeDirectory)) {
+  mkdir($runtimeDirectory, 0777, true);
+}
+
+file_put_contents(
+  $runtimeDirectory.DIRECTORY_SEPARATOR.'docker.json',
+  json_encode([
+    'mode' => 'docker',
+    'command' => $command,
+    'args' => $commandArguments,
+    'container' => $containerName,
+    'cwd' => $workingDirectory,
+  ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+);
+
+$translatedArguments = array_map(static function (string $argument) use ($workspacePath, $workingDirectory) {
+  if (strpos($argument, $workingDirectory) === 0) {
+    return $workspacePath.substr($argument, strlen($workingDirectory));
+  }
+
+  return $argument;
+}, $commandArguments);
+
+$phpExecutable = getenv('TEST_PHP_BIN') ?: 'php';
+$pintCommand = escapeshellarg($phpExecutable).' '.escapeshellarg($workspacePath.DIRECTORY_SEPARATOR.'tools'.DIRECTORY_SEPARATOR.'pint.phar');
+
+foreach ($translatedArguments as $argument) {
+  $pintCommand .= ' '.escapeshellarg($argument);
+}
+
+passthru($pintCommand, $exitCode);
+
+exit($exitCode);
+`;
+}
+
 function proxySource() {
   return `#!/usr/bin/env php
 <?php
@@ -133,6 +200,12 @@ set TEST_PINT_WRAPPER_MODE=global
 `;
 }
 
+function dockerWindowsWrapperSource(phpPath: string) {
+  return `@echo off
+"${phpPath.replace(/\\/g, '\\\\')}" "%~dp0docker" %*
+`;
+}
+
 async function writeExecutable(filePath: string, content: string) {
   await fs.writeFile(filePath, content, 'utf8');
   chmodSync(filePath, 0o755);
@@ -159,6 +232,7 @@ async function seedWorkspaceFiles() {
   await copyTemplateFile('default.php', workspacePath('src', 'command.php'));
   await copyTemplateFile('default.php', workspacePath('src', 'save.php'));
   await copyTemplateFile('default.php', workspacePath('src', 'custom.php'));
+  await copyTemplateFile('default.php', workspacePath('src', 'docker.php'));
   await copyTemplateFile('default.php', workspacePath('src', 'global.php'));
   await copyTemplateFile('default.php', workspacePath('src', 'sail.php'));
   await copyTemplateFile('workspace-first.php', workspacePath('src', 'workspace-first.php'));
@@ -194,6 +268,10 @@ async function writeWorkspaceSettings(phpPath: string) {
     'laravel-pint.executablePath': 'vendor/bin/pint',
     'laravel-pint.configPath': 'pint.json',
     'laravel-pint.fallbackToGlobalBin': true,
+    'laravel-pint.runInDocker': false,
+    'laravel-pint.dockerExecutablePath': 'docker',
+    'laravel-pint.dockerContainerName': 'laravel.test',
+    'laravel-pint.dockerContainerRootPath': '/var/www/html',
     'laravel-pint.runInLaravelSail': false,
     'laravel-pint.sailExecutablePath': 'vendor/bin/sail',
     'laravel-pint.dirtyOnly': false,
@@ -243,8 +321,10 @@ export async function setupPlayground(): Promise<PreparedPlayground> {
   await writeExecutable(workspacePath('tools', 'pint-proxy.php'), proxySource());
   await writeExecutable(workspacePath('vendor', 'bin', 'pint'), wrapperSource('local', '../../tools/pint-proxy.php'));
   await writeExecutable(workspacePath('tools', 'pint-custom'), wrapperSource('custom', 'pint-proxy.php'));
+  await writeExecutable(workspacePath('bin', 'docker'), dockerWrapperSource());
   await writeExecutable(workspacePath('bin', 'pint'), wrapperSource('global', '../tools/pint-proxy.php'));
   await writeExecutable(workspacePath('vendor', 'bin', 'sail'), sailWrapperSource());
+  await fs.writeFile(workspacePath('bin', 'docker.cmd'), dockerWindowsWrapperSource(phpPath), 'utf8');
   await fs.writeFile(workspacePath('bin', 'pint.cmd'), globalWindowsWrapperSource(phpPath), 'utf8');
 
   await rebuildWorkspaceRepository(workspaceRoot);
