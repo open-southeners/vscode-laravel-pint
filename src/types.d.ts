@@ -7,6 +7,10 @@ export interface ExtensionConfig {
   configPath: string
   executablePath: string
   fallbackToGlobalBin: boolean
+  runInDocker: boolean
+  dockerExecutablePath: string
+  dockerContainerName: string
+  dockerContainerRootPath: string
   runInLaravelSail: boolean
   sailExecutablePath: string
   dirtyOnly: boolean

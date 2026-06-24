@@ -5,7 +5,7 @@ import path = require("path");
 import { workspace, WorkspaceFolder } from "vscode";
 import { CONFIG_FILE_NAME, DEFAULT_EXEC_PATH, DEFAULT_LARAVEL_SAIL_EXEC_PATH } from "./constants";
 import { LoggingService } from "./LoggingService";
-import { CONFIG_PATHS_FOUND_FOR_WORKSPACE, NO_CONFIG_FOUND_FOR_WORKSPACE, PINT_CANNOT_BE_EXECUTED, SAIL_CANNOT_BE_EXECUTED, UNTRUSTED_WORKSPACE_ERROR, UNTRUSTED_WORKSPACE_USING_GLOBAL_PINT } from "./message";
+import { CONFIG_PATHS_FOUND_FOR_WORKSPACE, DOCKER_CANNOT_BE_EXECUTED, DOCKER_CONFIGURATION_INCOMPLETE, NO_CONFIG_FOUND_FOR_WORKSPACE, PINT_CANNOT_BE_EXECUTED, SAIL_CANNOT_BE_EXECUTED, UNTRUSTED_WORKSPACE_ERROR, UNTRUSTED_WORKSPACE_USING_GLOBAL_PINT } from "./message";
 import PhpCommand from "./PhpCommand";
 import { canExecuteFile, getWorkspaceConfig, resolvePathFromWorkspaces } from "./util";
 
@@ -16,6 +16,34 @@ export class CommandResolver {
 
   public clearCache() {
     this.globCache.clear();
+  }
+
+  private normalizeContainerPath(containerPath: string) {
+    const normalizedPath = containerPath.replace(/\\/g, '/');
+
+    if (normalizedPath.length > 1 && normalizedPath.endsWith('/')) {
+      return normalizedPath.slice(0, -1);
+    }
+
+    return normalizedPath;
+  }
+
+  private isWorkspacePath(filePath: string, workspaceRoot: string) {
+    const relativePath = path.relative(workspaceRoot, filePath);
+
+    return relativePath === '' || (!relativePath.startsWith('..') && !path.isAbsolute(relativePath));
+  }
+
+  private toContainerPath(filePath: string, workspaceRoot: string, containerRoot: string) {
+    if (!path.isAbsolute(filePath) || !this.isWorkspacePath(filePath, workspaceRoot)) {
+      return filePath;
+    }
+
+    const relativePath = path.relative(workspaceRoot, filePath).split(path.sep).join('/');
+
+    return relativePath === ''
+      ? containerRoot
+      : path.posix.join(containerRoot, relativePath);
   }
 
   private async resolvePathCached(pattern: string, workspaceFolder: WorkspaceFolder): Promise<string[]> {
@@ -193,6 +221,59 @@ export class CommandResolver {
     return new PhpCommand(
       executable,
       ['bin', 'pint', ...containerArgs],
+      workspaceRoot
+    );
+  }
+
+  public async getPintCommandWithinDocker(
+    workspaceFolder: WorkspaceFolder,
+    input?: string,
+    isFormatWorkspace = false
+  ): Promise<PhpCommand | undefined> {
+    if (!workspace.isTrusted) {
+      this.loggingService.logDebug(UNTRUSTED_WORKSPACE_ERROR);
+
+      return;
+    }
+
+    const dockerExecutable = getWorkspaceConfig('dockerExecutablePath', 'docker');
+    const containerName = getWorkspaceConfig('dockerContainerName', '');
+    const containerRootPath = getWorkspaceConfig('dockerContainerRootPath', '');
+
+    if (!dockerExecutable || !commandExists.sync(dockerExecutable)) {
+      this.loggingService.logError(DOCKER_CANNOT_BE_EXECUTED);
+
+      return;
+    }
+
+    if (!containerName || !containerRootPath) {
+      this.loggingService.logError(DOCKER_CONFIGURATION_INCOMPLETE);
+
+      return;
+    }
+
+    const args = await this.getPintConfigAsArgs(workspaceFolder, input, isFormatWorkspace);
+    const workspaceRoot = workspaceFolder.uri.fsPath;
+    const normalizedContainerRoot = this.normalizeContainerPath(containerRootPath);
+    const configuredExecutablePath = getWorkspaceConfig('executablePath', path.posix.join(...DEFAULT_EXEC_PATH)).replace(/\\/g, '/');
+    const executablePath = path.posix.isAbsolute(configuredExecutablePath)
+      ? configuredExecutablePath
+      : path.posix.join(normalizedContainerRoot, configuredExecutablePath);
+    const containerArgs = args.map((arg) => this.toContainerPath(arg, workspaceRoot, normalizedContainerRoot));
+
+    this.loggingService.logInfo('Resolved Docker Pint command.', {
+      args: containerArgs,
+      containerName,
+      containerRootPath: normalizedContainerRoot,
+      dockerExecutable,
+      executable: executablePath,
+      input,
+      workspace: workspaceRoot
+    });
+
+    return new PhpCommand(
+      dockerExecutable,
+      ['exec', '-w', normalizedContainerRoot, containerName, executablePath, ...containerArgs],
       workspaceRoot
     );
   }

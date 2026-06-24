@@ -100,6 +100,37 @@ suite('Laravel Pint Extension', function () {
     assert.ok(marker.args.includes('--repair'));
   });
 
+  test('formats through docker exec when Docker mode is enabled', async () => {
+    await applyExtensionConfiguration({
+      dockerContainerName: 'laravel.test',
+      dockerContainerRootPath: '/var/www/html',
+      runInDocker: true
+    });
+
+    const previousTempRoot = process.env.TEST_PINT_TEMP_DIRECTORY;
+    delete process.env.TEST_PINT_TEMP_DIRECTORY;
+
+    try {
+      const document = await openPhpDocument('src/docker.php');
+
+      await vscode.commands.executeCommand('laravel-pint.format');
+
+      await waitForDocumentContents(document, DEFAULT_EXPECTED);
+
+      const marker = await readRuntimeMarker('docker');
+
+      assert.strictEqual(marker.container, 'laravel.test');
+      assert.strictEqual(marker.cwd, '/var/www/html');
+      assert.ok(marker.command?.endsWith('/vendor/bin/pint'));
+      assert.ok(marker.args.some((arg) => normalizePathSeparators(arg).includes('/var/www/html/.runtime/temp/')));
+      assert.ok(marker.args.includes('--repair'));
+    } finally {
+      if (previousTempRoot) {
+        process.env.TEST_PINT_TEMP_DIRECTORY = previousTempRoot;
+      }
+    }
+  });
+
   test('formats all workspace PHP files with the workspace command', async () => {
     await openPhpDocument('src/workspace-first.php');
 

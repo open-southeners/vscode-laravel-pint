@@ -272,9 +272,17 @@ export default class PintEditService implements Disposable {
     input?: string,
     isFormatWorkspace = false
   ) {
+    if (this.isDockerModeEnabled()) {
+      return this.commandResolver.getPintCommandWithinDocker(workspaceFolder, input, isFormatWorkspace);
+    }
+
     return getWorkspaceConfig('runInLaravelSail', false)
       ? this.commandResolver.getPintCommandWithinSail(workspaceFolder, input, isFormatWorkspace)
       : this.commandResolver.getPintCommand(workspaceFolder, input, isFormatWorkspace);
+  }
+
+  private isDockerModeEnabled() {
+    return getWorkspaceConfig('runInDocker', false);
   }
 
   private logProcessResult(result: PhpCommandRunResult) {
@@ -351,7 +359,7 @@ export default class PintEditService implements Disposable {
       return configuredTempRoot;
     }
 
-    if (this.isTestMode) {
+    if (this.isTestMode || this.isDockerModeEnabled()) {
       const workspaceTempRoot = path.join(workspaceFolder.uri.fsPath, '.runtime', 'temp');
 
       await fs.mkdir(workspaceTempRoot, { recursive: true });
