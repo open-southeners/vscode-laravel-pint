@@ -1,0 +1,15 @@
+{
+  "ext.config.enable": "Abilita/disabilita il formatter [Laravel Pint](https://laravel.com/docs/12.x/pint). Ricorda di abilitarlo anche per la formattazione automatica con `#editor.formatOnSave#`.",
+  "ext.config.enableDebugLogs": "Abilita/disabilita i log di debug per la risoluzione dei problemi.",
+  "ext.config.preset": "Preset passato all'eseguibile. L'opzione Auto utilizzerà il preset predefinito di Laravel Pint. [Scopri di più](https://laravel.com/docs/12.x/pint#presets).",
+  "ext.config.configPath": "**Percorso relativo all'area di lavoro** che punta al file di configurazione JSON utilizzato da Laravel Pint. Predefinito: `pint.json`.",
+  "ext.config.executablePath": "**Percorso relativo all'area di lavoro** dell'eseguibile. Predefinito: `vendor/bin/pint`.",
+  "ext.config.fallbackToGlobalBin": "Abilita/disabilita il fallback all'eseguibile globale di Pint installato tramite Composer nel caso in cui quello locale non venga trovato. Predefinito: `true`.",
+  "ext.config.runInDocker": "Esegue la formattazione tramite un normale container Docker. Verrà eseguito Pint usando `docker exec` e i percorsi dell'area di lavoro verranno mappati nella directory root configurata del container.",
+  "ext.config.dockerExecutablePath": "Binario della CLI Docker o percorso assoluto da utilizzare quando `#laravel-pint.runInDocker#` è abilitato. Predefinito: `docker`.",
+  "ext.config.dockerContainerName": "Nome del container utilizzato da `docker exec`. Usato solo se `#laravel-pint.runInDocker#` è abilitato.",
+  "ext.config.dockerContainerRootPath": "Percorso assoluto del mount dell'area di lavoro all'interno del container. Usato solo se `#laravel-pint.runInDocker#` è abilitato. Esempio: `/var/www/html`.",
+  "ext.config.runInLaravelSail": "Esegue la formattazione tramite Docker utilizzando [Laravel Sail](https://laravel.com/docs/12.x/sail). Questa opzione ignorerà `#laravel-pint.executablePath#`.",
+  "ext.config.sailExecutablePath": "Percorso dell'eseguibile Laravel Sail. Utilizzato solo se `#laravel-pint.runInLaravelSail#` è abilitato. Predefinito: `vendor/bin/sail`.",
+  "ext.config.dirtyOnly": "Abilita/disabilita la formattazione dei soli file modificati (**dirty**) nell'area di lavoro attiva. Funziona solo con il comando `Format active workspace files using Laravel Pint`."
+}
