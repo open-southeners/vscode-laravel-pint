@@ -137,7 +137,14 @@ function translateContainerPath(string $containerPath, string $workspacePath, st
 
 function isContainerPathReference(string $path): bool
 {
-  if (preg_match('/^[A-Za-z]:[\\\\\\/]/', $path) === 1) {
+  $isWindowsDrivePath = (
+    strlen($path) >= 3 &&
+    ctype_alpha($path[0]) &&
+    $path[1] === ':' &&
+    ($path[2] === '\\\\' || $path[2] === '/')
+  );
+
+  if ($isWindowsDrivePath) {
     return false;
   }
 
@@ -214,7 +221,11 @@ if ($command === 'mkdir') {
   }
 
   $translatedDirectory = translateContainerPath($targetDirectory, $workspacePath, $workspaceMountPath, $containerFilesystemRoot);
-  mkdir($translatedDirectory, 0777, true);
+
+  if (! is_dir($translatedDirectory)) {
+    mkdir($translatedDirectory, 0777, true);
+  }
+
   exit(0);
 }
 
