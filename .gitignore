@@ -10,6 +10,7 @@ playground/.vscode
 playground/workspace
 scripts/**
 !scripts/generate-rules-schema.mjs
+!scripts/generate-rules-schema.test.mjs
 .pnp.*
 .yarn/*
 !.yarn/patches

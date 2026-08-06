@@ -53,6 +53,10 @@ jobs:
       - name: Lint sources
         run: bun x eslint src --ext ts
 
+      - name: Test schema generator
+        if: runner.os == 'Linux'
+        run: bun run test:schema
+
       - name: Run tests on Linux
         if: runner.os == 'Linux'
         run: xvfb-run -a bun run ./out/test/runTest.js
