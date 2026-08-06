@@ -9,6 +9,7 @@ import {
   DEFAULT_SOURCE,
   openPhpDocument,
   readRuntimeMarker,
+  replaceDocumentContents,
   readWorkspaceFile,
   resetWorkspace,
   waitForDocumentContents,
@@ -16,6 +17,7 @@ import {
   WORKSPACE_FIRST_EXPECTED,
   WORKSPACE_SECOND_EXPECTED,
   WORKSPACE_SECOND_SOURCE,
+  workspaceFile,
   writeWorkspaceFile
 } from './helpers';
 
@@ -104,6 +106,7 @@ suite('Laravel Pint Extension', function () {
     await applyExtensionConfiguration({
       dockerContainerName: 'laravel.test',
       dockerContainerRootPath: '/var/www/html',
+      dockerExecutablePath: workspaceFile('bin', process.platform === 'win32' ? 'docker.cmd' : 'docker'),
       runInDocker: true
     });
 
@@ -113,6 +116,7 @@ suite('Laravel Pint Extension', function () {
     try {
       const document = await openPhpDocument('src/docker.php');
 
+      await replaceDocumentContents(document, DEFAULT_SOURCE);
       await vscode.commands.executeCommand('laravel-pint.format');
 
       await waitForDocumentContents(document, DEFAULT_EXPECTED);

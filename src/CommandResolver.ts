@@ -305,7 +305,8 @@ export class CommandResolver {
     return new PhpCommand(
       dockerContext.dockerExecutable,
       ['exec', '-w', dockerContext.containerRootPath, dockerContext.containerName, dockerContext.pintExecutablePath, ...containerArgs],
-      dockerContext.workspaceRoot
+      dockerContext.workspaceRoot,
+      { executionMode: 'native' }
     );
   }
 

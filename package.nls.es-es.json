@@ -6,7 +6,7 @@
   "ext.config.executablePath": "**Ruta relativa al workspace** que apunta hacia el ejecutable usado como formateador. Por defecto: `vendor/bin/pint`.",
   "ext.config.fallbackToGlobalBin": "Activar/desactivar ejecutable global de Laravel Pint instalado usando `composer global` en caso de que no se encuentre ninguno en el projecto. Por defecto: `true`.",
   "ext.config.runInDocker": "Ejecutar el formateo mediante un contenedor Docker genérico. Esto lanzará Pint con `docker exec` y mapeará las rutas del workspace hacia la ruta raíz configurada dentro del contenedor.",
-  "ext.config.dockerExecutablePath": "Binario de Docker o ruta absoluta usada cuando `#laravel-pint.runInDocker#` está activado. Por defecto: `docker`.",
+  "ext.config.dockerExecutablePath": "Binario de contenedores o ruta absoluta usada cuando `#laravel-pint.runInDocker#` está activado. Usa `docker` en macOS/Linux cuando esté en el PATH, `docker.exe`/`docker.cmd` o una ruta absoluta a Docker en Windows, o una CLI compatible con Docker como `podman`. Por defecto: `docker`.",
   "ext.config.dockerContainerName": "Nombre del contenedor usado por `docker exec`, únicamente si `#laravel-pint.runInDocker#` está activado.",
   "ext.config.dockerContainerRootPath": "Ruta absoluta del workspace montado dentro del contenedor, únicamente si `#laravel-pint.runInDocker#` está activado. Ejemplo: `/var/www/html`.",
   "ext.config.runInLaravelSail": "Ejecutar formateo desde Docker usando [Laravel Sail](https://laravel.com/docs/12.x/sail). Esto ignorará el ajuste `#laravel-pint.executablePath#`.",

@@ -6,7 +6,7 @@
   "ext.config.executablePath": "**Workspace-relative path** to the executable binary. Default: `vendor/bin/pint`.",
   "ext.config.fallbackToGlobalBin": "Enable/disable fallback to global composer Pint binary in case local wasn't found. Default: `true`.",
   "ext.config.runInDocker": "Run formatting through a plain Docker container. This will execute Pint with `docker exec` and map workspace paths into the configured container root.",
-  "ext.config.dockerExecutablePath": "Docker CLI binary or absolute path used when `#laravel-pint.runInDocker#` is enabled. Default: `docker`.",
+  "ext.config.dockerExecutablePath": "Container CLI binary or absolute path used when `#laravel-pint.runInDocker#` is enabled. Use `docker` on macOS/Linux when it is on PATH, `docker.exe`/`docker.cmd` or an absolute Docker path on Windows, or a Docker-compatible CLI such as `podman`. Default: `docker`.",
   "ext.config.dockerContainerName": "Container name used by `docker exec`, only used if `#laravel-pint.runInDocker#` is enabled.",
   "ext.config.dockerContainerRootPath": "Absolute workspace mount path inside the container, only used if `#laravel-pint.runInDocker#` is enabled. Example: `/var/www/html`.",
   "ext.config.runInLaravelSail": "Run formatting through Docker using [Laravel Sail](https://laravel.com/docs/12.x/sail). This will ignore `#laravel-pint.executablePath#`.",

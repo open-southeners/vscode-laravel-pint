@@ -2,6 +2,12 @@ import { spawn } from "node:child_process";
 import { platform } from "node:os";
 import { workspace } from "vscode";
 
+export type PhpCommandExecutionMode = 'php-script' | 'native';
+
+export interface PhpCommandOptions {
+  executionMode?: PhpCommandExecutionMode;
+}
+
 export interface PhpCommandRunResult {
   args: string[];
   command: string;
@@ -15,14 +21,20 @@ export interface PhpCommandRunResult {
 }
 
 export default class PhpCommand {
-  constructor(private cmd: string, private args: Array<string>, private cwd?: string) { }
+  constructor(
+    private cmd: string,
+    private args: Array<string>,
+    private cwd?: string,
+    private options: PhpCommandOptions = {}
+  ) { }
 
   private resolveExecution(cwd?: string) {
     let command = this.cmd;
     let args = [...this.args];
+    const executionMode = this.options.executionMode ?? 'php-script';
     const isWindowsNativeExecutable = /\.(cmd|bat|exe)$/i.test(command);
 
-    if (platform() === "win32" && !isWindowsNativeExecutable) {
+    if (executionMode === 'php-script' && platform() === "win32" && !isWindowsNativeExecutable) {
       args = [command].concat(args);
 
       // TODO: Fail when no PHP command, check with command-exists package
