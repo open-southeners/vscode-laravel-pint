@@ -190,6 +190,27 @@ export function schemaFromAllowedTypes(allowedTypes) {
   };
 }
 
+export function addArrayItemEnum(schema, allowedValues) {
+  if (allowedValues.length !== 1 || !Array.isArray(allowedValues[0])) {
+    return false;
+  }
+
+  const arraySchema = schema.type === "array"
+    ? schema
+    : schema.oneOf?.find((candidate) => candidate.type === "array");
+
+  if (!arraySchema) {
+    return false;
+  }
+
+  arraySchema.items = {
+    ...(arraySchema.items ?? {}),
+    enum: allowedValues[0]
+  };
+
+  return true;
+}
+
 function normalizeDefaultValue(defaultValue, allowedTypes = []) {
   if (
     Array.isArray(defaultValue)
@@ -236,7 +257,11 @@ export function ruleIntoJsonSchemaProperty(rule) {
       }
       
       if ('allowedValues' in configItem) {
-        jsonSchemaProperty.properties[configItem.name].enum = configItem.allowedValues;
+        const propertySchema = jsonSchemaProperty.properties[configItem.name];
+
+        if (!addArrayItemEnum(propertySchema, configItem.allowedValues)) {
+          propertySchema.enum = configItem.allowedValues;
+        }
       }
     });
   }

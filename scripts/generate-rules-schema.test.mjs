@@ -17,6 +17,27 @@ test("maps PHP array types to JSON Schema arrays", () => {
   });
 });
 
+test("constrains array items when upstream provides a list of allowed values", () => {
+  const schema = ruleIntoJsonSchemaProperty({
+    summary: "Test rule",
+    configuration: [{
+      name: "tokens",
+      description: "Allowed tokens",
+      allowedTypes: ["string[]"],
+      allowedValues: [["attribute", "break"]]
+    }]
+  });
+
+  assert.deepEqual(schema.properties.tokens, {
+    description: "Allowed tokens",
+    type: "array",
+    items: {
+      type: "string",
+      enum: ["attribute", "break"]
+    }
+  });
+});
+
 test("keeps scalar allowed values as a property enum", () => {
   const schema = ruleIntoJsonSchemaProperty({
     summary: "Test rule",
