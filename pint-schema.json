@@ -162,10 +162,8 @@
               ],
               "type": "array",
               "items": {
-                "type": "string"
-              },
-              "enum": [
-                [
+                "type": "string",
+                "enum": [
                   "break",
                   "case",
                   "continue",
@@ -190,7 +188,7 @@
                   "yield",
                   "yield_from"
                 ]
-              ]
+              }
             }
           }
         },
@@ -540,13 +538,22 @@
           "description": "There must not be spaces around `declare` statement parentheses."
         },
         "declare_strict_types": {
-          "description": "Force strict types declaration in all files.",
+          "description": "Force a strict types mode in all files.",
           "type": "object",
           "properties": {
             "preserve_existing_declaration": {
               "description": "Whether existing strict_types=? should be preserved and not overridden.",
               "default": false,
               "type": "boolean"
+            },
+            "strategy": {
+              "description": "Whether existing strict_types=? should be enforced, removed (effectively turning strict mode off and using the engine into default type coercion mode), or added when missing.",
+              "default": "enforce",
+              "enum": [
+                "remove",
+                "add_when_missing",
+                "enforce"
+              ]
             }
           }
         },
@@ -1371,10 +1378,8 @@
               ],
               "type": "array",
               "items": {
-                "type": "string"
-              },
-              "enum": [
-                [
+                "type": "string",
+                "enum": [
                   "get_called_class",
                   "get_class",
                   "get_class_this",
@@ -1382,7 +1387,7 @@
                   "phpversion",
                   "pi"
                 ]
-              ]
+              }
             }
           }
         },
@@ -1722,7 +1727,8 @@
               "enum": [
                 "ignore",
                 "ensure_single_line",
-                "ensure_fully_multiline"
+                "ensure_fully_multiline",
+                "ensure_single_line_for_single_argument"
               ]
             }
           }
@@ -1760,15 +1766,13 @@
               ],
               "type": "array",
               "items": {
-                "type": "string"
-              },
-              "enum": [
-                [
+                "type": "string",
+                "enum": [
                   "const",
                   "method",
                   "property"
                 ]
-              ]
+              }
             }
           }
         },
@@ -1954,10 +1958,8 @@
               ],
               "type": "array",
               "items": {
-                "type": "string"
-              },
-              "enum": [
-                [
+                "type": "string",
+                "enum": [
                   "@all",
                   "@exif",
                   "@ftp",
@@ -1976,7 +1978,7 @@
                   "@sodium",
                   "@time"
                 ]
-              ]
+              }
             }
           }
         },
@@ -2040,10 +2042,8 @@
               ],
               "type": "array",
               "items": {
-                "type": "string"
-              },
-              "enum": [
-                [
+                "type": "string",
+                "enum": [
                   "attribute",
                   "break",
                   "case",
@@ -2060,7 +2060,7 @@
                   "use",
                   "use_trait"
                 ]
-              ]
+              }
             }
           }
         },
@@ -2126,14 +2126,12 @@
               ],
               "type": "array",
               "items": {
-                "type": "string"
-              },
-              "enum": [
-                [
+                "type": "string",
+                "enum": [
                   "inside",
                   "outside"
                 ]
-              ]
+              }
             }
           }
         },
@@ -2186,16 +2184,14 @@
               ],
               "type": "array",
               "items": {
-                "type": "string"
-              },
-              "enum": [
-                [
+                "type": "string",
+                "enum": [
                   "arguments",
                   "array",
                   "array_destructuring",
                   "group_import"
                 ]
-              ]
+              }
             }
           }
         },
@@ -2242,10 +2238,8 @@
               ],
               "type": "array",
               "items": {
-                "type": "string"
-              },
-              "enum": [
-                [
+                "type": "string",
+                "enum": [
                   "break",
                   "clone",
                   "continue",
@@ -2257,7 +2251,7 @@
                   "yield",
                   "yield_from"
                 ]
-              ]
+              }
             }
           }
         },
@@ -2337,6 +2331,9 @@
         },
         "no_whitespace_in_blank_line": {
           "description": "Remove trailing whitespace at the end of blank lines."
+        },
+        "no_whitespace_in_empty_array": {
+          "description": "Empty arrays should not contain only whitespace."
         },
         "non_printable_character": {
           "description": "Remove Zero-width space (ZWSP), Non-breaking space (NBSP) and other invisible unicode symbols.",
@@ -2621,16 +2618,14 @@
               ],
               "type": "array",
               "items": {
-                "type": "string"
-              },
-              "enum": [
-                [
+                "type": "string",
+                "enum": [
                   "assertEquals",
                   "assertNotEquals",
                   "assertNotSame",
                   "assertSame"
                 ]
-              ]
+              }
             }
           }
         },
@@ -2743,15 +2738,13 @@
               ],
               "type": "array",
               "items": {
-                "type": "string"
-              },
-              "enum": [
-                [
+                "type": "string",
+                "enum": [
                   "abstract",
                   "final",
                   "normal"
                 ]
-              ]
+              }
             }
           }
         },
@@ -2858,16 +2851,14 @@
               ],
               "type": "array",
               "items": {
-                "type": "string"
-              },
-              "enum": [
-                [
+                "type": "string",
+                "enum": [
                   "assertAttributeEquals",
                   "assertAttributeNotEquals",
                   "assertEquals",
                   "assertNotEquals"
                 ]
-              ]
+              }
             }
           }
         },
@@ -3043,6 +3034,15 @@
                 null
               ]
             },
+            "function": {
+              "description": "Whether function declaration doc blocks should be single or multi line.",
+              "default": "multi",
+              "enum": [
+                "single",
+                "multi",
+                null
+              ]
+            },
             "method": {
               "description": "Whether method doc blocks should be single or multi line.",
               "default": "multi",
@@ -3106,6 +3106,9 @@
             }
           }
         },
+        "phpdoc_no_duplicate_types": {
+          "description": "Removes duplicate PHPDoc types."
+        },
         "phpdoc_no_empty_return": {
           "description": "`@return void` and `@return null` annotations must be removed from PHPDoc."
         },
@@ -3144,10 +3147,8 @@
               ],
               "type": "array",
               "items": {
-                "type": "string"
-              },
-              "enum": [
-                [
+                "type": "string",
+                "enum": [
                   "author",
                   "covers",
                   "coversNothing",
@@ -3164,7 +3165,7 @@
                   "throws",
                   "uses"
                 ]
-              ]
+              }
             }
           }
         },
@@ -3452,6 +3453,38 @@
           "description": "The correct case must be used for standard PHP types in PHPDoc.",
           "type": "object",
           "properties": {
+            "exclude": {
+              "description": "List of types to exclude from fixing, regardless of groups.",
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "$this",
+                  "array",
+                  "bool",
+                  "boolean",
+                  "callable",
+                  "double",
+                  "false",
+                  "float",
+                  "int",
+                  "integer",
+                  "iterable",
+                  "mixed",
+                  "null",
+                  "object",
+                  "parent",
+                  "resource",
+                  "scalar",
+                  "self",
+                  "static",
+                  "string",
+                  "true",
+                  "void"
+                ]
+              }
+            },
             "groups": {
               "description": "Type groups to fix.",
               "default": [
@@ -3461,15 +3494,13 @@
               ],
               "type": "array",
               "items": {
-                "type": "string"
-              },
-              "enum": [
-                [
+                "type": "string",
+                "enum": [
                   "alias",
                   "meta",
                   "simple"
                 ]
-              ]
+              }
             }
           }
         },
@@ -3556,7 +3587,15 @@
           "description": "Callables must be called without using `call_user_func*` when possible."
         },
         "return_assignment": {
-          "description": "Local, dynamic and directly referenced variables should not be assigned and directly returned by a function or method."
+          "description": "Local, dynamic and directly referenced variables should not be assigned and directly returned by a function or method.",
+          "type": "object",
+          "properties": {
+            "skip_named_var_tags": {
+              "description": "Whether to skip cases where named `@var` tags are used.",
+              "default": false,
+              "type": "boolean"
+            }
+          }
         },
         "return_to_yield_from": {
           "description": "If the function explicitly returns an array, and has the return type `iterable`, then `yield from` must be used instead of `return`."
@@ -3617,14 +3656,12 @@
               ],
               "type": "array",
               "items": {
-                "type": "string"
-              },
-              "enum": [
-                [
+                "type": "string",
+                "enum": [
                   "const",
                   "property"
                 ]
-              ]
+              }
             }
           }
         },
@@ -3657,14 +3694,12 @@
               ],
               "type": "array",
               "items": {
-                "type": "string"
-              },
-              "enum": [
-                [
+                "type": "string",
+                "enum": [
                   "asterisk",
                   "hash"
                 ]
-              ]
+              }
             }
           }
         },
@@ -3755,10 +3790,8 @@
               ],
               "type": "array",
               "items": {
-                "type": "string"
-              },
-              "enum": [
-                [
+                "type": "string",
+                "enum": [
                   "abstract",
                   "as",
                   "attribute",
@@ -3821,7 +3854,7 @@
                   "yield",
                   "yield_from"
                 ]
-              ]
+              }
             }
           }
         },
@@ -3836,13 +3869,11 @@
               ],
               "type": "array",
               "items": {
-                "type": "string"
-              },
-              "enum": [
-                [
+                "type": "string",
+                "enum": [
                   "yield_from"
                 ]
-              ]
+              }
             },
             "constructs_followed_by_a_single_space": {
               "description": "List of constructs which must be followed by a single space.",
@@ -3914,10 +3945,8 @@
               ],
               "type": "array",
               "items": {
-                "type": "string"
-              },
-              "enum": [
-                [
+                "type": "string",
+                "enum": [
                   "abstract",
                   "as",
                   "attribute",
@@ -3983,7 +4012,7 @@
                   "yield",
                   "yield_from"
                 ]
-              ]
+              }
             },
             "constructs_preceded_by_a_single_space": {
               "description": "List of constructs which must be preceded by a single space.",
@@ -3993,16 +4022,14 @@
               ],
               "type": "array",
               "items": {
-                "type": "string"
-              },
-              "enum": [
-                [
+                "type": "string",
+                "enum": [
                   "as",
                   "else",
                   "elseif",
                   "use_lambda"
                 ]
-              ]
+              }
             }
           }
         },
@@ -4139,17 +4166,15 @@
               ],
               "type": "array",
               "items": {
-                "type": "string"
-              },
-              "enum": [
-                [
+                "type": "string",
+                "enum": [
                   "arguments",
                   "array_destructuring",
                   "arrays",
                   "match",
                   "parameters"
                 ]
-              ]
+              }
             }
           }
         },
@@ -4168,15 +4193,13 @@
               ],
               "type": "array",
               "items": {
-                "type": "string"
-              },
-              "enum": [
-                [
+                "type": "string",
+                "enum": [
                   "constant",
                   "function",
                   "property"
                 ]
-              ]
+              }
             }
           }
         },
@@ -4230,15 +4253,13 @@
               ],
               "type": "array",
               "items": {
-                "type": "string"
-              },
-              "enum": [
-                [
+                "type": "string",
+                "enum": [
                   "const",
                   "method",
                   "property"
                 ]
-              ]
+              }
             }
           }
         },
