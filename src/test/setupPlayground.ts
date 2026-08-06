@@ -135,6 +135,15 @@ function translateContainerPath(string $containerPath, string $workspacePath, st
   return $containerFilesystemRoot.str_replace('/', DIRECTORY_SEPARATOR, $containerPath);
 }
 
+function isContainerPathReference(string $path): bool
+{
+  if (preg_match('/^[A-Za-z]:[\\\\\\/]/', $path) === 1) {
+    return false;
+  }
+
+  return strpos($path, ':') !== false;
+}
+
 $workspaceMountPath = '/var/www/html';
 
 if (($arguments[0] ?? null) === 'cp') {
@@ -146,7 +155,7 @@ if (($arguments[0] ?? null) === 'cp') {
     exit(1);
   }
 
-  if (strpos($destination, ':') !== false) {
+  if (isContainerPathReference($destination)) {
     [, $containerDestination] = explode(':', $destination, 2);
     $translatedDestination = translateContainerPath($containerDestination, $workspacePath, $workspaceMountPath, $containerFilesystemRoot);
 
@@ -158,7 +167,7 @@ if (($arguments[0] ?? null) === 'cp') {
     exit(0);
   }
 
-  if (strpos($source, ':') !== false) {
+  if (isContainerPathReference($source)) {
     [, $containerSource] = explode(':', $source, 2);
     $translatedSource = translateContainerPath($containerSource, $workspacePath, $workspaceMountPath, $containerFilesystemRoot);
 
