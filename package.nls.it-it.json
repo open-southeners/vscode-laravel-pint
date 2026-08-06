@@ -6,7 +6,7 @@
   "ext.config.executablePath": "**Percorso relativo all'area di lavoro** dell'eseguibile. Predefinito: `vendor/bin/pint`.",
   "ext.config.fallbackToGlobalBin": "Abilita/disabilita il fallback all'eseguibile globale di Pint installato tramite Composer nel caso in cui quello locale non venga trovato. Predefinito: `true`.",
   "ext.config.runInDocker": "Esegue la formattazione tramite un normale container Docker. Verrà eseguito Pint usando `docker exec` e i percorsi dell'area di lavoro verranno mappati nella directory root configurata del container.",
-  "ext.config.dockerExecutablePath": "Binario della CLI Docker o percorso assoluto da utilizzare quando `#laravel-pint.runInDocker#` è abilitato. Predefinito: `docker`.",
+  "ext.config.dockerExecutablePath": "Binario della CLI per container o percorso assoluto da utilizzare quando `#laravel-pint.runInDocker#` è abilitato. Usa `docker` su macOS/Linux quando è nel PATH, `docker.exe`/`docker.cmd` o un percorso assoluto a Docker su Windows, oppure una CLI compatibile con Docker come `podman`. Predefinito: `docker`.",
   "ext.config.dockerContainerName": "Nome del container utilizzato da `docker exec`. Usato solo se `#laravel-pint.runInDocker#` è abilitato.",
   "ext.config.dockerContainerRootPath": "Percorso assoluto del mount dell'area di lavoro all'interno del container. Usato solo se `#laravel-pint.runInDocker#` è abilitato. Esempio: `/var/www/html`.",
   "ext.config.runInLaravelSail": "Esegue la formattazione tramite Docker utilizzando [Laravel Sail](https://laravel.com/docs/12.x/sail). Questa opzione ignorerà `#laravel-pint.executablePath#`.",

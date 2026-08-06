@@ -418,8 +418,9 @@ export default class PintEditService implements Disposable {
 
     const cleanupCommand = new PhpCommand(
       dockerContext.dockerExecutable,
-      ['exec', dockerContext.containerName, 'rm', '-rf', containerTempDirectory],
-      workspaceFolder.uri.fsPath
+      ['exec', '-w', dockerContext.containerRootPath, dockerContext.containerName, 'rm', '-rf', containerTempDirectory],
+      workspaceFolder.uri.fsPath,
+      { executionMode: 'native' }
     );
 
     try {
@@ -469,8 +470,9 @@ export default class PintEditService implements Disposable {
 
     const createTempDirectoryCommand = new PhpCommand(
       dockerContext.dockerExecutable,
-      ['exec', dockerContext.containerName, 'mkdir', '-p', containerTempDirectory],
-      workspaceFolder.uri.fsPath
+      ['exec', '-w', dockerContext.containerRootPath, dockerContext.containerName, 'mkdir', '-p', containerTempDirectory],
+      workspaceFolder.uri.fsPath,
+      { executionMode: 'native' }
     );
 
     const tempDirectoryCreated = await this.runProcess(createTempDirectoryCommand, 'Docker temp directory setup', {
@@ -491,7 +493,8 @@ export default class PintEditService implements Disposable {
       const uploadCommand = new PhpCommand(
         dockerContext.dockerExecutable,
         ['cp', localTempFilePath, `${dockerContext.containerName}:${containerTempFilePath}`],
-        workspaceFolder.uri.fsPath
+        workspaceFolder.uri.fsPath,
+        { executionMode: 'native' }
       );
 
       const uploaded = await this.runProcess(uploadCommand, 'Docker temp file upload', {
@@ -533,7 +536,8 @@ export default class PintEditService implements Disposable {
       const downloadCommand = new PhpCommand(
         dockerContext.dockerExecutable,
         ['cp', `${dockerContext.containerName}:${containerTempFilePath}`, localTempFilePath],
-        workspaceFolder.uri.fsPath
+        workspaceFolder.uri.fsPath,
+        { executionMode: 'native' }
       );
 
       const downloaded = await this.runProcess(downloadCommand, 'Docker temp file download', {

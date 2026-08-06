@@ -33,7 +33,7 @@ If your PHP project runs inside a regular Docker container instead of Laravel Sa
 - `laravel-pint.dockerContainerName`
 - `laravel-pint.dockerContainerRootPath`
 
-The extension will execute Pint through `docker exec` and map workspace paths into the configured container root. Document formatting temp files are kept inside the workspace so they remain visible from the container bind mount.
+The extension will execute Pint through the configured container CLI and map workspace paths into the configured container root. Use `docker` on macOS/Linux when it is available on PATH, `docker.exe`/`docker.cmd` or an absolute Docker path on Windows, or a Docker-compatible CLI such as `podman`.
 
 ## Partners
 
