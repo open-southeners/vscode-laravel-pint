@@ -122,7 +122,7 @@ function normalizePhpType(type) {
   }
 }
 
-function schemaFromType(type) {
+export function schemaFromType(type) {
   const trimmedType = type.trim();
 
   if (trimmedType.startsWith("?")) {
@@ -180,7 +180,7 @@ function schemaFromType(type) {
   return {};
 }
 
-function schemaFromAllowedTypes(allowedTypes) {
+export function schemaFromAllowedTypes(allowedTypes) {
   if (allowedTypes.length === 1) {
     return schemaFromType(allowedTypes[0]);
   }
@@ -202,7 +202,7 @@ function normalizeDefaultValue(defaultValue, allowedTypes = []) {
   return defaultValue;
 }
 
-function ruleIntoJsonSchemaProperty(rule) {
+export function ruleIntoJsonSchemaProperty(rule) {
   const jsonSchemaProperty = {
     description: rule.summary
   };
@@ -252,34 +252,40 @@ function ruleIntoJsonSchemaProperty(rule) {
   return jsonSchemaProperty;
 }
 
-const latestConfiguratorVersion = await getLatestPhpCsFixerConfiguratorVersion();
-if (!latestConfiguratorVersion) {
-  throw new Error("Unable to resolve the latest php-cs-fixer-configurator dataset version.");
+async function main() {
+  const latestConfiguratorVersion = await getLatestPhpCsFixerConfiguratorVersion();
+  if (!latestConfiguratorVersion) {
+    throw new Error("Unable to resolve the latest php-cs-fixer-configurator dataset version.");
+  }
+
+  const [configuratorData, pintPresets] = await Promise.all([
+    fetchJson(`${CONFIGURATOR_DATA_RAW_URL}/${latestConfiguratorVersion}.json`),
+    getLatestPintPresets()
+  ]);
+
+  const rulesProperties = {};
+
+  Object.entries(configuratorData.fixers).forEach(rule => {
+    rulesProperties[rule[0]] = ruleIntoJsonSchemaProperty(rule[1]);
+  });
+
+  const schemaContentPath = relativePath('../pint-schema.json');
+  let schemaContent = readFileSync(schemaContentPath, 'utf-8');
+
+  schemaContent = JSON.parse(schemaContent.toString());
+
+  schemaContent.properties.preset.oneOf[0].enum = pintPresets;
+  schemaContent.properties.rules.properties = rulesProperties;
+
+  writeFileSync(
+    schemaContentPath,
+    JSON.stringify(schemaContent, null, 2),
+    { encoding: 'utf-8' }
+  );
+
+  console.log(`Updated Pint schema using php-cs-fixer-configurator ${latestConfiguratorVersion}`);
 }
 
-const [configuratorData, pintPresets] = await Promise.all([
-  fetchJson(`${CONFIGURATOR_DATA_RAW_URL}/${latestConfiguratorVersion}.json`),
-  getLatestPintPresets()
-]);
-
-const rulesProperties = {};
-
-Object.entries(configuratorData.fixers).forEach(rule => {
-  rulesProperties[rule[0]] = ruleIntoJsonSchemaProperty(rule[1]);
-});
-
-const schemaContentPath = relativePath('../pint-schema.json');
-let schemaContent = readFileSync(schemaContentPath, 'utf-8');
-
-schemaContent = JSON.parse(schemaContent.toString());
-
-schemaContent.properties.preset.oneOf[0].enum = pintPresets;
-schemaContent.properties.rules.properties = rulesProperties;
-
-writeFileSync(
-  schemaContentPath,
-  JSON.stringify(schemaContent, null, 2),
-  { encoding: 'utf-8' }
-);
-
-console.log(`Updated Pint schema using php-cs-fixer-configurator ${latestConfiguratorVersion}`);
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  await main();
+}

@@ -45,7 +45,8 @@
     "lint": "eslint src --ext ts",
     "lint:fix": "bun run lint --fix",
     "transpile": "tsc -p ./",
-    "pretest": "bun run transpile && bun run lint",
+    "pretest": "bun run transpile && bun run lint && bun run test:schema",
+    "test:schema": "node --test scripts/generate-rules-schema.test.mjs",
     "test": "node ./out/test/runTest.js",
     "vscode:prepublish": "bun run compile --minify",
     "watch": "bun run compile --sourcemap --watch"
