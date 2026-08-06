@@ -4,6 +4,9 @@ on:
   push:
     branches:
     - main
+  pull_request:
+    branches:
+    - main
 
 jobs:
   build:
@@ -12,6 +15,7 @@ jobs:
     env:
       PHP_VERSION: '8.4'
       PINT_VERSION: '1.27.1'
+      TEST_VSCODE_VERSION: '1.111.0'
 
     strategy:
       matrix:
