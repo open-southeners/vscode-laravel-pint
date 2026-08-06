@@ -1,8 +1,42 @@
 import * as path from 'path';
+import { execFileSync } from 'node:child_process';
 import { delimiter } from 'node:path';
 
-import { runTests } from '@vscode/test-electron';
+import { downloadAndUnzipVSCode, runTests } from '@vscode/test-electron';
 import { setupPlayground, TEST_PINT_VERSION } from './setupPlayground';
+
+function resolveMacOSAppBundlePath(vscodeExecutablePath: string) {
+  const appBundleSuffix = '.app';
+  const appBundleIndex = vscodeExecutablePath.indexOf(`${appBundleSuffix}${path.sep}`);
+
+  if (appBundleIndex === -1) {
+    return;
+  }
+
+  return vscodeExecutablePath.slice(0, appBundleIndex + appBundleSuffix.length);
+}
+
+function clearMacOSDownloadAttributes(vscodeExecutablePath: string) {
+  if (process.platform !== 'darwin') {
+    return;
+  }
+
+  const appBundlePath = resolveMacOSAppBundlePath(vscodeExecutablePath);
+
+  if (!appBundlePath) {
+    return;
+  }
+
+  for (const attribute of ['com.apple.quarantine', 'com.apple.provenance']) {
+    try {
+      execFileSync('xattr', ['-dr', attribute, appBundlePath], {
+        stdio: 'ignore'
+      });
+    } catch {
+      // Ignore missing attributes or hosts that do not allow removing them.
+    }
+  }
+}
 
 async function main() {
 	try {
@@ -22,10 +56,18 @@ async function main() {
 		// Passed to --extensionTestsPath
 		const extensionTestsPath = path.resolve(__dirname, './suite/index');
 
-		// Download VS Code, unzip it and run the integration test
+      const vscodeExecutablePath = await downloadAndUnzipVSCode({
+        extensionDevelopmentPath,
+        version: process.env.TEST_VSCODE_VERSION
+      });
+
+      clearMacOSDownloadAttributes(vscodeExecutablePath);
+
+		// Run the integration test against the prepared VS Code binary
 		await runTests({
 	      extensionDevelopmentPath,
 	      extensionTestsPath,
+	      vscodeExecutablePath,
       /**
        * A list of launch arguments passed to VS Code executable, in addition to `--extensionDevelopmentPath`
        * and `--extensionTestsPath` which are provided by `extensionDevelopmentPath` and `extensionTestsPath`
