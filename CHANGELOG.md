@@ -6,6 +6,19 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-08-10
+
+### Changed
+
+- The `Format document using Laravel Pint` command now always formats the open PHP buffer in memory and never saves the file as part of formatting [#78]
+- Document formatting now sends source to Pint through stdin (`-` and `--stdin-filename`) and applies Pint's stdout as a VS Code text edit, removing temporary-file round trips
+- Docker document formatting now forwards stdin with `docker exec -i`
+
+### Fixed
+
+- Preserve Pint stdout exactly when formatting documents, including final newlines
+- Run macOS integration tests against the modern VS Code `Code` executable when the legacy `Electron` launcher is unavailable
+
 ## [2.2.1] - 2026-08-10
 
 ### Fixed
