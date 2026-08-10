@@ -51,7 +51,7 @@ export default class PhpCommand {
     };
   }
 
-  run(cwd?: string): Promise<PhpCommandRunResult> {
+  run(input?: string, cwd?: string): Promise<PhpCommandRunResult> {
     const execution = this.resolveExecution(cwd);
 
     return new Promise((resolve, reject) => {
@@ -87,8 +87,8 @@ export default class PhpCommand {
           durationMs: Date.now() - startedAt,
           exitCode: code ?? -1,
           treatedAsSuccess,
-          stderr: trimmedStderr,
-          stdout: trimmedStdout
+          stderr,
+          stdout
         };
 
         if (treatedAsSuccess) {
@@ -103,7 +103,7 @@ export default class PhpCommand {
         reject(error);
       });
 
-      exec.stdin.end();
+      exec.stdin.end(input);
     });
   }
 

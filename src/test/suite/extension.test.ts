@@ -41,12 +41,16 @@ suite('Laravel Pint Extension', function () {
   test('formats the active file with the local workspace Pint binary through the manual command', async () => {
     const document = await openPhpDocument('src/command.php');
 
+    await replaceDocumentContents(document, DEFAULT_SOURCE.replace('example( )', 'example(  )'));
     await vscode.commands.executeCommand('laravel-pint.format');
 
     await waitForDocumentContents(document, DEFAULT_EXPECTED);
+    assert.strictEqual(await readWorkspaceFile('src/command.php'), DEFAULT_SOURCE);
 
     const marker = await readRuntimeMarker('local');
 
+    assert.ok(marker.args.includes('-'));
+    assert.ok(marker.args.includes('--stdin-filename'));
     assert.ok(marker.args.includes('--repair'));
   });
 
@@ -121,30 +125,23 @@ suite('Laravel Pint Extension', function () {
       runInDocker: true
     });
 
-    const previousTempRoot = process.env.TEST_PINT_TEMP_DIRECTORY;
-    delete process.env.TEST_PINT_TEMP_DIRECTORY;
+    const document = await openPhpDocument('src/docker.php');
 
-    try {
-      const document = await openPhpDocument('src/docker.php');
+    await replaceDocumentContents(document, DEFAULT_SOURCE);
+    await vscode.commands.executeCommand('laravel-pint.format');
 
-      await replaceDocumentContents(document, DEFAULT_SOURCE);
-      await vscode.commands.executeCommand('laravel-pint.format');
+    await waitForDocumentContents(document, DEFAULT_EXPECTED);
 
-      await waitForDocumentContents(document, DEFAULT_EXPECTED);
+    const marker = await readRuntimeMarker('docker');
 
-      const marker = await readRuntimeMarker('docker');
-
-      assert.strictEqual(marker.container, 'laravel.test');
-      assert.strictEqual(marker.cwd, '/var/www/html');
-      assert.ok(marker.command?.endsWith('/vendor/bin/pint'));
-      assert.ok(marker.args.some((arg) => normalizePathSeparators(arg).includes('/tmp/vscode-laravel-pint-')));
-      assert.ok(marker.args.some((arg) => normalizePathSeparators(arg).endsWith('/pint.json')));
-      assert.ok(marker.args.includes('--repair'));
-    } finally {
-      if (previousTempRoot) {
-        process.env.TEST_PINT_TEMP_DIRECTORY = previousTempRoot;
-      }
-    }
+    assert.strictEqual(marker.container, 'laravel.test');
+    assert.strictEqual(marker.cwd, '/var/www/html');
+    assert.ok(marker.command?.endsWith('/vendor/bin/pint'));
+    assert.ok(marker.args.includes('-'));
+    assert.ok(marker.args.includes('--stdin-filename'));
+    assert.ok(marker.args.some((arg) => normalizePathSeparators(arg).endsWith('/src/docker.php')));
+    assert.ok(marker.args.some((arg) => normalizePathSeparators(arg).endsWith('/pint.json')));
+    assert.ok(marker.args.includes('--repair'));
   });
 
   test('formats all workspace PHP files with the workspace command', async () => {

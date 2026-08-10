@@ -3,15 +3,10 @@ import PintEditService from "./PintEditService";
 
 export function formatCommand(pintEditService: PintEditService) {
   const activeTextEditor = window.activeTextEditor;
-  const activeTextEditorDocumentUri = activeTextEditor?.document.uri;
 
-  if (!activeTextEditorDocumentUri) {
+  if (!activeTextEditor || activeTextEditor.document.languageId !== "php") {
     return;
   }
 
-  if (activeTextEditor.document.languageId === "php" && activeTextEditor.document.isDirty) {
-    return pintEditService.formatActiveDocument();
-  }
-
-  return pintEditService.formatFile(activeTextEditorDocumentUri);
+  return pintEditService.formatActiveDocument();
 }
