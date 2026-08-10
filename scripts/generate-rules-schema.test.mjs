@@ -28,13 +28,24 @@ test("constrains array items when upstream provides a list of allowed values", (
     }]
   });
 
-  assert.deepEqual(schema.properties.tokens, {
-    description: "Allowed tokens",
-    type: "array",
-    items: {
-      type: "string",
-      enum: ["attribute", "break"]
-    }
+  assert.deepEqual(schema, {
+    description: "Test rule",
+    oneOf: [
+      { type: "boolean" },
+      {
+        type: "object",
+        properties: {
+          tokens: {
+            description: "Allowed tokens",
+            type: "array",
+            items: {
+              type: "string",
+              enum: ["attribute", "break"]
+            }
+          }
+        }
+      }
+    ]
   });
 });
 
@@ -49,9 +60,44 @@ test("keeps scalar allowed values as a property enum", () => {
     }]
   });
 
-  assert.deepEqual(schema.properties.strategy, {
-    description: "Strategy",
-    type: "string",
-    enum: ["first", "last"]
+  assert.deepEqual(schema, {
+    description: "Test rule",
+    oneOf: [
+      { type: "boolean" },
+      {
+        type: "object",
+        properties: {
+          strategy: {
+            description: "Strategy",
+            type: "string",
+            enum: ["first", "last"]
+          }
+        }
+      }
+    ]
   });
+});
+
+test("allows configured rules to be enabled or disabled with a boolean", () => {
+  const schema = ruleIntoJsonSchemaProperty({
+    summary: "Configurable rule",
+    configuration: [{
+      name: "allow_unused_params",
+      description: "Allow unused parameters",
+      allowedTypes: ["bool"]
+    }]
+  });
+
+  assert.deepEqual(schema.oneOf, [
+    { type: "boolean" },
+    {
+      type: "object",
+      properties: {
+        allow_unused_params: {
+          description: "Allow unused parameters",
+          type: "boolean"
+        }
+      }
+    }
+  ]);
 });

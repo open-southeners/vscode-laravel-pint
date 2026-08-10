@@ -233,17 +233,18 @@ export function ruleIntoJsonSchemaProperty(rule) {
   }
 
   if (rule.configuration.length > 0) {
-    jsonSchemaProperty.type = 'object';
-    
-    jsonSchemaProperty.properties = {};
+    const configurationSchema = {
+      type: 'object',
+      properties: {}
+    };
     
     rule.configuration.forEach(configItem => {
-      jsonSchemaProperty.properties[configItem.name] = {};
+      configurationSchema.properties[configItem.name] = {};
 
-      jsonSchemaProperty.properties[configItem.name].description = configItem.description;
+      configurationSchema.properties[configItem.name].description = configItem.description;
 
       if ('defaultValue' in configItem) {
-        jsonSchemaProperty.properties[configItem.name].default = normalizeDefaultValue(
+        configurationSchema.properties[configItem.name].default = normalizeDefaultValue(
           configItem.defaultValue,
           configItem.allowedTypes ?? []
         );
@@ -251,19 +252,24 @@ export function ruleIntoJsonSchemaProperty(rule) {
       
       if ('allowedTypes' in configItem) {
         Object.assign(
-          jsonSchemaProperty.properties[configItem.name],
+          configurationSchema.properties[configItem.name],
           schemaFromAllowedTypes(configItem.allowedTypes)
         );
       }
       
       if ('allowedValues' in configItem) {
-        const propertySchema = jsonSchemaProperty.properties[configItem.name];
+        const propertySchema = configurationSchema.properties[configItem.name];
 
         if (!addArrayItemEnum(propertySchema, configItem.allowedValues)) {
           propertySchema.enum = configItem.allowedValues;
         }
       }
     });
+
+    jsonSchemaProperty.oneOf = [
+      { type: 'boolean' },
+      configurationSchema
+    ];
   }
 
   if ('allowedTypes' in rule.configuration) {
