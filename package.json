@@ -100,7 +100,7 @@
         },
         "laravel-pint.enable": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "markdownDescription": "%ext.config.enable%",
           "scope": "resource"
         },
