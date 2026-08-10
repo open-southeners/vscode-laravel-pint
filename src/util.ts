@@ -59,6 +59,7 @@ export async function resolvePathFromWorkspaces(pattern: string, relativeTo: Wor
   const matchedPaths = await glob(pattern, {
     cwd: relativeTo.uri.fsPath,
     absolute: true,
+    ignore: ['**/node_modules/**'],
   });
 
   return matchedPaths;
