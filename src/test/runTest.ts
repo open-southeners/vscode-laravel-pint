@@ -1,5 +1,6 @@
 import * as path from 'path';
 import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import { delimiter } from 'node:path';
 
 import { downloadAndUnzipVSCode, runTests } from '@vscode/test-electron';
@@ -14,6 +15,16 @@ function resolveMacOSAppBundlePath(vscodeExecutablePath: string) {
   }
 
   return vscodeExecutablePath.slice(0, appBundleIndex + appBundleSuffix.length);
+}
+
+function resolveMacOSExecutablePath(vscodeExecutablePath: string) {
+  if (process.platform !== 'darwin' || existsSync(vscodeExecutablePath)) {
+    return vscodeExecutablePath;
+  }
+
+  const codeExecutablePath = path.join(path.dirname(vscodeExecutablePath), 'Code');
+
+  return existsSync(codeExecutablePath) ? codeExecutablePath : vscodeExecutablePath;
 }
 
 function clearMacOSDownloadAttributes(vscodeExecutablePath: string) {
@@ -61,13 +72,15 @@ async function main() {
         version: process.env.TEST_VSCODE_VERSION
       });
 
-      clearMacOSDownloadAttributes(vscodeExecutablePath);
+      const resolvedVSCodeExecutablePath = resolveMacOSExecutablePath(vscodeExecutablePath);
+
+      clearMacOSDownloadAttributes(resolvedVSCodeExecutablePath);
 
 		// Run the integration test against the prepared VS Code binary
 		await runTests({
 	      extensionDevelopmentPath,
 	      extensionTestsPath,
-	      vscodeExecutablePath,
+	      vscodeExecutablePath: resolvedVSCodeExecutablePath,
       /**
        * A list of launch arguments passed to VS Code executable, in addition to `--extensionDevelopmentPath`
        * and `--extensionTestsPath` which are provided by `extensionDevelopmentPath` and `extensionTestsPath`

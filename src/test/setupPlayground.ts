@@ -198,6 +198,10 @@ if (($arguments[0] ?? null) !== 'exec') {
 $arguments = array_slice($arguments, 1);
 $workingDirectory = null;
 
+if (($arguments[0] ?? null) === '-i') {
+  $arguments = array_slice($arguments, 1);
+}
+
 if (($arguments[0] ?? null) === '-w') {
   $workingDirectory = $arguments[1] ?? null;
   $arguments = array_slice($arguments, 2);

@@ -1,4 +1,4 @@
-import { commands, ExtensionContext, ExtensionMode, workspace, ConfigurationTarget } from 'vscode';
+import { commands, ExtensionContext, workspace, ConfigurationTarget } from 'vscode';
 import { formatCommand } from './commands';
 import { LoggingService } from './LoggingService';
 import { CommandResolver } from './CommandResolver';
@@ -34,8 +34,7 @@ export async function activate(context: ExtensionContext) {
   const editService = new PintEditService(
     commandResolver,
     loggingService,
-    statusBar,
-    context.extensionMode === ExtensionMode.Test
+    statusBar
   );
 
   // Extension commands

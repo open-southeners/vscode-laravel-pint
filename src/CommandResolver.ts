@@ -17,6 +17,12 @@ export interface DockerExecutionContext {
   workspaceRoot: string;
 }
 
+export interface PintCommandOptions {
+  input?: string;
+  isFormatWorkspace?: boolean;
+  stdinFilename?: string;
+}
+
 export class CommandResolver {
   private globCache = new Map<string, string[]>();
 
@@ -127,15 +133,15 @@ export class CommandResolver {
 
   public async getPintCommand(
     workspaceFolder: WorkspaceFolder,
-    input?: string,
-    isFormatWorkspace = false
+    options: PintCommandOptions = {}
   ): Promise<PhpCommand | undefined> {
+    const { input } = options;
     if (!workspace.isTrusted) {
       this.loggingService.logDebug(UNTRUSTED_WORKSPACE_USING_GLOBAL_PINT);
 
       // This doesn't respect fallbackToGlobal config
       return this.getGlobalPintCommand(
-        await this.getPintConfigAsArgs(workspaceFolder, input, isFormatWorkspace)
+        await this.getPintConfigAsArgs(workspaceFolder, options)
       );
     }
 
@@ -167,7 +173,7 @@ export class CommandResolver {
       });
 
       return this.getGlobalPintCommand(
-        await this.getPintConfigAsArgs(workspaceFolder, input, isFormatWorkspace)
+        await this.getPintConfigAsArgs(workspaceFolder, options)
       );
     }
 
@@ -191,7 +197,7 @@ export class CommandResolver {
 
     return new PhpCommand(
       cmd,
-      await this.getPintConfigAsArgs(workspaceFolder, input, isFormatWorkspace),
+      await this.getPintConfigAsArgs(workspaceFolder, options),
       cwd
     );
   }
@@ -225,9 +231,9 @@ export class CommandResolver {
 
   public async getPintCommandWithinSail(
     workspaceFolder: WorkspaceFolder,
-    input?: string,
-    isFormatWorkspace = false
+    options: PintCommandOptions = {}
   ): Promise<PhpCommand | undefined> {
+    const { input } = options;
     if (!workspace.isTrusted) {
       this.loggingService.logDebug(UNTRUSTED_WORKSPACE_ERROR);
 
@@ -253,7 +259,7 @@ export class CommandResolver {
       return;
     }
 
-    const args = await this.getPintConfigAsArgs(workspaceFolder, input, isFormatWorkspace);
+    const args = await this.getPintConfigAsArgs(workspaceFolder, options);
     const workspaceRoot = workspaceFolder.uri.fsPath;
 
     // Convert absolute host paths to workspace-relative for container access
@@ -280,16 +286,16 @@ export class CommandResolver {
 
   public async getPintCommandWithinDocker(
     workspaceFolder: WorkspaceFolder,
-    input?: string,
-    isFormatWorkspace = false
+    options: PintCommandOptions = {}
   ): Promise<PhpCommand | undefined> {
+    const { input, stdinFilename } = options;
     const dockerContext = this.getDockerExecutionContext(workspaceFolder);
 
     if (!dockerContext) {
       return;
     }
 
-    const args = await this.getPintConfigAsArgs(workspaceFolder, input, isFormatWorkspace);
+    const args = await this.getPintConfigAsArgs(workspaceFolder, options);
     const containerArgs = args.map((arg) => this.toContainerPath(arg, dockerContext.workspaceRoot, dockerContext.containerRootPath));
 
     this.loggingService.logInfo('Resolved Docker Pint command.', {
@@ -304,17 +310,14 @@ export class CommandResolver {
 
     return new PhpCommand(
       dockerContext.dockerExecutable,
-      ['exec', '-w', dockerContext.containerRootPath, dockerContext.containerName, dockerContext.pintExecutablePath, ...containerArgs],
+      ['exec', ...(stdinFilename ? ['-i'] : []), '-w', dockerContext.containerRootPath, dockerContext.containerName, dockerContext.pintExecutablePath, ...containerArgs],
       dockerContext.workspaceRoot,
       { executionMode: 'native' }
     );
   }
 
-  private async getPintConfigAsArgs(
-    workspaceFolder: WorkspaceFolder,
-    input?: string,
-    isFormatWorkspace = false
-  ) {
+  private async getPintConfigAsArgs(workspaceFolder: WorkspaceFolder, options: PintCommandOptions = {}) {
+    const { input, isFormatWorkspace = false, stdinFilename } = options;
     const executableArgs: Record<string, string> = {};
     const configPath = getWorkspaceConfig('configPath', CONFIG_FILE_NAME);
 
@@ -337,6 +340,10 @@ export class CommandResolver {
     const executableArgsAsArray = Object.entries(executableArgs).filter(arg => !!arg[1]).flat();
 
     executableArgsAsArray.push(input || workspaceFolder.uri.fsPath);
+
+    if (stdinFilename) {
+      executableArgsAsArray.push('--stdin-filename', stdinFilename);
+    }
 
     if (isFormatWorkspace) {
       const dirtyOnly = getWorkspaceConfig("dirtyOnly", false);

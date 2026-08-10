@@ -1,5 +1,3 @@
-import os = require("node:os");
-import path = require("node:path");
 import fs = require("node:fs/promises");
 import {
   Disposable,
@@ -61,8 +59,7 @@ export default class PintEditService implements Disposable {
   constructor(
     private commandResolver: CommandResolver,
     private loggingService: LoggingService,
-    private statusBar: StatusBar,
-    private isTestMode = false
+    private statusBar: StatusBar
   ) { }
 
   public registerDisposables(): Disposable[] {
@@ -277,16 +274,15 @@ export default class PintEditService implements Disposable {
 
   private async getWorkspaceCommand(
     workspaceFolder: WorkspaceFolder,
-    input?: string,
-    isFormatWorkspace = false
+    options: { input?: string; isFormatWorkspace?: boolean; stdinFilename?: string } = {}
   ) {
     if (this.isDockerModeEnabled()) {
-      return this.commandResolver.getPintCommandWithinDocker(workspaceFolder, input, isFormatWorkspace);
+      return this.commandResolver.getPintCommandWithinDocker(workspaceFolder, options);
     }
 
     return getWorkspaceConfig('runInLaravelSail', false)
-      ? this.commandResolver.getPintCommandWithinSail(workspaceFolder, input, isFormatWorkspace)
-      : this.commandResolver.getPintCommand(workspaceFolder, input, isFormatWorkspace);
+      ? this.commandResolver.getPintCommandWithinSail(workspaceFolder, options)
+      : this.commandResolver.getPintCommand(workspaceFolder, options);
   }
 
   private isDockerModeEnabled() {
@@ -317,6 +313,7 @@ export default class PintEditService implements Disposable {
     label: string,
     context: Record<string, unknown> = {},
     options: {
+      input?: string;
       updateStatusBarOnFailure?: boolean;
       updateStatusBarOnSuccess?: boolean;
       successMessage?: string;
@@ -333,8 +330,10 @@ export default class PintEditService implements Disposable {
       shell: execution.shell
     });
 
+    let result: PhpCommandRunResult;
+
     try {
-      const result = await command.run();
+      result = await command.run(options.input);
 
       this.logProcessResult(result);
     } catch (error) {
@@ -382,191 +381,16 @@ export default class PintEditService implements Disposable {
       this.statusBar.update(FormatterStatus.Success);
     }
 
-    return true;
+    return result;
   }
 
-  private async runCommand(command: PhpCommand, context: Record<string, unknown> = {}) {
+  private async runCommand(command: PhpCommand, input?: string, context: Record<string, unknown> = {}) {
     return this.runProcess(command, 'Pint process', context, {
+      input,
       successMessage: RUNNING_PINT_ON_PATH,
       updateStatusBarOnFailure: true,
       updateStatusBarOnSuccess: true
     });
-  }
-
-  private async getTempDirectoryRoot(workspaceFolder: WorkspaceFolder) {
-    const configuredTempRoot = process.env.TEST_PINT_TEMP_DIRECTORY;
-
-    if (configuredTempRoot) {
-      await fs.mkdir(configuredTempRoot, { recursive: true });
-
-      return configuredTempRoot;
-    }
-
-    if (this.isTestMode) {
-      const workspaceTempRoot = path.join(workspaceFolder.uri.fsPath, '.runtime', 'temp');
-
-      await fs.mkdir(workspaceTempRoot, { recursive: true });
-
-      return workspaceTempRoot;
-    }
-
-    return os.tmpdir();
-  }
-
-  private async cleanupDockerTempDirectory(
-    workspaceFolder: WorkspaceFolder,
-    containerTempDirectory: string,
-    documentPath: string
-  ) {
-    const dockerContext = this.commandResolver.getDockerExecutionContext(workspaceFolder);
-
-    if (!dockerContext) {
-      return;
-    }
-
-    const cleanupCommand = new PhpCommand(
-      dockerContext.dockerExecutable,
-      ['exec', '-w', dockerContext.containerRootPath, dockerContext.containerName, 'rm', '-rf', containerTempDirectory],
-      workspaceFolder.uri.fsPath,
-      { executionMode: 'native' }
-    );
-
-    try {
-      const result = await cleanupCommand.run();
-
-      this.logProcessResult(result);
-      this.loggingService.logInfo('Cleaned up Docker document formatting temp file.', {
-        containerName: dockerContext.containerName,
-        containerTempDirectory,
-        document: documentPath
-      });
-    } catch (error) {
-      this.loggingService.logWarning('Unable to clean up Docker document formatting temp file.', {
-        containerName: dockerContext.containerName,
-        containerTempDirectory,
-        document: documentPath,
-        error: error instanceof Error ? error.message : String(error)
-      });
-    }
-  }
-
-  private async formatDocumentWithinDocker(
-    workspaceFolder: WorkspaceFolder,
-    document: TextDocument,
-    localTempFilePath: string
-  ) {
-    const dockerContext = this.commandResolver.getDockerExecutionContext(workspaceFolder);
-
-    if (!dockerContext) {
-      this.statusBar.update(FormatterStatus.Error);
-      this.loggingService.logError(SOMETHING_WENT_WRONG_FINDING_EXECUTABLE + ' ' + pkg.bugs.url);
-      return;
-    }
-
-    const containerTempDirectory = path.posix.join('/tmp', path.basename(path.dirname(localTempFilePath)));
-    const containerTempFilePath = path.posix.join(containerTempDirectory, path.basename(document.uri.fsPath));
-
-    this.loggingService.logInfo('Preparing Docker document formatting temp file.', {
-      containerName: dockerContext.containerName,
-      containerTempDirectory,
-      containerTempFilePath,
-      dockerExecutable: dockerContext.dockerExecutable,
-      document: document.uri.fsPath,
-      localTempFilePath,
-      workspace: workspaceFolder.uri.fsPath
-    });
-
-    const createTempDirectoryCommand = new PhpCommand(
-      dockerContext.dockerExecutable,
-      ['exec', '-w', dockerContext.containerRootPath, dockerContext.containerName, 'mkdir', '-p', containerTempDirectory],
-      workspaceFolder.uri.fsPath,
-      { executionMode: 'native' }
-    );
-
-    const tempDirectoryCreated = await this.runProcess(createTempDirectoryCommand, 'Docker temp directory setup', {
-      containerName: dockerContext.containerName,
-      containerTempDirectory,
-      document: document.uri.fsPath,
-      workspace: workspaceFolder.uri.fsPath
-    }, {
-      updateStatusBarOnFailure: true,
-      updateStatusBarOnSuccess: false
-    });
-
-    if (!tempDirectoryCreated) {
-      return;
-    }
-
-    try {
-      const uploadCommand = new PhpCommand(
-        dockerContext.dockerExecutable,
-        ['cp', localTempFilePath, `${dockerContext.containerName}:${containerTempFilePath}`],
-        workspaceFolder.uri.fsPath,
-        { executionMode: 'native' }
-      );
-
-      const uploaded = await this.runProcess(uploadCommand, 'Docker temp file upload', {
-        containerName: dockerContext.containerName,
-        containerTempFilePath,
-        document: document.uri.fsPath,
-        localTempFilePath,
-        workspace: workspaceFolder.uri.fsPath
-      }, {
-        updateStatusBarOnFailure: true,
-        updateStatusBarOnSuccess: false
-      });
-
-      if (!uploaded) {
-        return;
-      }
-
-      const command = await this.getWorkspaceCommand(workspaceFolder, containerTempFilePath);
-
-      if (!command) {
-        this.statusBar.update(FormatterStatus.Error);
-        this.loggingService.logError(SOMETHING_WENT_WRONG_FINDING_EXECUTABLE + ' ' + pkg.bugs.url);
-        return;
-      }
-
-      const formatted = await this.runCommand(command, {
-        containerName: dockerContext.containerName,
-        containerTempFilePath,
-        document: document.uri.fsPath,
-        localTempFilePath,
-        mode: 'document',
-        workspace: workspaceFolder.uri.fsPath
-      });
-
-      if (!formatted) {
-        return;
-      }
-
-      const downloadCommand = new PhpCommand(
-        dockerContext.dockerExecutable,
-        ['cp', `${dockerContext.containerName}:${containerTempFilePath}`, localTempFilePath],
-        workspaceFolder.uri.fsPath,
-        { executionMode: 'native' }
-      );
-
-      const downloaded = await this.runProcess(downloadCommand, 'Docker temp file download', {
-        containerName: dockerContext.containerName,
-        containerTempFilePath,
-        document: document.uri.fsPath,
-        localTempFilePath,
-        workspace: workspaceFolder.uri.fsPath
-      }, {
-        updateStatusBarOnFailure: true,
-        updateStatusBarOnSuccess: false
-      });
-
-      if (!downloaded) {
-        return;
-      }
-
-      return fs.readFile(localTempFilePath, 'utf8');
-    } finally {
-      await this.cleanupDockerTempDirectory(workspaceFolder, containerTempDirectory, document.uri.fsPath);
-    }
   }
 
   public async formatWorkspace() {
@@ -622,7 +446,7 @@ export default class PintEditService implements Disposable {
     }
 
     const command = workspaceFolder
-      ? await this.getWorkspaceCommand(workspaceFolder, filePath, isFormatWorkspace)
+      ? await this.getWorkspaceCommand(workspaceFolder, { input: filePath, isFormatWorkspace })
       : await this.commandResolver.getGlobalPintCommand([filePath]);
 
     if (!command) {
@@ -631,7 +455,7 @@ export default class PintEditService implements Disposable {
       return false;
     }
 
-    return this.runCommand(command, {
+    return this.runCommand(command, undefined, {
       input: filePath,
       mode: isFormatWorkspace ? 'workspace' : 'manual',
       workspace: workspaceFolder?.uri.fsPath
@@ -651,90 +475,37 @@ export default class PintEditService implements Disposable {
       return [];
     }
 
-    const startTime = Date.now();
-    const tempDirectoryRoot = await this.getTempDirectoryRoot(workspaceFolder);
-    const tempDirectory = await fs.mkdtemp(path.join(tempDirectoryRoot, 'vscode-laravel-pint-'));
-    const tempFilePath = path.join(tempDirectory, path.basename(document.uri.fsPath));
     const documentText = document.getText();
 
-    this.loggingService.logInfo('Preparing document formatting temp file.', {
+    this.loggingService.logInfo('Formatting document through Pint stdin.', {
       document: document.uri.fsPath,
-      tempDirectory,
-      tempDirectoryRoot,
-      tempFilePath,
       workspace: workspaceFolder.uri.fsPath
     });
 
-    try {
-      await fs.writeFile(tempFilePath, documentText, 'utf8');
+    const command = await this.getWorkspaceCommand(workspaceFolder, {
+      input: '-',
+      stdinFilename: document.uri.fsPath
+    });
 
-      if (this.isDockerModeEnabled()) {
-        const formattedText = await this.formatDocumentWithinDocker(workspaceFolder, document, tempFilePath);
-        const duration = Date.now() - startTime;
-
-        this.loggingService.logInfo(`Formatting completed in ${duration}ms.`);
-
-        if (!formattedText || formattedText === documentText) {
-          return [];
-        }
-
-        return [
-          TextEdit.replace(
-            new Range(new Position(0, 0), document.positionAt(documentText.length)),
-            formattedText
-          )
-        ];
-      }
-
-      const command = await this.getWorkspaceCommand(workspaceFolder, tempFilePath);
-
-      if (!command) {
-        this.statusBar.update(FormatterStatus.Error);
-        this.loggingService.logError(SOMETHING_WENT_WRONG_FINDING_EXECUTABLE + ' ' + pkg.bugs.url);
-        return [];
-      }
-
-      const result = await this.runCommand(command, {
-        document: document.uri.fsPath,
-        mode: 'document',
-        tempFilePath,
-        workspace: workspaceFolder.uri.fsPath
-      });
-
-      if (!result) {
-        return [];
-      }
-
-      const formattedText = await fs.readFile(tempFilePath, 'utf8');
-      const duration = Date.now() - startTime;
-
-      this.loggingService.logInfo(`Formatting completed in ${duration}ms.`);
-
-      if (formattedText === documentText) {
-        return [];
-      }
-
-      return [
-        TextEdit.replace(
-          new Range(new Position(0, 0), document.positionAt(documentText.length)),
-          formattedText
-        )
-      ];
-    } finally {
-      await this.cleanupTempDirectory(tempDirectory, tempFilePath, document.uri.fsPath);
+    if (!command) {
+      this.statusBar.update(FormatterStatus.Error);
+      this.loggingService.logError(SOMETHING_WENT_WRONG_FINDING_EXECUTABLE + ' ' + pkg.bugs.url);
+      return [];
     }
+
+    const result = await this.runCommand(command, documentText, {
+      document: document.uri.fsPath,
+      mode: 'document',
+      workspace: workspaceFolder.uri.fsPath
+    });
+
+    if (!result || result.stdout === documentText) {
+      return [];
+    }
+
+    return [TextEdit.replace(
+      new Range(new Position(0, 0), document.positionAt(documentText.length)),
+      result.stdout
+    )];
   };
-
-  private async cleanupTempDirectory(tempDirectory: string, tempFilePath: string, documentPath: string) {
-    try {
-      await fs.rm(tempDirectory, { recursive: true, force: true });
-      this.loggingService.logInfo('Cleaned up document formatting temp file.', {
-        document: documentPath,
-        tempDirectory,
-        tempFilePath
-      });
-    } catch {
-      // Ignore cleanup errors
-    }
-  }
 }
