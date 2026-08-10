@@ -13,10 +13,9 @@ export async function activate(context: ExtensionContext) {
   loggingService.logInfo(`Extension Version: ${context.extension.packageJSON.version}.`);
 
   if (!context.globalState.get<boolean>('laravel-pint.extensionFirstInstall')) {
-    workspace.getConfiguration('laravel-pint', { languageId: "php" }).update('enable', true, ConfigurationTarget.Global);
-    workspace.getConfiguration('editor', { languageId: "php" }).update('formatOnSave', true, ConfigurationTarget.Global);
+    await workspace.getConfiguration('editor', { languageId: "php" }).update('formatOnSave', true, ConfigurationTarget.Global);
 
-    context.globalState.update('laravel-pint.extensionFirstInstall', true);
+    await context.globalState.update('laravel-pint.extensionFirstInstall', true);
   }
 
   if (getWorkspaceConfig('enableDebugLogs')) {
