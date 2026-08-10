@@ -254,9 +254,17 @@ export default class PintEditService implements Disposable {
       return this.wildcardToRegExp(normalizedExcludedPath).test(normalizedDocumentPath);
     }
 
+    if (normalizedExcludedPath.includes('/')) {
+      return (
+        normalizedDocumentPath.endsWith(`/${normalizedExcludedPath}`) ||
+        parentPath.endsWith(`/${normalizedExcludedPath}`) ||
+        parentPath.includes(`/${normalizedExcludedPath}/`)
+      );
+    }
+
     return (
-      normalizedDocumentPath.endsWith(normalizedExcludedPath) ||
-      parentPath.includes(normalizedExcludedPath)
+      normalizedDocumentPath.endsWith(`/${normalizedExcludedPath}`) ||
+      parentPath.split('/').includes(normalizedExcludedPath)
     );
   }
 

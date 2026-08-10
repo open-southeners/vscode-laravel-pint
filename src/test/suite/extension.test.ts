@@ -12,6 +12,7 @@ import {
   replaceDocumentContents,
   readWorkspaceFile,
   resetWorkspace,
+  waitForFormattingEdits,
   waitForDocumentContents,
   waitForFileContents,
   WORKSPACE_FIRST_EXPECTED,
@@ -67,6 +68,16 @@ suite('Laravel Pint Extension', function () {
 
     assert.ok(marker.args.includes('--config'));
     assert.ok(marker.args.some((arg) => normalizePathSeparators(arg).endsWith('config/custom-pint.json')));
+  });
+
+  test('does not exclude app-modules when Pint excludes the app directory', async () => {
+    await writeWorkspaceFile('pint.json', JSON.stringify({ exclude: ['app'] }));
+
+    const document = await openPhpDocument('app-modules/format.php');
+    const edits = await waitForFormattingEdits(document);
+
+    assert.strictEqual(edits.length, 1);
+    assert.strictEqual(edits[0].newText, DEFAULT_EXPECTED);
   });
 
   test('formats using the global Pint fallback when the local executable is missing', async () => {
