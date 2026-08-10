@@ -23,7 +23,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Package extension to VSIX
-        run: bun x @vscode/vsce package --no-yarn --pre-release
+        run: bun x @vscode/vsce package --no-yarn
 
       - name: Get release info
         id: query-release-info
