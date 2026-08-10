@@ -361,6 +361,7 @@ async function seedWorkspaceFiles() {
   await copyTemplateFile('default.php', workspacePath('src', 'docker.php'));
   await copyTemplateFile('default.php', workspacePath('src', 'global.php'));
   await copyTemplateFile('default.php', workspacePath('src', 'sail.php'));
+  await copyTemplateFile('default.php', workspacePath('app-modules', 'format.php'));
   await copyTemplateFile('workspace-first.php', workspacePath('src', 'workspace-first.php'));
   await copyTemplateFile('workspace-second.php', workspacePath('src', 'workspace-second.php'));
   await copyTemplateFile('pint.json', workspacePath('pint.json'));
@@ -431,6 +432,7 @@ export async function setupPlayground(): Promise<PreparedPlayground> {
     ensureDirectory(workspacePath('.vscode')),
     ensureDirectory(binPath),
     ensureDirectory(workspacePath('config')),
+    ensureDirectory(workspacePath('app-modules')),
     ensureDirectory(workspacePath('src')),
     ensureDirectory(toolsPath),
     ensureDirectory(vendorBinPath)
