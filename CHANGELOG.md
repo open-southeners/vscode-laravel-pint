@@ -6,6 +6,16 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [2.2.1] - 2026-08-10
+
+### Fixed
+
+- Enable Laravel Pint by default, including in VS Code Remote environments [#84]
+- Skip `node_modules` while resolving workspace executables and configuration files to avoid slow pnpm projects [#81]
+- Match excluded directories as path segments so excluding `app` does not exclude `app-modules` [#82]
+- Allow configurable Pint rules to be enabled or disabled with a boolean in `pint.json` [#68]
+- Version publishing on open-vsx (affecting Codex and VSCodium) were being tagged as pre-release (all v2)
+
 ## [2.2.0] - 2026-08-10
 
 ### Added
