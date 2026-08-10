@@ -6,6 +6,22 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-08-10
+
+### Added
+
+- Docker-based integration test workflow [#85] (thanks @luigimannoni)
+
+### Changed
+
+- Refined the generated Pint rule schema and its test coverage
+- Run integration tests for pull requests using a downloaded VS Code test binary
+
+### Fixed
+
+- Docker test paths on Windows and native container CLI execution
+- Removed retired README badges (Microsoft VSCode marketplace)
+
 ## [2.1.0] - 2026-03-09
 
 ### Added
