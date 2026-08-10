@@ -12,7 +12,6 @@ import {
   replaceDocumentContents,
   readWorkspaceFile,
   resetWorkspace,
-  waitForFormattingEdits,
   waitForDocumentContents,
   waitForFileContents,
   WORKSPACE_FIRST_EXPECTED,
@@ -74,10 +73,11 @@ suite('Laravel Pint Extension', function () {
     await writeWorkspaceFile('pint.json', JSON.stringify({ exclude: ['app'] }));
 
     const document = await openPhpDocument('app-modules/format.php');
-    const edits = await waitForFormattingEdits(document);
+    await replaceDocumentContents(document, DEFAULT_SOURCE);
 
-    assert.strictEqual(edits.length, 1);
-    assert.strictEqual(edits[0].newText, DEFAULT_EXPECTED);
+    await vscode.commands.executeCommand('laravel-pint.format');
+
+    await waitForDocumentContents(document, DEFAULT_EXPECTED);
   });
 
   test('formats using the global Pint fallback when the local executable is missing', async () => {
