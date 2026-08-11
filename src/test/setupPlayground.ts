@@ -18,6 +18,7 @@ const TEMPLATE_FILES = [
 interface PreparedPlayground {
   binPath: string;
   phpPath: string;
+  workspaceFilePath: string;
   workspacePath: string;
 }
 
@@ -27,6 +28,14 @@ function repoRootPath(...segments: string[]) {
 
 function workspacePath(...segments: string[]) {
   return repoRootPath('playground', 'workspace', ...segments);
+}
+
+function monorepoLaravelPath(...segments: string[]) {
+  return repoRootPath('playground', 'monorepo-laravel', ...segments);
+}
+
+function monorepoWorkspaceFilePath() {
+  return repoRootPath('playground', 'monorepo.code-workspace');
 }
 
 async function ensureDirectory(directoryPath: string) {
@@ -430,12 +439,14 @@ async function writeWorkspaceSettings(phpPath: string) {
 
 export async function setupPlayground(): Promise<PreparedPlayground> {
   const workspaceRoot = workspacePath();
+  const monorepoLaravelRoot = monorepoLaravelPath();
   const binPath = workspacePath('bin');
   const phpPath = resolvePhpExecutable();
   const vendorBinPath = workspacePath('vendor', 'bin');
   const toolsPath = workspacePath('tools');
 
   await fs.rm(workspaceRoot, { recursive: true, force: true });
+  await fs.rm(monorepoLaravelRoot, { recursive: true, force: true });
 
   await Promise.all([
     ensureDirectory(workspacePath('.runtime')),
@@ -445,7 +456,11 @@ export async function setupPlayground(): Promise<PreparedPlayground> {
     ensureDirectory(workspacePath('app-modules')),
     ensureDirectory(workspacePath('src')),
     ensureDirectory(toolsPath),
-    ensureDirectory(vendorBinPath)
+    ensureDirectory(vendorBinPath),
+    ensureDirectory(monorepoLaravelPath('src')),
+    ensureDirectory(monorepoLaravelPath('config')),
+    ensureDirectory(monorepoLaravelPath('tools')),
+    ensureDirectory(monorepoLaravelPath('.vscode'))
   ]);
 
   await seedWorkspaceFiles();
@@ -462,15 +477,34 @@ export async function setupPlayground(): Promise<PreparedPlayground> {
   await writeExecutable(workspacePath('bin', 'docker'), dockerWrapperSource());
   await writeExecutable(workspacePath('bin', 'pint'), wrapperSource('global', '../tools/pint-proxy.php'));
   await writeExecutable(workspacePath('vendor', 'bin', 'sail'), sailWrapperSource());
+  await writeExecutable(monorepoLaravelPath('tools', 'pint-custom'), wrapperSource('custom', '../../workspace/tools/pint-proxy.php'));
   await fs.writeFile(workspacePath('bin', 'docker.cmd'), dockerWindowsWrapperSource(phpPath), 'utf8');
   await fs.writeFile(workspacePath('bin', 'pint.cmd'), globalWindowsWrapperSource(phpPath), 'utf8');
   await fs.writeFile(workspacePath('bin', 'php.bat'), herdPhpWindowsWrapperSource(phpPath), 'utf8');
 
   await rebuildWorkspaceRepository(workspaceRoot);
 
+  await copyTemplateFile('default.php', monorepoLaravelPath('src', 'monorepo.php'));
+  await copyTemplateFile('custom-pint.json', monorepoLaravelPath('config', 'pint.json'));
+  /* eslint-disable @typescript-eslint/naming-convention */
+  await fs.writeFile(monorepoLaravelPath('.vscode', 'settings.json'), `${JSON.stringify({
+    'laravel-pint.enable': true,
+    'laravel-pint.configPath': 'config/pint.json',
+    'laravel-pint.executablePath': 'tools/pint-custom',
+    'laravel-pint.fallbackToGlobalBin': false
+  }, null, 2)}\n`, 'utf8');
+  await fs.writeFile(monorepoWorkspaceFilePath(), `${JSON.stringify({
+    folders: [
+      { path: 'workspace' },
+      { path: 'monorepo-laravel' }
+    ]
+  }, null, 2)}\n`, 'utf8');
+  /* eslint-enable @typescript-eslint/naming-convention */
+
   return {
     binPath,
     phpPath,
+    workspaceFilePath: monorepoWorkspaceFilePath(),
     workspacePath: workspaceRoot
   };
 }

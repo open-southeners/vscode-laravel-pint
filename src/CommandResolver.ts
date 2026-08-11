@@ -67,9 +67,9 @@ export class CommandResolver {
       return;
     }
 
-    const dockerExecutable = getWorkspaceConfig('dockerExecutablePath', 'docker');
-    const containerName = getWorkspaceConfig('dockerContainerName', '');
-    const containerRootPath = getWorkspaceConfig('dockerContainerRootPath', '');
+    const dockerExecutable = getWorkspaceConfig('dockerExecutablePath', 'docker', workspaceFolder.uri);
+    const containerName = getWorkspaceConfig('dockerContainerName', '', workspaceFolder.uri);
+    const containerRootPath = getWorkspaceConfig('dockerContainerRootPath', '', workspaceFolder.uri);
 
     this.loggingService.logDebug('Resolved Docker configuration.', {
       containerName,
@@ -91,7 +91,7 @@ export class CommandResolver {
     }
 
     const normalizedContainerRoot = this.normalizeContainerPath(containerRootPath);
-    const configuredExecutablePath = getWorkspaceConfig('executablePath', path.posix.join(...DEFAULT_EXEC_PATH)).replace(/\\/g, '/');
+    const configuredExecutablePath = getWorkspaceConfig('executablePath', path.posix.join(...DEFAULT_EXEC_PATH), workspaceFolder.uri).replace(/\\/g, '/');
     const pintExecutablePath = path.posix.isAbsolute(configuredExecutablePath)
       ? configuredExecutablePath
       : path.posix.join(normalizedContainerRoot, configuredExecutablePath);
@@ -146,7 +146,7 @@ export class CommandResolver {
     }
 
     const executableArr = await this.resolvePathCached(
-      '**/' + getWorkspaceConfig('executablePath', path.posix.join(...DEFAULT_EXEC_PATH)),
+      '**/' + getWorkspaceConfig('executablePath', path.posix.join(...DEFAULT_EXEC_PATH), workspaceFolder.uri),
       workspaceFolder
     );
 
@@ -154,7 +154,7 @@ export class CommandResolver {
 
     const isExecutable = executable && canExecuteFile(executable);
 
-    const fallbackToGlobal = getWorkspaceConfig('fallbackToGlobalBin') && commandExists.sync('pint');
+    const fallbackToGlobal = getWorkspaceConfig('fallbackToGlobalBin', false, workspaceFolder.uri) && commandExists.sync('pint');
 
     this.loggingService.logDebug('Resolved workspace Pint executable candidates.', {
       executable,
@@ -168,7 +168,7 @@ export class CommandResolver {
     if (!isExecutable && fallbackToGlobal) {
       this.loggingService.logInfo('Falling back to global Pint executable.', {
         input,
-        requestedExecutable: getWorkspaceConfig('executablePath', path.posix.join(...DEFAULT_EXEC_PATH)),
+        requestedExecutable: getWorkspaceConfig('executablePath', path.posix.join(...DEFAULT_EXEC_PATH), workspaceFolder.uri),
         workspace: workspaceFolder.uri.fsPath
       });
 
@@ -183,7 +183,7 @@ export class CommandResolver {
       return;
     }
 
-    const cmd = getWorkspaceConfig('executablePath', path.posix.join(...DEFAULT_EXEC_PATH));
+    const cmd = getWorkspaceConfig('executablePath', path.posix.join(...DEFAULT_EXEC_PATH), workspaceFolder.uri);
 
     const cwd = path.normalize(executable).replace(path.normalize(cmd), '');
 
@@ -241,7 +241,7 @@ export class CommandResolver {
     }
 
     const executableArr = await this.resolvePathCached(
-      '**/' + getWorkspaceConfig('sailExecutablePath', path.posix.join(...DEFAULT_LARAVEL_SAIL_EXEC_PATH)),
+      '**/' + getWorkspaceConfig('sailExecutablePath', path.posix.join(...DEFAULT_LARAVEL_SAIL_EXEC_PATH), workspaceFolder.uri),
       workspaceFolder
     );
 
@@ -318,7 +318,7 @@ export class CommandResolver {
   private async getPintConfigAsArgs(workspaceFolder: WorkspaceFolder, options: PintCommandOptions = {}) {
     const { input, isFormatWorkspace = false, stdinFilename } = options;
     const executableArgs: Record<string, string> = {};
-    const configPath = getWorkspaceConfig('configPath', CONFIG_FILE_NAME);
+    const configPath = getWorkspaceConfig('configPath', CONFIG_FILE_NAME, workspaceFolder.uri);
 
     const matchedPaths = await this.resolvePathCached(configPath, workspaceFolder);
 
@@ -330,7 +330,7 @@ export class CommandResolver {
       this.loggingService.logDebug(NO_CONFIG_FOUND_FOR_WORKSPACE, workspaceFolder.uri.fsPath);
     }
 
-    const preset = getWorkspaceConfig('preset', 'auto');
+    const preset = getWorkspaceConfig('preset', 'auto', workspaceFolder.uri);
 
     if (preset && preset !== 'auto') {
       executableArgs['--preset'] = preset;
@@ -345,7 +345,7 @@ export class CommandResolver {
     }
 
     if (isFormatWorkspace) {
-      const dirtyOnly = getWorkspaceConfig("dirtyOnly", false);
+      const dirtyOnly = getWorkspaceConfig("dirtyOnly", false, workspaceFolder.uri);
       if (dirtyOnly) {
         executableArgsAsArray.push("--dirty");
       }

@@ -86,6 +86,10 @@ export function workspaceFile(...segments: string[]) {
   return path.join(getWorkspaceRoot(), ...segments);
 }
 
+export function monorepoLaravelFile(...segments: string[]) {
+  return path.resolve(getWorkspaceRoot(), '..', 'monorepo-laravel', ...segments);
+}
+
 export async function activateExtension() {
   const extension = vscode.extensions.getExtension(EXTENSION_ID);
 
@@ -124,34 +128,35 @@ export async function applyExtensionConfiguration(overrides: Partial<{
   sailExecutablePath: string;
   phpValidateExecutablePath: string | null;
 }>) {
-  const config = vscode.workspace.getConfiguration('laravel-pint');
-  const rootConfig = vscode.workspace.getConfiguration();
-  const phpValidateConfig = vscode.workspace.getConfiguration('php.validate');
+  const workspaceScope = vscode.Uri.file(getWorkspaceRoot());
+  const config = vscode.workspace.getConfiguration('laravel-pint', workspaceScope);
+  const rootConfig = vscode.workspace.getConfiguration(undefined, workspaceScope);
+  const phpValidateConfig = vscode.workspace.getConfiguration('php.validate', workspaceScope);
 
-  await config.update('enable', true, vscode.ConfigurationTarget.Workspace);
-  await config.update('enableDebugLogs', true, vscode.ConfigurationTarget.Workspace);
-  await config.update('configPath', overrides.configPath ?? 'pint.json', vscode.ConfigurationTarget.Workspace);
-  await config.update('dirtyOnly', overrides.dirtyOnly ?? false, vscode.ConfigurationTarget.Workspace);
-  await config.update('dockerContainerName', overrides.dockerContainerName ?? '', vscode.ConfigurationTarget.Workspace);
-  await config.update('dockerContainerRootPath', overrides.dockerContainerRootPath ?? '', vscode.ConfigurationTarget.Workspace);
-  await config.update('dockerExecutablePath', overrides.dockerExecutablePath ?? 'docker', vscode.ConfigurationTarget.Workspace);
-  await config.update('executablePath', overrides.executablePath ?? 'vendor/bin/pint', vscode.ConfigurationTarget.Workspace);
-  await config.update('fallbackToGlobalBin', overrides.fallbackToGlobalBin ?? true, vscode.ConfigurationTarget.Workspace);
-  await config.update('runInDocker', overrides.runInDocker ?? false, vscode.ConfigurationTarget.Workspace);
-  await config.update('runInLaravelSail', overrides.runInLaravelSail ?? false, vscode.ConfigurationTarget.Workspace);
-  await config.update('sailExecutablePath', overrides.sailExecutablePath ?? 'vendor/bin/sail', vscode.ConfigurationTarget.Workspace);
+  await config.update('enable', true, vscode.ConfigurationTarget.WorkspaceFolder);
+  await config.update('enableDebugLogs', true, vscode.ConfigurationTarget.WorkspaceFolder);
+  await config.update('configPath', overrides.configPath ?? 'pint.json', vscode.ConfigurationTarget.WorkspaceFolder);
+  await config.update('dirtyOnly', overrides.dirtyOnly ?? false, vscode.ConfigurationTarget.WorkspaceFolder);
+  await config.update('dockerContainerName', overrides.dockerContainerName ?? '', vscode.ConfigurationTarget.WorkspaceFolder);
+  await config.update('dockerContainerRootPath', overrides.dockerContainerRootPath ?? '', vscode.ConfigurationTarget.WorkspaceFolder);
+  await config.update('dockerExecutablePath', overrides.dockerExecutablePath ?? 'docker', vscode.ConfigurationTarget.WorkspaceFolder);
+  await config.update('executablePath', overrides.executablePath ?? 'vendor/bin/pint', vscode.ConfigurationTarget.WorkspaceFolder);
+  await config.update('fallbackToGlobalBin', overrides.fallbackToGlobalBin ?? true, vscode.ConfigurationTarget.WorkspaceFolder);
+  await config.update('runInDocker', overrides.runInDocker ?? false, vscode.ConfigurationTarget.WorkspaceFolder);
+  await config.update('runInLaravelSail', overrides.runInLaravelSail ?? false, vscode.ConfigurationTarget.WorkspaceFolder);
+  await config.update('sailExecutablePath', overrides.sailExecutablePath ?? 'vendor/bin/sail', vscode.ConfigurationTarget.WorkspaceFolder);
 
   /* eslint-disable @typescript-eslint/naming-convention */
   await rootConfig.update('[php]', {
     'editor.defaultFormatter': EXTENSION_ID,
     'editor.formatOnSave': true,
     'editor.formatOnSaveTimeout': 10000
-  }, vscode.ConfigurationTarget.Workspace);
+  }, vscode.ConfigurationTarget.WorkspaceFolder);
   /* eslint-enable @typescript-eslint/naming-convention */
   await phpValidateConfig.update(
     'executablePath',
     overrides.phpValidateExecutablePath === undefined ? getPhpExecutablePath() : overrides.phpValidateExecutablePath,
-    vscode.ConfigurationTarget.Workspace
+    vscode.ConfigurationTarget.WorkspaceFolder
   );
 
   await delay(300);

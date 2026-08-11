@@ -8,6 +8,7 @@ import {
   DEFAULT_EXPECTED,
   DEFAULT_SOURCE,
   openPhpDocument,
+  monorepoLaravelFile,
   readRuntimeMarker,
   replaceDocumentContents,
   readWorkspaceFile,
@@ -99,6 +100,19 @@ suite('Laravel Pint Extension', function () {
 
     assert.ok(marker.args.includes('--config'));
     assert.ok(marker.args.some((arg) => normalizePathSeparators(arg).endsWith('config/custom-pint.json')));
+  });
+
+  test('uses folder-scoped executable settings in a multi-root monorepo (#75)', async () => {
+    const document = await vscode.workspace.openTextDocument(vscode.Uri.file(monorepoLaravelFile('src', 'monorepo.php')));
+
+    await vscode.window.showTextDocument(document);
+    await vscode.commands.executeCommand('laravel-pint.format');
+
+    await waitForDocumentContents(document, CUSTOM_EXPECTED);
+
+    const marker = await readRuntimeMarker('custom');
+
+    assert.strictEqual(marker.mode, 'custom');
   });
 
   test('does not exclude app-modules when Pint excludes the app directory', async () => {
