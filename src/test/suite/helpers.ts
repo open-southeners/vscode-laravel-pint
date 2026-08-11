@@ -122,6 +122,7 @@ export async function applyExtensionConfiguration(overrides: Partial<{
   runInDocker: boolean;
   runInLaravelSail: boolean;
   sailExecutablePath: string;
+  phpValidateExecutablePath: string | null;
 }>) {
   const config = vscode.workspace.getConfiguration('laravel-pint');
   const rootConfig = vscode.workspace.getConfiguration();
@@ -147,7 +148,11 @@ export async function applyExtensionConfiguration(overrides: Partial<{
     'editor.formatOnSaveTimeout': 10000
   }, vscode.ConfigurationTarget.Workspace);
   /* eslint-enable @typescript-eslint/naming-convention */
-  await phpValidateConfig.update('executablePath', getPhpExecutablePath(), vscode.ConfigurationTarget.Workspace);
+  await phpValidateConfig.update(
+    'executablePath',
+    overrides.phpValidateExecutablePath === undefined ? getPhpExecutablePath() : overrides.phpValidateExecutablePath,
+    vscode.ConfigurationTarget.Workspace
+  );
 
   await delay(300);
 }
