@@ -6,6 +6,18 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [2.4.0] - 2026-08-11
+
+### Changed
+
+- Unified local Pint, Laravel Sail, Docker, and global Pint process execution behind a single command runner
+
+### Fixed
+
+- Fall back to `php` when VS Code's `php.validate.executablePath` setting is unset or empty on Windows [#72]
+- Support Herd-style `php.bat` PHP executables and preserve native Windows Pint launchers (`.cmd`, `.bat`, `.exe`) [#72]
+- Added Windows CI regression coverage for the PHP fallback and Herd executable paths [#72]
+
 ## [2.3.0] - 2026-08-10
 
 ### Changed
