@@ -6,7 +6,7 @@ import { workspace, WorkspaceFolder } from "vscode";
 import { CONFIG_FILE_NAME, DEFAULT_EXEC_PATH, DEFAULT_LARAVEL_SAIL_EXEC_PATH } from "./constants";
 import { LoggingService } from "./LoggingService";
 import { CONFIG_PATHS_FOUND_FOR_WORKSPACE, DOCKER_CONFIGURATION_INCOMPLETE, NO_CONFIG_FOUND_FOR_WORKSPACE, PINT_CANNOT_BE_EXECUTED, SAIL_CANNOT_BE_EXECUTED, UNTRUSTED_WORKSPACE_ERROR, UNTRUSTED_WORKSPACE_USING_GLOBAL_PINT } from "./message";
-import PhpCommand from "./PhpCommand";
+import CommandRunner from "./CommandRunner";
 import { canExecuteFile, getWorkspaceConfig, resolvePathFromWorkspaces } from "./util";
 
 export interface DockerExecutionContext {
@@ -120,7 +120,7 @@ export class CommandResolver {
     return result;
   }
 
-  public async getGlobalPintCommand(args: Array<string>): Promise<PhpCommand> {
+  public async getGlobalPintCommand(args: Array<string>): Promise<CommandRunner> {
     const globalPintPath = await this.resolveGlobalPintPath();
 
     this.loggingService.logInfo('Resolved global Pint executable.', {
@@ -128,13 +128,13 @@ export class CommandResolver {
       executable: globalPintPath
     });
 
-    return new PhpCommand(globalPintPath, args);
+    return CommandRunner.phpScript(globalPintPath, args);
   }
 
   public async getPintCommand(
     workspaceFolder: WorkspaceFolder,
     options: PintCommandOptions = {}
-  ): Promise<PhpCommand | undefined> {
+  ): Promise<CommandRunner | undefined> {
     const { input } = options;
     if (!workspace.isTrusted) {
       this.loggingService.logDebug(UNTRUSTED_WORKSPACE_USING_GLOBAL_PINT);
@@ -195,7 +195,7 @@ export class CommandResolver {
       workspace: workspaceFolder.uri.fsPath
     });
 
-    return new PhpCommand(
+    return CommandRunner.phpScript(
       cmd,
       await this.getPintConfigAsArgs(workspaceFolder, options),
       cwd
@@ -232,7 +232,7 @@ export class CommandResolver {
   public async getPintCommandWithinSail(
     workspaceFolder: WorkspaceFolder,
     options: PintCommandOptions = {}
-  ): Promise<PhpCommand | undefined> {
+  ): Promise<CommandRunner | undefined> {
     const { input } = options;
     if (!workspace.isTrusted) {
       this.loggingService.logDebug(UNTRUSTED_WORKSPACE_ERROR);
@@ -277,7 +277,7 @@ export class CommandResolver {
       workspace: workspaceRoot
     });
 
-    return new PhpCommand(
+    return CommandRunner.phpScript(
       executable,
       ['bin', 'pint', ...containerArgs],
       workspaceRoot
@@ -287,7 +287,7 @@ export class CommandResolver {
   public async getPintCommandWithinDocker(
     workspaceFolder: WorkspaceFolder,
     options: PintCommandOptions = {}
-  ): Promise<PhpCommand | undefined> {
+  ): Promise<CommandRunner | undefined> {
     const { input, stdinFilename } = options;
     const dockerContext = this.getDockerExecutionContext(workspaceFolder);
 
@@ -308,11 +308,10 @@ export class CommandResolver {
       workspace: dockerContext.workspaceRoot
     });
 
-    return new PhpCommand(
+    return CommandRunner.native(
       dockerContext.dockerExecutable,
       ['exec', ...(stdinFilename ? ['-i'] : []), '-w', dockerContext.containerRootPath, dockerContext.containerName, dockerContext.pintExecutablePath, ...containerArgs],
-      dockerContext.workspaceRoot,
-      { executionMode: 'native' }
+      dockerContext.workspaceRoot
     );
   }
 

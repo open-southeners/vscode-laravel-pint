@@ -26,7 +26,7 @@ import { CommandResolver } from "./CommandResolver";
 import { PintEditProvider } from "./PintEditProvider";
 import { FormatterStatus, StatusBar } from "./StatusBar";
 import { getWorkspaceConfig, onConfigChange, resolvePathFromWorkspaces } from "./util";
-import PhpCommand, { PhpCommandRunResult } from "./PhpCommand";
+import CommandRunner, { CommandRunResult } from "./CommandRunner";
 
 const pkg = require('../package.json');
 
@@ -289,7 +289,7 @@ export default class PintEditService implements Disposable {
     return getWorkspaceConfig('runInDocker', false);
   }
 
-  private logProcessResult(result: PhpCommandRunResult) {
+  private logProcessResult(result: CommandRunResult) {
     this.loggingService.logInfo('Pint process finished.', {
       args: result.args,
       command: result.command,
@@ -309,7 +309,7 @@ export default class PintEditService implements Disposable {
   }
 
   private async runProcess(
-    command: PhpCommand,
+    command: CommandRunner,
     label: string,
     context: Record<string, unknown> = {},
     options: {
@@ -330,7 +330,7 @@ export default class PintEditService implements Disposable {
       shell: execution.shell
     });
 
-    let result: PhpCommandRunResult;
+    let result: CommandRunResult;
 
     try {
       result = await command.run(options.input);
@@ -342,7 +342,7 @@ export default class PintEditService implements Disposable {
       }
 
       const commandResult = error instanceof Error && 'result' in error
-        ? (error as Error & { result?: PhpCommandRunResult }).result
+        ? (error as Error & { result?: CommandRunResult }).result
         : undefined;
 
       this.loggingService.logError(`${label} failed: ${command.toString()}`, error);
@@ -384,7 +384,7 @@ export default class PintEditService implements Disposable {
     return result;
   }
 
-  private async runCommand(command: PhpCommand, input?: string, context: Record<string, unknown> = {}) {
+  private async runCommand(command: CommandRunner, input?: string, context: Record<string, unknown> = {}) {
     return this.runProcess(command, 'Pint process', context, {
       input,
       successMessage: RUNNING_PINT_ON_PATH,
