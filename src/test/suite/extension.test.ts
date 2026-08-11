@@ -54,6 +54,34 @@ suite('Laravel Pint Extension', function () {
     assert.ok(marker.args.includes('--repair'));
   });
 
+  test('falls back to php when php.validate.executablePath is unset (#72)', async function () {
+    if (process.platform !== 'win32') {
+      this.skip();
+    }
+
+    await applyExtensionConfiguration({ phpValidateExecutablePath: null });
+    const document = await openPhpDocument('src/command.php');
+
+    await vscode.commands.executeCommand('laravel-pint.format');
+
+    await waitForDocumentContents(document, DEFAULT_EXPECTED);
+  });
+
+  test('runs through a Herd-style php.bat executable on Windows (#72)', async function () {
+    if (process.platform !== 'win32') {
+      this.skip();
+    }
+
+    await applyExtensionConfiguration({
+      phpValidateExecutablePath: workspaceFile('bin', 'php.bat')
+    });
+    const document = await openPhpDocument('src/command.php');
+
+    await vscode.commands.executeCommand('laravel-pint.format');
+
+    await waitForDocumentContents(document, DEFAULT_EXPECTED);
+  });
+
   test('formats using a custom executable path and custom config path', async () => {
     await applyExtensionConfiguration({
       configPath: 'config/custom-pint.json',

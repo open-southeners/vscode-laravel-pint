@@ -336,6 +336,12 @@ function dockerWindowsWrapperSource(phpPath: string) {
 `;
 }
 
+function herdPhpWindowsWrapperSource(phpPath: string) {
+  return `@echo off
+"${phpPath.replace(/\\/g, '\\\\')}" %*
+`;
+}
+
 async function writeExecutable(filePath: string, content: string) {
   await fs.writeFile(filePath, content, 'utf8');
   chmodSync(filePath, 0o755);
@@ -458,6 +464,7 @@ export async function setupPlayground(): Promise<PreparedPlayground> {
   await writeExecutable(workspacePath('vendor', 'bin', 'sail'), sailWrapperSource());
   await fs.writeFile(workspacePath('bin', 'docker.cmd'), dockerWindowsWrapperSource(phpPath), 'utf8');
   await fs.writeFile(workspacePath('bin', 'pint.cmd'), globalWindowsWrapperSource(phpPath), 'utf8');
+  await fs.writeFile(workspacePath('bin', 'php.bat'), herdPhpWindowsWrapperSource(phpPath), 'utf8');
 
   await rebuildWorkspaceRepository(workspaceRoot);
 
