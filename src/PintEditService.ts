@@ -136,7 +136,7 @@ export default class PintEditService implements Disposable {
       return;
     }
 
-    const configPattern = getWorkspaceConfig('configPath', CONFIG_FILE_NAME);
+    const configPattern = getWorkspaceConfig('configPath', CONFIG_FILE_NAME, workspaceFolder.uri);
     const watcher = workspace.createFileSystemWatcher(
       new RelativePattern(workspaceFolder, configPattern)
     );
@@ -160,7 +160,7 @@ export default class PintEditService implements Disposable {
 
   private async loadWorkspaceExcludedPaths(workspaceFolder: WorkspaceFolder) {
     const key = workspaceFolder.uri.fsPath;
-    const configPath = getWorkspaceConfig('configPath', CONFIG_FILE_NAME);
+    const configPath = getWorkspaceConfig('configPath', CONFIG_FILE_NAME, workspaceFolder.uri);
     const configPaths = await resolvePathFromWorkspaces(configPath, workspaceFolder);
     const excludedPaths = [...BASE_EXCLUDED_PATHS];
 
@@ -211,14 +211,16 @@ export default class PintEditService implements Disposable {
     }
 
     const isPhpDocument = document.languageId === "php";
+    const workspaceFolder = workspace.getWorkspaceFolder(document.uri);
+    const extensionEnabled = !workspaceFolder || getWorkspaceConfig('enable', true, workspaceFolder.uri);
     const documentExcluded = this.isDocumentExcluded(document);
 
-    if (isPhpDocument && !documentExcluded) {
+    if (isPhpDocument && extensionEnabled && !documentExcluded) {
       this.statusBar.update(FormatterStatus.Ready);
       return;
     }
 
-    if (isPhpDocument && documentExcluded) {
+    if (isPhpDocument && extensionEnabled && documentExcluded) {
       this.statusBar.update(FormatterStatus.Disabled);
       return;
     }
@@ -276,17 +278,17 @@ export default class PintEditService implements Disposable {
     workspaceFolder: WorkspaceFolder,
     options: { input?: string; isFormatWorkspace?: boolean; stdinFilename?: string } = {}
   ) {
-    if (this.isDockerModeEnabled()) {
+    if (this.isDockerModeEnabled(workspaceFolder)) {
       return this.commandResolver.getPintCommandWithinDocker(workspaceFolder, options);
     }
 
-    return getWorkspaceConfig('runInLaravelSail', false)
+    return getWorkspaceConfig('runInLaravelSail', false, workspaceFolder.uri)
       ? this.commandResolver.getPintCommandWithinSail(workspaceFolder, options)
       : this.commandResolver.getPintCommand(workspaceFolder, options);
   }
 
-  private isDockerModeEnabled() {
-    return getWorkspaceConfig('runInDocker', false);
+  private isDockerModeEnabled(workspaceFolder: WorkspaceFolder) {
+    return getWorkspaceConfig('runInDocker', false, workspaceFolder.uri);
   }
 
   private logProcessResult(result: CommandRunResult) {
@@ -433,13 +435,16 @@ export default class PintEditService implements Disposable {
 
   public async formatFile(file: Uri, isFormatWorkspace = false) {
     const filePath = await fs.realpath(file.fsPath);
+    const workspaceFolder = workspace.getWorkspaceFolder(file);
+
+    if (workspaceFolder && !getWorkspaceConfig('enable', true, workspaceFolder.uri)) {
+      return false;
+    }
 
     if (this.isDocumentExcluded(file)) {
       this.loggingService.logWarning(`The file "${filePath}" is excluded either by you or by Laravel Pint`);
       return false;
     }
-
-    const workspaceFolder = workspace.getWorkspaceFolder(file);
 
     if (workspaceFolder) {
       await this.ensureWorkspaceState(workspaceFolder);
@@ -466,6 +471,10 @@ export default class PintEditService implements Disposable {
     const workspaceFolder = workspace.getWorkspaceFolder(document.uri);
 
     if (!workspaceFolder) {
+      return [];
+    }
+
+    if (!getWorkspaceConfig('enable', true, workspaceFolder.uri)) {
       return [];
     }
 

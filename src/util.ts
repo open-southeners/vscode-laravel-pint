@@ -2,7 +2,7 @@ import { accessSync, constants, statSync } from "fs";
 import { platform } from "os";
 import path = require("path");
 import { glob } from "glob";
-import { commands, MessageItem, window, workspace, WorkspaceFolder } from "vscode";
+import { commands, ConfigurationScope, MessageItem, window, workspace, WorkspaceFolder } from "vscode";
 import { LoggingService } from "./LoggingService";
 import { RESTART_TO_ENABLE } from "./message";
 import { ExtensionConfig } from "./types";
@@ -17,8 +17,9 @@ type GetFieldType<Obj, Path> = Path extends `${infer Left}.${string}`
 
 export function getWorkspaceConfig<T = ExtensionConfig, K extends string = Extract<keyof T, string>, R = GetFieldType<T, K>>(key: keyof ExtensionConfig): T | undefined;
 export function getWorkspaceConfig<T = ExtensionConfig, K extends string = Extract<keyof T, string>, R = GetFieldType<T, K>>(key: keyof ExtensionConfig, defaultValue: R): R;
-export function getWorkspaceConfig<T = ExtensionConfig, K extends string = Extract<keyof T, string>, R = GetFieldType<T, K>>(key: K, defaultValue?: R) {
-  const extensionConfig = workspace.getConfiguration('laravel-pint');
+export function getWorkspaceConfig<T = ExtensionConfig, K extends string = Extract<keyof T, string>, R = GetFieldType<T, K>>(key: keyof ExtensionConfig, defaultValue: R, scope: ConfigurationScope): R;
+export function getWorkspaceConfig<T = ExtensionConfig, K extends string = Extract<keyof T, string>, R = GetFieldType<T, K>>(key: K, defaultValue?: R, scope?: ConfigurationScope) {
+  const extensionConfig = workspace.getConfiguration('laravel-pint', scope);
 
   const configByKey = {
     ...extensionConfig.inspect(key),

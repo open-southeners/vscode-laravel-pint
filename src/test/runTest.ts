@@ -91,7 +91,7 @@ async function main() {
        *
        * See `code --help` for possible arguments.
        */
-	      launchArgs: [playground.workspacePath, '--disable-extensions']
+      launchArgs: [playground.workspaceFilePath, '--disable-extensions']
 	    });
 
     

@@ -8,6 +8,8 @@ coverage
 .vscode-test
 playground/.vscode
 playground/workspace
+playground/monorepo-laravel
+playground/monorepo.code-workspace
 scripts/**
 !scripts/generate-rules-schema.mjs
 !scripts/generate-rules-schema.test.mjs

@@ -4,7 +4,7 @@ import { LoggingService } from './LoggingService';
 import { CommandResolver } from './CommandResolver';
 import PintEditService from './PintEditService';
 import { StatusBar } from './StatusBar';
-import { getWorkspaceConfig, onConfigChange } from './util';
+import { getWorkspaceConfig } from './util';
 
 export async function activate(context: ExtensionContext) {
   const loggingService = new LoggingService();
@@ -20,12 +20,6 @@ export async function activate(context: ExtensionContext) {
 
   if (getWorkspaceConfig('enableDebugLogs')) {
     loggingService.setOutputLevel("DEBUG");
-  }
-
-  if (!getWorkspaceConfig('enable')) {
-    context.subscriptions.push(onConfigChange(loggingService));
-
-    return;
   }
 
   const commandResolver = new CommandResolver(loggingService);

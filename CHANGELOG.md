@@ -6,6 +6,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+### Fixed
+
+- Respect resource-scoped Laravel Pint settings for each folder in multi-root workspaces and monorepos [#75]
+
 ## [2.4.0] - 2026-08-11
 
 ### Changed
