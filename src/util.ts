@@ -2,7 +2,7 @@ import { accessSync, constants, statSync } from "fs";
 import { platform } from "os";
 import path = require("path");
 import { glob } from "glob";
-import { commands, ConfigurationScope, MessageItem, window, workspace, WorkspaceFolder } from "vscode";
+import { commands, ConfigurationChangeEvent, ConfigurationScope, MessageItem, TextDocument, Uri, window, workspace, WorkspaceFolder } from "vscode";
 import { LoggingService } from "./LoggingService";
 import { RESTART_TO_ENABLE } from "./message";
 import { ExtensionConfig } from "./types";
@@ -50,6 +50,24 @@ export function canExecuteFile(file: string) {
   }
 }
 
+export function isBladeFile(documentOrUri: TextDocument | Uri) {
+  const documentUri = 'uri' in documentOrUri ? documentOrUri.uri : documentOrUri;
+
+  return documentUri.fsPath.toLowerCase().endsWith('.blade.php');
+}
+
+export function isBladeFormattingEnabled(scope: Uri) {
+  return getWorkspaceConfig('formatBlade', false, scope);
+}
+
+export function isPintDocument(document: TextDocument) {
+  if (isBladeFile(document)) {
+    return isBladeFormattingEnabled(document.uri);
+  }
+
+  return document.languageId === 'php';
+}
+
 export function isRelativeTo(from: string, to: string) {
   const relative = path.relative(from, to);
 
@@ -66,10 +84,10 @@ export async function resolvePathFromWorkspaces(pattern: string, relativeTo: Wor
   return matchedPaths;
 }
 
-export function onConfigChange(loggingService: LoggingService, onChanged?: () => void) {
+export function onConfigChange(loggingService: LoggingService, onChanged?: (event: ConfigurationChangeEvent) => void) {
   return workspace.onDidChangeConfiguration(async (event) => {
     if (event.affectsConfiguration("laravel-pint")) {
-      onChanged?.();
+      onChanged?.(event);
     }
 
     if (event.affectsConfiguration("laravel-pint.enable")) {

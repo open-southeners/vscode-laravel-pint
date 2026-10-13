@@ -22,8 +22,10 @@ composer require laravel/pint --dev
 ## Features
 
 - `pint.json` autocompletion and validation
-- Formatter for PHP files that uses Laravel Pint locally, globally, through plain Docker containers, or within Docker using [Laravel Sail](https://laravel.com/docs/12.x/sail)
-- Format workspace files command to format all **current active workspace PHP files**
+- Formatter for PHP and Blade files that uses Laravel Pint locally, globally, through plain Docker containers, or within Docker using [Laravel Sail](https://laravel.com/docs/12.x/sail)
+- Format workspace files command to format all **current active workspace PHP and Blade files**
+
+Blade formatting is opt-in: enable `laravel-pint.formatBlade` (per workspace folder) to format `*.blade.php` files and include them when formatting the workspace. It requires Laravel Pint 1.30.0 or newer, which formats Blade through Prettier, so Node.js must be available wherever Pint runs (including Docker and Sail containers). The extension checks that the resolved Pint executable supports `--blade` and skips Blade files with older releases.
 
 ## Docker
 

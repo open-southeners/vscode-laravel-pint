@@ -18,18 +18,68 @@ export interface DockerExecutionContext {
 }
 
 export interface PintCommandOptions {
+  args?: string[];
+  blade?: boolean;
   input?: string;
   isFormatWorkspace?: boolean;
   stdinFilename?: string;
 }
 
 export class CommandResolver {
+  private bladeSupportCache = new Map<string, Promise<boolean>>();
   private globCache = new Map<string, string[]>();
 
   constructor(private loggingService: LoggingService) { }
 
   public clearCache() {
+    this.bladeSupportCache.clear();
     this.globCache.clear();
+  }
+
+  public supportsBladeFormatting(workspaceFolder: WorkspaceFolder): Promise<boolean> {
+    const key = workspaceFolder.uri.fsPath;
+    const cached = this.bladeSupportCache.get(key);
+
+    if (cached) {
+      return cached;
+    }
+
+    const detection = this.detectBladeFormattingSupport(workspaceFolder);
+    this.bladeSupportCache.set(key, detection);
+
+    return detection;
+  }
+
+  private async detectBladeFormattingSupport(workspaceFolder: WorkspaceFolder) {
+    try {
+      const options: PintCommandOptions = { args: ['--help'] };
+      const command = getWorkspaceConfig('runInDocker', false, workspaceFolder.uri)
+        ? await this.getPintCommandWithinDocker(workspaceFolder, options)
+        : getWorkspaceConfig('runInLaravelSail', false, workspaceFolder.uri)
+          ? await this.getPintCommandWithinSail(workspaceFolder, options)
+          : await this.getPintCommand(workspaceFolder, options);
+
+      if (!command) {
+        return false;
+      }
+
+      const result = await command.run();
+      const supported = /(^|\s)--blade(?:\s|$)/m.test(`${result.stdout}\n${result.stderr}`);
+
+      this.loggingService.logDebug('Detected Pint Blade formatting support.', {
+        supported,
+        workspace: workspaceFolder.uri.fsPath
+      });
+
+      return supported;
+    } catch (error) {
+      this.loggingService.logWarning('Unable to detect Pint Blade formatting support.', {
+        workspace: workspaceFolder.uri.fsPath
+      });
+      this.loggingService.logDebug('Pint Blade support detection error.', error);
+
+      return false;
+    }
   }
 
   private normalizeContainerPath(containerPath: string) {
@@ -135,13 +185,13 @@ export class CommandResolver {
     workspaceFolder: WorkspaceFolder,
     options: PintCommandOptions = {}
   ): Promise<CommandRunner | undefined> {
-    const { input } = options;
+    const { args, input } = options;
     if (!workspace.isTrusted) {
       this.loggingService.logDebug(UNTRUSTED_WORKSPACE_USING_GLOBAL_PINT);
 
       // This doesn't respect fallbackToGlobal config
       return this.getGlobalPintCommand(
-        await this.getPintConfigAsArgs(workspaceFolder, options)
+        args ?? await this.getPintConfigAsArgs(workspaceFolder, options)
       );
     }
 
@@ -173,7 +223,7 @@ export class CommandResolver {
       });
 
       return this.getGlobalPintCommand(
-        await this.getPintConfigAsArgs(workspaceFolder, options)
+        args ?? await this.getPintConfigAsArgs(workspaceFolder, options)
       );
     }
 
@@ -197,7 +247,7 @@ export class CommandResolver {
 
     return CommandRunner.phpScript(
       cmd,
-      await this.getPintConfigAsArgs(workspaceFolder, options),
+      args ?? await this.getPintConfigAsArgs(workspaceFolder, options),
       cwd
     );
   }
@@ -233,7 +283,7 @@ export class CommandResolver {
     workspaceFolder: WorkspaceFolder,
     options: PintCommandOptions = {}
   ): Promise<CommandRunner | undefined> {
-    const { input } = options;
+    const { args: commandArgs, input } = options;
     if (!workspace.isTrusted) {
       this.loggingService.logDebug(UNTRUSTED_WORKSPACE_ERROR);
 
@@ -259,7 +309,7 @@ export class CommandResolver {
       return;
     }
 
-    const args = await this.getPintConfigAsArgs(workspaceFolder, options);
+    const args = commandArgs ?? await this.getPintConfigAsArgs(workspaceFolder, options);
     const workspaceRoot = workspaceFolder.uri.fsPath;
 
     // Convert absolute host paths to workspace-relative for container access
@@ -288,14 +338,14 @@ export class CommandResolver {
     workspaceFolder: WorkspaceFolder,
     options: PintCommandOptions = {}
   ): Promise<CommandRunner | undefined> {
-    const { input, stdinFilename } = options;
+    const { args: commandArgs, input, stdinFilename } = options;
     const dockerContext = this.getDockerExecutionContext(workspaceFolder);
 
     if (!dockerContext) {
       return;
     }
 
-    const args = await this.getPintConfigAsArgs(workspaceFolder, options);
+    const args = commandArgs ?? await this.getPintConfigAsArgs(workspaceFolder, options);
     const containerArgs = args.map((arg) => this.toContainerPath(arg, dockerContext.workspaceRoot, dockerContext.containerRootPath));
 
     this.loggingService.logInfo('Resolved Docker Pint command.', {
@@ -316,7 +366,7 @@ export class CommandResolver {
   }
 
   private async getPintConfigAsArgs(workspaceFolder: WorkspaceFolder, options: PintCommandOptions = {}) {
-    const { input, isFormatWorkspace = false, stdinFilename } = options;
+    const { blade = false, input, isFormatWorkspace = false, stdinFilename } = options;
     const executableArgs: Record<string, string> = {};
     const configPath = getWorkspaceConfig('configPath', CONFIG_FILE_NAME, workspaceFolder.uri);
 
@@ -337,6 +387,10 @@ export class CommandResolver {
     }
 
     const executableArgsAsArray = Object.entries(executableArgs).filter(arg => !!arg[1]).flat();
+
+    if (blade) {
+      executableArgsAsArray.push('--blade');
+    }
 
     executableArgsAsArray.push(input || workspaceFolder.uri.fsPath);
 

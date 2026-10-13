@@ -11,5 +11,6 @@
   "ext.config.dockerContainerRootPath": "Ruta absoluta del workspace montado dentro del contenedor, únicamente si `#laravel-pint.runInDocker#` está activado. Ejemplo: `/var/www/html`.",
   "ext.config.runInLaravelSail": "Ejecutar formateo desde Docker usando [Laravel Sail](https://laravel.com/docs/12.x/sail). Esto ignorará el ajuste `#laravel-pint.executablePath#`.",
   "ext.config.sailExecutablePath": "**Ruta relativa al workspace** hacia el ejecutable de Laravel Sail, únicamente usando si está activo `#laravel-pint.runInLaravelSail#`. Por defecto: `vendor/bin/sail`.",
-  "ext.config.dirtyOnly": "Activar/desactivar el formateo solo sobre archivos modificados del workspace activo. Solo funciona con el comando `Format active workspace files using Laravel Pint`."
+  "ext.config.dirtyOnly": "Activar/desactivar el formateo solo sobre archivos modificados del workspace activo. Solo funciona con el comando `Format active workspace files using Laravel Pint`.",
+  "ext.config.formatBlade": "Activar/desactivar el formateo de archivos Blade (`*.blade.php`), incluyéndolos también al formatear el workspace activo. Requiere Laravel Pint 1.30.0 o superior, que formatea Blade mediante Prettier (Node.js debe estar disponible donde se ejecute Pint). Por defecto: `false`."
 }

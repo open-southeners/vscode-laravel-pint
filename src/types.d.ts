@@ -14,6 +14,7 @@ export interface ExtensionConfig {
   runInLaravelSail: boolean
   sailExecutablePath: string
   dirtyOnly: boolean
+  formatBlade: boolean
 }
 
 export interface ExtensionFormattingOptions {
