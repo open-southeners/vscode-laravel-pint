@@ -81,6 +81,45 @@ require __DIR__ . '/${relativeProxyPath}';
 `;
 }
 
+function bladeWrapperSource() {
+  return `#!/usr/bin/env php
+<?php
+
+$workspacePath = dirname(__DIR__);
+$arguments = array_slice($_SERVER['argv'], 1);
+
+if ($arguments === ['--help']) {
+    fwrite(STDOUT, "  --blade  Enable Blade formatting\n");
+    exit(0);
+}
+
+$runtimeDirectory = $workspacePath.DIRECTORY_SEPARATOR.'.runtime';
+
+if (! is_dir($runtimeDirectory)) {
+    mkdir($runtimeDirectory, 0777, true);
+}
+
+file_put_contents(
+    $runtimeDirectory.DIRECTORY_SEPARATOR.'blade.json',
+    json_encode([
+        'mode' => 'blade',
+        'args' => $arguments,
+        'cwd' => getcwd(),
+    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+);
+
+$content = stream_get_contents(STDIN);
+
+if ($content !== '') {
+    fwrite(STDOUT, str_replace(
+        '<div><span>{{ $name }}</span></div>',
+        '<div>'.PHP_EOL.'    <span>{{ $name }}</span>'.PHP_EOL.'</div>',
+        $content
+    ));
+}
+`;
+}
+
 function sailWrapperSource() {
   return `#!/usr/bin/env php
 <?php
@@ -454,6 +493,7 @@ export async function setupPlayground(): Promise<PreparedPlayground> {
     ensureDirectory(binPath),
     ensureDirectory(workspacePath('config')),
     ensureDirectory(workspacePath('app-modules')),
+    ensureDirectory(workspacePath('resources', 'views')),
     ensureDirectory(workspacePath('src')),
     ensureDirectory(toolsPath),
     ensureDirectory(vendorBinPath),
@@ -474,6 +514,7 @@ export async function setupPlayground(): Promise<PreparedPlayground> {
   await writeExecutable(workspacePath('tools', 'pint-proxy.php'), proxySource());
   await writeExecutable(workspacePath('vendor', 'bin', 'pint'), wrapperSource('local', '../../tools/pint-proxy.php'));
   await writeExecutable(workspacePath('tools', 'pint-custom'), wrapperSource('custom', 'pint-proxy.php'));
+  await writeExecutable(workspacePath('tools', 'pint-blade'), bladeWrapperSource());
   await writeExecutable(workspacePath('bin', 'docker'), dockerWrapperSource());
   await writeExecutable(workspacePath('bin', 'pint'), wrapperSource('global', '../tools/pint-proxy.php'));
   await writeExecutable(workspacePath('vendor', 'bin', 'sail'), sailWrapperSource());

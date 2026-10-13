@@ -48,6 +48,14 @@ function save_example()
 }
 `;
 
+export const BLADE_SOURCE = `<div><span>{{ $name }}</span></div>
+`;
+
+export const BLADE_EXPECTED = `<div>
+    <span>{{ $name }}</span>
+</div>
+`;
+
 export const WORKSPACE_FIRST_SOURCE = `<?php
 
 function workspace_first( ) {return ['first'=>'value'];}
@@ -123,6 +131,7 @@ export async function applyExtensionConfiguration(overrides: Partial<{
   dockerExecutablePath: string;
   executablePath: string;
   fallbackToGlobalBin: boolean;
+  formatBlade: boolean;
   runInDocker: boolean;
   runInLaravelSail: boolean;
   sailExecutablePath: string;
@@ -142,6 +151,7 @@ export async function applyExtensionConfiguration(overrides: Partial<{
   await config.update('dockerExecutablePath', overrides.dockerExecutablePath ?? 'docker', vscode.ConfigurationTarget.WorkspaceFolder);
   await config.update('executablePath', overrides.executablePath ?? 'vendor/bin/pint', vscode.ConfigurationTarget.WorkspaceFolder);
   await config.update('fallbackToGlobalBin', overrides.fallbackToGlobalBin ?? true, vscode.ConfigurationTarget.WorkspaceFolder);
+  await config.update('formatBlade', overrides.formatBlade ?? false, vscode.ConfigurationTarget.WorkspaceFolder);
   await config.update('runInDocker', overrides.runInDocker ?? false, vscode.ConfigurationTarget.WorkspaceFolder);
   await config.update('runInLaravelSail', overrides.runInLaravelSail ?? false, vscode.ConfigurationTarget.WorkspaceFolder);
   await config.update('sailExecutablePath', overrides.sailExecutablePath ?? 'vendor/bin/sail', vscode.ConfigurationTarget.WorkspaceFolder);
@@ -171,6 +181,19 @@ export async function openPhpDocument(relativePath: string) {
   return document;
 }
 
+export async function openBladeDocument(relativePath: string) {
+  const document = await openPhpDocument(relativePath);
+  // The test host has no Blade extension installed. Using another registered
+  // language verifies that the filename selector works independently of the
+  // language id contributed by whichever Blade extension a user has installed.
+  const bladeDocument = await vscode.languages.setTextDocumentLanguage(document, 'html');
+
+  await vscode.window.showTextDocument(bladeDocument);
+  await delay(300);
+
+  return bladeDocument;
+}
+
 export async function replaceDocumentContents(document: vscode.TextDocument, content: string) {
   const editor = vscode.window.activeTextEditor;
 
@@ -191,7 +214,10 @@ export async function readWorkspaceFile(relativePath: string) {
 }
 
 export async function writeWorkspaceFile(relativePath: string, content: string) {
-  await fs.writeFile(workspaceFile(relativePath), normalizeNewlines(content), 'utf8');
+  const filePath = workspaceFile(relativePath);
+
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
+  await fs.writeFile(filePath, normalizeNewlines(content), 'utf8');
 }
 
 export async function waitForFileContents(relativePath: string, expected: string, timeoutMs = 15000) {
@@ -228,7 +254,7 @@ export async function waitForFormattingEdits(document: vscode.TextDocument, time
   return lastEdits ?? [];
 }
 
-export async function readRuntimeMarker(mode: 'custom' | 'docker' | 'global' | 'local' | 'sail') {
+export async function readRuntimeMarker(mode: 'blade' | 'custom' | 'docker' | 'global' | 'local' | 'sail') {
   const runtimeMarkerPath = workspaceFile('.runtime', `${mode}.json`);
 
   await waitForCondition(
