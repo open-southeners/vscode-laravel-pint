@@ -6,6 +6,11 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+### Added
+
+- **Blade formatting**: opt in with the `laravel-pint.formatBlade` setting to format `*.blade.php` files and include them when formatting the workspace. Requires Laravel Pint 1.30.0 or newer (and Node.js where Pint runs); older Pint releases skip Blade files and keep formatting PHP as before [#94]
+- `pint.json` autocompletion for the `Pint/laravel_blade` rule
+
 ## [2.4.1] - 2026-08-11
 
 ### Fixed
