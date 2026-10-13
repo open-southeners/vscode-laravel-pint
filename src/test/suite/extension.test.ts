@@ -3,11 +3,14 @@ import * as vscode from 'vscode';
 import {
   activateExtension,
   applyExtensionConfiguration,
+  BLADE_EXPECTED,
+  BLADE_SOURCE,
   closeAllEditors,
   CUSTOM_EXPECTED,
   DEFAULT_EXPECTED,
   DEFAULT_SOURCE,
   openPhpDocument,
+  openBladeDocument,
   monorepoLaravelFile,
   readRuntimeMarker,
   replaceDocumentContents,
@@ -15,6 +18,7 @@ import {
   resetWorkspace,
   waitForDocumentContents,
   waitForFileContents,
+  waitForFormattingEdits,
   WORKSPACE_FIRST_EXPECTED,
   WORKSPACE_SECOND_EXPECTED,
   WORKSPACE_SECOND_SOURCE,
@@ -100,6 +104,80 @@ suite('Laravel Pint Extension', function () {
 
     assert.ok(marker.args.includes('--config'));
     assert.ok(marker.args.some((arg) => normalizePathSeparators(arg).endsWith('config/custom-pint.json')));
+  });
+
+  test('provides Blade formatting when enabled and Pint advertises --blade support', async () => {
+    await applyExtensionConfiguration({
+      executablePath: 'tools/pint-blade',
+      fallbackToGlobalBin: false,
+      formatBlade: true
+    });
+    await writeWorkspaceFile('resources/views/example.blade.php', BLADE_SOURCE);
+
+    const document = await openBladeDocument('resources/views/example.blade.php');
+    const edits = await waitForFormattingEdits(document);
+
+    assert.ok(edits.length > 0);
+
+    const marker = await readRuntimeMarker('blade');
+
+    assert.ok(marker.args.includes('--blade'));
+    assert.ok(marker.args.includes('-'));
+    assert.ok(marker.args.includes('--stdin-filename'));
+    assert.ok(marker.args.some((arg) => normalizePathSeparators(arg).endsWith('/resources/views/example.blade.php')));
+
+    await vscode.commands.executeCommand('laravel-pint.format');
+    await waitForDocumentContents(document, BLADE_EXPECTED);
+  });
+
+  test('leaves Blade files and workspace formatting untouched when Blade formatting is disabled', async () => {
+    await applyExtensionConfiguration({
+      executablePath: 'tools/pint-blade',
+      fallbackToGlobalBin: false
+    });
+    await writeWorkspaceFile('resources/views/disabled.blade.php', BLADE_SOURCE);
+
+    const document = await openBladeDocument('resources/views/disabled.blade.php');
+    await vscode.commands.executeCommand('laravel-pint.format');
+
+    assert.strictEqual(document.getText(), BLADE_SOURCE);
+
+    await openPhpDocument('src/workspace-first.php');
+    await vscode.commands.executeCommand('laravel-pint.formatProject');
+
+    const marker = await readRuntimeMarker('blade');
+
+    assert.ok(!marker.args.includes('--blade'));
+  });
+
+  test('leaves Blade files untouched when using an older Pint release', async () => {
+    await applyExtensionConfiguration({ formatBlade: true });
+    await writeWorkspaceFile('resources/views/legacy.blade.php', BLADE_SOURCE);
+
+    const document = await openBladeDocument('resources/views/legacy.blade.php');
+    await vscode.commands.executeCommand('laravel-pint.format');
+
+    assert.strictEqual(document.getText(), BLADE_SOURCE);
+
+    const marker = await readRuntimeMarker('local');
+
+    assert.deepStrictEqual(marker.args, ['--help']);
+  });
+
+  test('enables Blade when formatting a workspace with a compatible Pint release', async () => {
+    await applyExtensionConfiguration({
+      executablePath: 'tools/pint-blade',
+      fallbackToGlobalBin: false,
+      formatBlade: true
+    });
+    await openPhpDocument('src/workspace-first.php');
+
+    await vscode.commands.executeCommand('laravel-pint.formatProject');
+
+    const marker = await readRuntimeMarker('blade');
+
+    assert.ok(marker.args.includes('--blade'));
+    assert.ok(marker.args.some((arg) => normalizePathSeparators(arg).endsWith('/playground/workspace')));
   });
 
   test('uses folder-scoped executable settings in a multi-root monorepo (#75)', async () => {
