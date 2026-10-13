@@ -48,6 +48,10 @@
       "type": "object",
       "description": "Customise rules used for the formatting, this replaces the ones of the preset",
       "properties": {
+        "Pint/laravel_blade": {
+          "description": "Formats Laravel Blade templates using Pint's Blade formatter.",
+          "type": "boolean"
+        },
         "align_multiline_comment": {
           "description": "Each line of multi-line DocComments must have an asterisk [PSR-5] and must be aligned with the first one.",
           "oneOf": [
