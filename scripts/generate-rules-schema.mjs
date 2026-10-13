@@ -12,6 +12,12 @@ const REQUEST_HEADERS = {
   "Accept": "application/vnd.github+json",
   "User-Agent": "open-southeners-vscode-laravel-pint-schema-generator"
 };
+export const PINT_RULES = {
+  "Pint/laravel_blade": {
+    description: "Formats Laravel Blade templates using Pint's Blade formatter.",
+    type: "boolean"
+  }
+};
 
 async function fetchJson(url) {
   const response = await fetch(url, { headers: REQUEST_HEADERS });
@@ -294,7 +300,7 @@ async function main() {
     getLatestPintPresets()
   ]);
 
-  const rulesProperties = {};
+  const rulesProperties = { ...PINT_RULES };
 
   Object.entries(configuratorData.fixers).forEach(rule => {
     rulesProperties[rule[0]] = ruleIntoJsonSchemaProperty(rule[1]);

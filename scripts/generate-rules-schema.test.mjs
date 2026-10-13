@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { ruleIntoJsonSchemaProperty, schemaFromType } from "./generate-rules-schema.mjs";
+import { PINT_RULES, ruleIntoJsonSchemaProperty, schemaFromType } from "./generate-rules-schema.mjs";
+
+test("includes Pint's Blade rule in the generated schema", () => {
+  assert.deepEqual(PINT_RULES["Pint/laravel_blade"], {
+    description: "Formats Laravel Blade templates using Pint's Blade formatter.",
+    type: "boolean"
+  });
+});
 
 test("maps PHP array types to JSON Schema arrays", () => {
   assert.deepEqual(schemaFromType("int[]"), {
