@@ -11,5 +11,6 @@
   "ext.config.dockerContainerRootPath": "Absolute workspace mount path inside the container, only used if `#laravel-pint.runInDocker#` is enabled. Example: `/var/www/html`.",
   "ext.config.runInLaravelSail": "Run formatting through Docker using [Laravel Sail](https://laravel.com/docs/12.x/sail). This will ignore `#laravel-pint.executablePath#`.",
   "ext.config.sailExecutablePath": "Path to Laravel Sail executable, only used if is enabled `#laravel-pint.runInLaravelSail#`. Default: `vendor/bin/sail`.",
-  "ext.config.dirtyOnly": "Enable/disable formatting only on **active workspace** dirty files. Only work with command `Format active workspace files using Laravel Pint`."
+  "ext.config.dirtyOnly": "Enable/disable formatting only on **active workspace** dirty files. Only work with command `Format active workspace files using Laravel Pint`.",
+  "ext.config.formatBlade": "Enable/disable formatting Blade (`*.blade.php`) files, including them when formatting the active workspace. Requires Laravel Pint 1.30.0 or newer, which formats Blade through Prettier (Node.js must be available wherever Pint runs). Default: `false`."
 }

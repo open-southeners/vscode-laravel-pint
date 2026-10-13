@@ -22,10 +22,10 @@ import {
   SOMETHING_WENT_WRONG_FINDING_EXECUTABLE,
   UPDATING_EXTENSION_EXCLUDE_PATTERNS
 } from "./message";
-import { CommandResolver } from "./CommandResolver";
+import { CommandResolver, PintCommandOptions } from "./CommandResolver";
 import { PintEditProvider } from "./PintEditProvider";
 import { FormatterStatus, StatusBar } from "./StatusBar";
-import { getWorkspaceConfig, onConfigChange, resolvePathFromWorkspaces } from "./util";
+import { getWorkspaceConfig, isBladeFile, isBladeFormattingEnabled, isPintDocument, onConfigChange, resolvePathFromWorkspaces } from "./util";
 import CommandRunner, { CommandRunResult } from "./CommandRunner";
 
 const pkg = require('../package.json');
@@ -35,7 +35,6 @@ const BASE_EXCLUDED_PATHS = [
   '_ide_helper_models.php',
   '_ide_helper.php',
   '.phpstorm.meta.php',
-  '*.blade.php',
   'storage',
   'bootstrap/cache',
   'node_modules',
@@ -51,6 +50,7 @@ const BASE_EXCLUDED_PATHS = [
 ];
 
 export default class PintEditService implements Disposable {
+  private bladeUnsupportedWarnings = new Set<string>();
   private formatterHandler: Disposable | undefined;
   private pintConfigWatchers = new Map<string, FileSystemWatcher>();
   private workspaceExcludedPaths = new Map<string, string[]>();
@@ -63,30 +63,45 @@ export default class PintEditService implements Disposable {
   ) { }
 
   public registerDisposables(): Disposable[] {
-    const configurationWatcher = onConfigChange(this.loggingService, async () => {
+    const configurationWatcher = onConfigChange(this.loggingService, async (event) => {
+      if (event.affectsConfiguration('laravel-pint.formatBlade')) {
+        this.registerFormatter();
+      }
+
       this.commandResolver.clearCache();
       this.resetWorkspaceState();
       await this.refreshActiveEditorState();
     });
 
-    const formatterSelectors = workspace.workspaceFolders?.map((workspaceFolder) => ({
-      language: "php",
-      pattern: new RelativePattern(workspaceFolder, '**/*.php')
-    })) ?? [{ language: "php", scheme: "file" as const }];
-
-    const formatterHandler = languages.registerDocumentFormattingEditProvider(
-      formatterSelectors,
-      new PintEditProvider(this.provideEdits)
-    );
-
     const textEditorChange = window.onDidChangeActiveTextEditor(
       this.handleActiveTextEditorChanged
     );
 
-    this.formatterHandler = formatterHandler;
+    this.registerFormatter();
     void this.handleActiveTextEditorChanged(window.activeTextEditor);
 
-    return [configurationWatcher, formatterHandler, textEditorChange];
+    return [configurationWatcher, textEditorChange];
+  }
+
+  private registerFormatter() {
+    this.formatterHandler?.dispose();
+
+    // Blade files are only claimed in folders that opted in, so other Blade
+    // formatters don't have to compete with this one by default.
+    const formatterSelectors = workspace.workspaceFolders?.flatMap((workspaceFolder) => [
+      {
+        language: "php",
+        pattern: new RelativePattern(workspaceFolder, '**/*.php')
+      },
+      ...(isBladeFormattingEnabled(workspaceFolder.uri)
+        ? [{ pattern: new RelativePattern(workspaceFolder, '**/*.blade.php') }]
+        : [])
+    ]) ?? [{ language: "php", scheme: "file" as const }];
+
+    this.formatterHandler = languages.registerDocumentFormattingEditProvider(
+      formatterSelectors,
+      new PintEditProvider(this.provideEdits)
+    );
   }
 
   public dispose = () => {
@@ -100,6 +115,7 @@ export default class PintEditService implements Disposable {
       watcher.dispose();
     }
 
+    this.bladeUnsupportedWarnings.clear();
     this.pintConfigWatchers.clear();
     this.workspaceExcludedPaths.clear();
     this.workspaceInitialization.clear();
@@ -210,17 +226,17 @@ export default class PintEditService implements Disposable {
       return;
     }
 
-    const isPhpDocument = document.languageId === "php";
+    const isSupportedDocument = isPintDocument(document);
     const workspaceFolder = workspace.getWorkspaceFolder(document.uri);
     const extensionEnabled = !workspaceFolder || getWorkspaceConfig('enable', true, workspaceFolder.uri);
     const documentExcluded = this.isDocumentExcluded(document);
 
-    if (isPhpDocument && extensionEnabled && !documentExcluded) {
+    if (isSupportedDocument && extensionEnabled && !documentExcluded) {
       this.statusBar.update(FormatterStatus.Ready);
       return;
     }
 
-    if (isPhpDocument && extensionEnabled && documentExcluded) {
+    if (isSupportedDocument && extensionEnabled && documentExcluded) {
       this.statusBar.update(FormatterStatus.Disabled);
       return;
     }
@@ -269,14 +285,33 @@ export default class PintEditService implements Disposable {
 
   private isDocumentExcluded(documentOrUri: TextDocument | Uri) {
     const documentUri = 'uri' in documentOrUri ? documentOrUri.uri : documentOrUri;
+
+    if (isBladeFile(documentUri) && !isBladeFormattingEnabled(documentUri)) {
+      return true;
+    }
+
     const excludedPaths = this.getWorkspaceExcludedPaths(documentUri);
 
     return excludedPaths.some((excludedPath) => this.matchesExcludedPath(documentUri.fsPath, excludedPath));
   }
 
+  private async supportsBladeFormatting(workspaceFolder: WorkspaceFolder) {
+    const supported = await this.commandResolver.supportsBladeFormatting(workspaceFolder);
+    const key = workspaceFolder.uri.fsPath;
+
+    if (!supported && !this.bladeUnsupportedWarnings.has(key)) {
+      this.bladeUnsupportedWarnings.add(key);
+      this.loggingService.logWarning('Blade formatting is enabled but requires Laravel Pint 1.30.0 or newer. Blade files will be skipped.', {
+        workspace: key
+      });
+    }
+
+    return supported;
+  }
+
   private async getWorkspaceCommand(
     workspaceFolder: WorkspaceFolder,
-    options: { input?: string; isFormatWorkspace?: boolean; stdinFilename?: string } = {}
+    options: PintCommandOptions = {}
   ) {
     if (this.isDockerModeEnabled(workspaceFolder)) {
       return this.commandResolver.getPintCommandWithinDocker(workspaceFolder, options);
@@ -450,8 +485,18 @@ export default class PintEditService implements Disposable {
       await this.ensureWorkspaceState(workspaceFolder);
     }
 
+    const blade = workspaceFolder && isBladeFormattingEnabled(workspaceFolder.uri) && (isFormatWorkspace || isBladeFile(file))
+      ? await this.supportsBladeFormatting(workspaceFolder)
+      : false;
+
+    if (workspaceFolder && isBladeFile(file) && !blade) {
+      this.statusBar.update(FormatterStatus.Disabled);
+
+      return false;
+    }
+
     const command = workspaceFolder
-      ? await this.getWorkspaceCommand(workspaceFolder, { input: filePath, isFormatWorkspace })
+      ? await this.getWorkspaceCommand(workspaceFolder, { blade, input: filePath, isFormatWorkspace })
       : await this.commandResolver.getGlobalPintCommand([filePath]);
 
     if (!command) {
@@ -484,6 +529,14 @@ export default class PintEditService implements Disposable {
       return [];
     }
 
+    const blade = isBladeFile(document);
+
+    if (blade && !await this.supportsBladeFormatting(workspaceFolder)) {
+      this.statusBar.update(FormatterStatus.Disabled);
+
+      return [];
+    }
+
     const documentText = document.getText();
 
     this.loggingService.logInfo('Formatting document through Pint stdin.', {
@@ -492,6 +545,7 @@ export default class PintEditService implements Disposable {
     });
 
     const command = await this.getWorkspaceCommand(workspaceFolder, {
+      blade,
       input: '-',
       stdinFilename: document.uri.fsPath
     });

@@ -151,6 +151,12 @@
           "type": "boolean",
           "markdownDescription": "%ext.config.dirtyOnly%",
           "scope": "resource"
+        },
+        "laravel-pint.formatBlade": {
+          "default": false,
+          "type": "boolean",
+          "markdownDescription": "%ext.config.formatBlade%",
+          "scope": "resource"
         }
       }
     },
